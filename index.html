@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>이 동네 남자들은 왜 이래?</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#29352e;background:#f7f3ed}*{box-sizing:border-box}body{margin:0}.wrap{max-width:760px;margin:auto;padding:20px}header{padding:14px 0;border-bottom:1px solid #ddd}h1{font-size:24px;margin:8px 0}h2{font-size:19px}small,.muted{color:#64736a}section{background:#fff;border:1px solid #e5e1d9;border-radius:18px;padding:20px;margin-top:18px}label{display:block;margin:12px 0 6px;font-weight:650}input,select,button{font:inherit;border-radius:11px;padding:12px;width:100%}input,select{border:1px solid #ccc;background:#fff}button{background:#355e4a;color:#fff;border:0;cursor:pointer;margin-top:10px}button.secondary{background:#e7ede8;color:#284734}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{width:auto;flex:1;min-width:105px}.hide{display:none!important}.bubble{padding:12px 14px;border-radius:13px;background:#f0f4f0;margin:10px 0;white-space:pre-wrap}.bubble.me{background:#e7ecfa}.bubble strong{display:block;font-size:12px;margin-bottom:5px}.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.status{font-size:13px;color:#627366}.suggest button{font-size:13px}.error{color:#a33;font-size:13px}#log{max-height:420px;overflow:auto}footer{font-size:12px;color:#718077;padding:20px 0}
+:root{font-family:system-ui,-apple-system,sans-serif;color:#29352e;background:#f7f3ed}*{box-sizing:border-box}body{margin:0}.wrap{max-width:760px;margin:auto;padding:14px}header{padding:14px 0;border-bottom:1px solid #ddd}h1{font-size:clamp(20px,5vw,24px);margin:8px 0}h2{font-size:19px}small,.muted{color:#64736a}section{background:#fff;border:1px solid #e5e1d9;border-radius:18px;padding:15px;margin-top:14px}label{display:block;margin:12px 0 6px;font-weight:650}input,select,button{font:inherit;border-radius:11px;padding:12px;width:100%}input,select{border:1px solid #ccc;background:#fff}button{background:#355e4a;color:#fff;border:0;cursor:pointer;margin-top:10px}button.secondary{background:#e7ede8;color:#284734}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{width:auto;flex:1;min-width:105px}.hide{display:none!important}.bubble{padding:10px 12px;border-radius:13px;background:#f0f4f0;margin:8px 0;white-space:pre-wrap;font-size:15px;line-height:1.6}.bubble.me{background:#e7ecfa}.bubble strong{display:block;font-size:12px;margin-bottom:5px}.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.status{font-size:13px;color:#627366}.suggest button{font-size:13px;line-height:1.4;padding:9px 10px;min-width:calc(50% - 8px)}.error{color:#a33;font-size:13px}#log{max-height:420px;overflow:auto}footer{font-size:12px;color:#718077;padding:20px 0}
 </style></head><body><div class="wrap"><header><small>연화동 로맨틱 코미디 · 무료 시연 v0.3</small><h1>이 동네 남자들은 왜 이래?</h1></header>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="19" max="99" value="27"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><label for="personality">성격</label><select id="personality"><option>솔직함</option><option>차분함</option><option>장난기 많음</option><option>신중함</option></select><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><div id="log" aria-live="polite"></div><div class="suggest row" id="suggest"></div><label for="message">대사 또는 행동</label><input id="message" placeholder="하고 싶은 말을 입력하세요"><button id="send" type="button">말하기</button><div class="row"><button class="secondary" id="next" type="button">다음 장소로</button><button class="secondary" id="reset" type="button">처음부터</button></div><p class="status">규칙 기반 대화 시연입니다. 실제 생성형 AI는 연결되어 있지 않습니다.</p></section><footer>저장 데이터는 이 브라우저에만 보관됩니다. API 비용 0원.</footer></div>
@@ -20,13 +20,36 @@ let state=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function add(who,text,me=false){const el=document.createElement('div');el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;el.append(title,body);$('log').append(el);$('log').scrollTop=$('log').scrollHeight}
 function scene(){const s=scenes[state.scene];$('where').textContent=s.place;$('clock').textContent='DAY 01 · '+['14:00','14:20','16:00','17:00','21:00'][state.scene];$('progress').textContent=(state.scene+1)+' / '+scenes.length+' 장면';$('log').innerHTML='';add('이야기',s.intro);$('suggest').innerHTML='';s.suggest.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=t;b.addEventListener('click',()=>reply(t));$('suggest').append(b)});$('next').textContent=state.scene===scenes.length-1?'첫날 마치기':'다음 장소로';save()}
-function reply(t){t=String(t||'').trim();if(!t)return;add(state.name,t,true);const n=state.scene;let answer='';
-if(n===0){if(/훔|도둑|농담|장난/.test(t))answer='서이준: “...농담이시죠?” 그가 택배를 황급히 집어 든다.';else if(/막|못 들어|불편|치워|왜/.test(t))answer='서이준: “아, 문을 막았네요. 그건 제 잘못입니다. 죄송합니다.”';else if(/죄송|미안|옮기/.test(t))answer='서이준: “아뇨, 제가 잘못 둔 거죠. 들어가세요.”';else answer='서이준: “아무튼 제가 치울게요.” 그가 택배를 들어 올린다.'}
-else if(n===1){answer=/하자|고장|수리/.test(t)?'백지한: “하자 있으면 바로 연락 주세요. 이번엔 진짜 바로요.” 서이준이 옆에서 그를 쳐다본다.':/아는|친|사이/.test(t)?'백지한: “동네에서 오래 봤죠.” 서이준: “너만 오래 봤다고 생각하는 거야.”':'백지한: “여기 적응 금방 하실 거예요. 다들 좀 시끄럽긴 하지만.”'}
-else if(n===2){answer=/외상|돈|갚/.test(t)?'한시우: “처음 보는 사이에 너무 정확한 지적 아닌가요?” 편의점 직원이 고개를 끄덕인다.':/어떻게|누구|알/.test(t)?'한시우: “부동산 형이랑 같이 있는 거 봤어요. 저 수상한 사람 아니에요.”':'한시우: “여기 동네 생각보다 재밌어요. 뭐, 저만 그런 걸 수도 있고.”'}
-else if(n===3){answer=/외상|돈/.test(t)?'강도윤: “시우 씨는 동네 경제에 빚으로 기여하거든요.” 한시우: “그걸 꼭 그렇게 말해야 해?”':/친|사이/.test(t)?'강도윤: “오래 봤죠.” 한시우: “형, 그 말투 되게 서운하다?”':'강도윤: “편하게 계세요. 단, 저 친구 말은 절반만 믿으시고요.”'}
-else{answer=/감사|고맙/.test(t)?'203호 문 너머로 작은 인기척이 난다. “...별거 아닙니다.”':'오늘은 정말 정신없는 하루였다. 그래도 이 동네, 조금은 재미있을지도.'}
-add(scenes[n].who,answer);state.history.push({scene:n,input:t,response:answer});save()}
+function reply(t){
+t=String(t||'').trim();if(!t)return;
+add(state.name,t,true);
+const n=state.scene,s=scenes[n],previous=state.history.filter(x=>x.scene===n),count=previous.length;
+const has=(...words)=>words.some(w=>t.includes(w));
+let answer='',intent='other';
+if(has('누구','이름','소개','뉘신','정체'))intent='identity';
+else if(has('왜','어떻게','어째서','무슨','뭔데'))intent='why';
+else if(has('안녕','반가','처음 뵙'))intent='greeting';
+else if(has('고마','감사'))intent='thanks';
+else if(has('죄송','미안'))intent='apology';
+else if(has('택배','문을 막','못 들어','치워','옮기'))intent='parcel';
+else if(has('외상','돈','갚'))intent='debt';
+else if(has('친해','아는 사이','친구','동창'))intent='relationship';
+else if(has('집','하자','고장','수리'))intent='home';
+else if(has('훔','도둑','농담','장난'))intent='joke';
+const responses=[
+{identity:['“203호 사는 서이준입니다. ...아까 택배 때문에 인사도 못 했네요.”','“서이준이요. 옆집 사람입니다. 다른 궁금한 건요?”'],why:['“택배를 제가 잘못 둬서요. 혹시 다른 걸 물으신 건가요?”'],parcel:['“아, 문을 막았네요. 제 잘못입니다. 죄송합니다.”','“네, 택배는 치웠습니다. 다음부터 주의할게요.”'],apology:['“아뇨. 제가 먼저 잘못했으니까요.”'],joke:['“...농담이시죠?” 그가 택배를 자기 쪽으로 끌어당긴다.'],greeting:['“안녕하세요. 203호입니다.”'],thanks:['“별말씀을요.”'],other:['“네? 무슨 말씀이신지 조금 더 설명해 주시겠어요?”','“제가 이해를 잘 못 했습니다. 다시 말씀해 주실래요?”']},
+{identity:['“연화부동산 실장 백지한입니다. 집 계약할 때 뵀죠?”'],relationship:['“이준이 형이랑은 오래 알았어요. 형은 인정 안 하겠지만요.”'],home:['“집에 문제 있으면 연락 주세요. 이번엔 바로 처리할게요.”'],why:['“무슨 일인지 좀 더 자세히 말씀해 주실래요?”'],greeting:['“다시 뵈니까 반갑네요!”'],other:['“그런 얘기는 처음 듣는데요? 조금만 더 말해 주세요.”']},
+{identity:['“한시우요. 스물여섯. 이 동네 자주 출몰하는 사람?”','“아, 이름을 안 말했네. 한시우예요. 수상한 사람은 아니고요.”'],why:['“202호요? 부동산 형이랑 있는 걸 봤어요. 동네가 좁아서요.”'],debt:['“아니, 처음 보는 사이에 외상 얘기부터 하시네.”','“갚을 거예요. 진짜로. ...언젠가는.”'],greeting:['“오, 안녕하세요. 이사 잘했어요?”'],other:['“잠깐, 그건 무슨 뜻이에요? 다시 말해 봐요.”','“흠, 제가 못 알아들었어요. 좀 더 구체적으로?”']},
+{identity:['“강도윤입니다. 여기 카페 사장이에요.”'],debt:['“시우 씨는 우리 가게 단골이자 장기 미수금 고객입니다.” 한시우가 항의한다. “형!”'],relationship:['“오래 본 사이죠. 시우는 자기가 제 동생인 줄 알아요.”'],thanks:['“맛있게 드시면 됐죠. 다음엔 정가입니다.”'],greeting:['“어서 오세요. 이사 첫날은 어떠셨어요?”'],other:['“흥미로운데요. 조금 더 얘기해 주실래요?”']},
+{identity:['“203호 서이준입니다.” 문 너머에서 짧은 대답이 들린다.'],thanks:['문 너머로 인기척이 난다. “...별거 아닙니다.”'],other:['오늘은 정말 정신없는 하루였다. 조금은 재미있는 동네일지도 모른다.']}
+];
+const options=responses[n][intent]||responses[n].other;
+const same=previous.filter(x=>x.intent===intent).length;
+answer=options[Math.min(same,options.length-1)];
+add(s.who,answer);
+state.history.push({scene:n,input:t,response:answer,intent});
+save();
+}
 function start(){const name=$('name').value.trim();const age=Number($('age').value);if(!name){$('setupError').textContent='이름을 입력해 주세요.';return}if(!Number.isInteger(age)||age<19||age>99){$('setupError').textContent='나이는 19세부터 99세까지 입력해 주세요.';return}state={name,age,job:$('job').value,personality:$('personality').value,scene:0,history:[]};$('setup').classList.add('hide');$('game').classList.remove('hide');scene()}
 $('start').addEventListener('click',start);$('send').addEventListener('click',()=>{reply($('message').value);$('message').value='';$('message').focus()});$('message').addEventListener('keydown',e=>{if(e.key==='Enter')$('send').click()});$('next').addEventListener('click',()=>{if(state.scene<scenes.length-1){state.scene++;scene()}else{add('이야기','첫날 체험 완료! 다음 업데이트에서 둘째 날이 열립니다.');$('next').disabled=true;save()}});$('reset').addEventListener('click',()=>{if(confirm('처음부터 다시 시작할까요?')){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}});
 try{const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&old.name&&Number.isInteger(old.scene)&&old.scene>=0&&old.scene<scenes.length){state=old;$('setup').classList.add('hide');$('game').classList.remove('hide');scene();add('시스템','이전 진행 상태를 불러왔습니다.')}}catch(e){}

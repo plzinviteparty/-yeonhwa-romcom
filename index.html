@@ -8,50 +8,59 @@
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id), KEY='yeonhwa-romcom-v03';
+const $=id=>document.getElementById(id), KEY='yeonhwa-romcom-v05';
 const scenes=[
 {place:'연화빌라 202호 앞',who:'서이준',intro:'이사 온 첫날. 203호 택배가 202호 현관을 가로막고 있다. 문이 열리더니 옆집 남자가 말한다.\n“그거 제 택배인데요.”',suggest:['문을 막고 있어서 옮기려고 했어요.','그쪽 택배 때문에 못 들어가잖아요.','훔치려다 들켰네요.']},
 {place:'연화빌라 입구',who:'백지한',intro:'부동산 실장 백지한이 나타난다.\n“어? 이준이 형, 새 이웃이랑 인사했어?”\n서이준이 짧게 대답한다. “택배 때문에요.”',suggest:['두 분 원래 아는 사이예요?','집에 하자는 없는 거죠?','택배 때문에 벌써 친해졌네요.']},
-{place:'연화편의점',who:'한시우',intro:'편의점 앞에서 후드티 차림의 남자가 손을 흔든다.\n“아, 새로 온 사람. 202호 맞죠?”\n편의점 직원이 끼어든다. “시우 씨, 외상값은요?”',suggest:['제 집을 어떻게 알아요?','외상값부터 갚으세요.','안녕하세요.']},
-{place:'카페 오후 네 시',who:'강도윤',intro:'카페 사장이 웃으며 음료를 내민다.\n“이사 오셨죠? 첫 잔은 서비스예요.”\n그때 한시우가 들어온다. “형, 나도 서비스.”\n“넌 외상부터 갚아.”',suggest:['두 분 친하세요?','시우 씨 외상이 여기에도 있어요?','서비스 감사합니다.']},
-{place:'연화빌라 202호',who:'서이준',intro:'밤이 되어 돌아온 현관 앞에 작은 봉투가 놓여 있다. 분리수거 안내문과 쓰레기봉투다.\n메모: “분리수거는 수요일 저녁입니다. —203호”',suggest:['203호에 감사 인사를 남긴다.','오늘 만난 사람들을 떠올린다.','일단 푹 쉰다.']}
+{place:'연화편의점',who:'한시우',intro:'편의점 앞에서 후드티 차림의 남자가 통화 중이다. 점원 임하나가 계산대에서 고개를 든다.\n“어서 오세요. 필요한 거 있으시면 말씀하세요.”\n남자가 통화를 끊자 임하나가 말한다. “시우 씨, 외상값은요?”',suggest:['저 사람 누구예요?','외상 얘기는 못 들은 걸로 할게요.','생수 어디 있어요?']},
+{place:'카페 오후 네 시',who:'강도윤',intro:'카페 사장이 메뉴판을 건넨다.\n“어서 오세요. 주문하시겠어요?”\n창가에 앉은 차유리가 노트북 화면을 보고 투덜거린다. “수정 요청이 또 왔네.”\n그때 한시우가 들어온다. “형, 나도 서비스.”\n“주문부터 해, 시우야.”',suggest:['아이스 아메리카노 주세요.','창가 자리 비어 있나요?','저분은 누구예요?']},
+{place:'연화빌라 202호',who:'서이준',intro:'밤이 되어 돌아온 현관 앞에 관리실에서 배포한 분리수거 안내문이 꽂혀 있다.\n맞은편에서 서이준이 쓰레기봉투를 들고 나온다. “아, 안녕하세요.”',suggest:['안녕하세요.','분리수거는 어디에 내놓나요?','그냥 집으로 들어간다.']}
 ];
 let state=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function add(who,text,me=false){const el=document.createElement('div');el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;el.append(title,body);$('log').append(el);$('log').scrollTop=$('log').scrollHeight}
 function scene(){const s=scenes[state.scene];$('where').textContent=s.place;$('clock').textContent='DAY 01 · '+['14:00','14:20','16:00','17:00','21:00'][state.scene];$('progress').textContent=(state.scene+1)+' / '+scenes.length+' 장면';$('log').innerHTML='';add('이야기',s.intro);$('suggest').innerHTML='';s.suggest.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=t;b.addEventListener('click',()=>reply(t));$('suggest').append(b)});$('next').textContent=state.scene===scenes.length-1?'첫날 마치기':'다음 장소로';save()}
 function reply(t){
-t=String(t||'').trim();if(!t)return;
-add(state.name,t,true);
-const n=state.scene,s=scenes[n],previous=state.history.filter(x=>x.scene===n),count=previous.length;
-const has=(...words)=>words.some(w=>t.includes(w));
-let answer='',intent='other';
-if(has('누구','이름','소개','뉘신','정체'))intent='identity';
-else if(has('왜','어떻게','어째서','무슨','뭔데'))intent='why';
-else if(has('안녕','반가','처음 뵙'))intent='greeting';
-else if(has('고마','감사'))intent='thanks';
-else if(has('죄송','미안'))intent='apology';
-else if(has('택배','문을 막','못 들어','치워','옮기'))intent='parcel';
-else if(has('외상','돈','갚'))intent='debt';
-else if(has('친해','아는 사이','친구','동창'))intent='relationship';
-else if(has('집','하자','고장','수리'))intent='home';
-else if(has('훔','도둑','농담','장난'))intent='joke';
-const responses=[
-{identity:['“203호 사는 서이준입니다. ...아까 택배 때문에 인사도 못 했네요.”','“서이준이요. 옆집 사람입니다. 다른 궁금한 건요?”'],why:['“택배를 제가 잘못 둬서요. 혹시 다른 걸 물으신 건가요?”'],parcel:['“아, 문을 막았네요. 제 잘못입니다. 죄송합니다.”','“네, 택배는 치웠습니다. 다음부터 주의할게요.”'],apology:['“아뇨. 제가 먼저 잘못했으니까요.”'],joke:['“...농담이시죠?” 그가 택배를 자기 쪽으로 끌어당긴다.'],greeting:['“안녕하세요. 203호입니다.”'],thanks:['“별말씀을요.”'],other:['“네? 무슨 말씀이신지 조금 더 설명해 주시겠어요?”','“제가 이해를 잘 못 했습니다. 다시 말씀해 주실래요?”']},
-{identity:['“연화부동산 실장 백지한입니다. 집 계약할 때 뵀죠?”'],relationship:['“이준이 형이랑은 오래 알았어요. 형은 인정 안 하겠지만요.”'],home:['“집에 문제 있으면 연락 주세요. 이번엔 바로 처리할게요.”'],why:['“무슨 일인지 좀 더 자세히 말씀해 주실래요?”'],greeting:['“다시 뵈니까 반갑네요!”'],other:['“그런 얘기는 처음 듣는데요? 조금만 더 말해 주세요.”']},
-{identity:['“한시우요. 스물여섯. 이 동네 자주 출몰하는 사람?”','“아, 이름을 안 말했네. 한시우예요. 수상한 사람은 아니고요.”'],why:['“202호요? 부동산 형이랑 있는 걸 봤어요. 동네가 좁아서요.”'],debt:['“아니, 처음 보는 사이에 외상 얘기부터 하시네.”','“갚을 거예요. 진짜로. ...언젠가는.”'],greeting:['“오, 안녕하세요. 이사 잘했어요?”'],other:['“잠깐, 그건 무슨 뜻이에요? 다시 말해 봐요.”','“흠, 제가 못 알아들었어요. 좀 더 구체적으로?”']},
-{identity:['“강도윤입니다. 여기 카페 사장이에요.”'],debt:['“시우 씨는 우리 가게 단골이자 장기 미수금 고객입니다.” 한시우가 항의한다. “형!”'],relationship:['“오래 본 사이죠. 시우는 자기가 제 동생인 줄 알아요.”'],thanks:['“맛있게 드시면 됐죠. 다음엔 정가입니다.”'],greeting:['“어서 오세요. 이사 첫날은 어떠셨어요?”'],other:['“흥미로운데요. 조금 더 얘기해 주실래요?”']},
-{identity:['“203호 서이준입니다.” 문 너머에서 짧은 대답이 들린다.'],thanks:['문 너머로 인기척이 난다. “...별거 아닙니다.”'],other:['오늘은 정말 정신없는 하루였다. 조금은 재미있는 동네일지도 모른다.']}
-];
-const options=responses[n][intent]||responses[n].other;
-const same=previous.filter(x=>x.intent===intent).length;
-answer=options[Math.min(same,options.length-1)];
-add(s.who,answer);
-state.history.push({scene:n,input:t,response:answer,intent});
-save();
+ t=String(t||'').trim();if(!t)return;
+ add(state.name,t,true);
+ const n=state.scene,s=scenes[n],previous=state.history.filter(x=>x.scene===n);
+ const has=(...w)=>w.some(x=>t.includes(x));
+ let intent='other';
+ if(has('누구','이름','소개','정체','뉘신'))intent='identity';
+ else if(has('어떻게 알아','왜 알아','집을 알아','호수를 알아'))intent='privacy';
+ else if(has('불편','무서','수상','경계','신고','경찰','따라오'))intent='boundary';
+ else if(has('안녕','반가'))intent='greeting';
+ else if(has('감사','고마'))intent='thanks';
+ else if(has('미안','죄송'))intent='apology';
+ else if(has('택배','막고','못 들어','치워','옮기'))intent='parcel';
+ else if(has('외상','갚','돈'))intent='debt';
+ else if(has('친구','아는 사이','친해','동창'))intent='relationship';
+ else if(has('집','하자','고장','수리'))intent='home';
+ else if(has('커피','아메리카노','라테','주문','메뉴'))intent='order';
+ else if(has('자리','앉아'))intent='seat';
+ else if(has('생수','물','어디','찾아'))intent='location';
+ else if(has('분리수거','쓰레기'))intent='recycle';
+ else if(has('훔','도둑','농담','장난'))intent='joke';
+ const R=[
+ {identity:['“서이준입니다. 203호 살아요.”','“방금 말씀드렸는데요. 서이준입니다.”'],privacy:['“제가 집 호수를 어떻게 알겠습니까. 바로 옆집이라는 것 말고는요.”'],boundary:['“불편하셨다면 죄송합니다. 더 말 걸지 않을게요.”'],parcel:['“문을 막았네요. 제 잘못입니다. 죄송합니다.”','“네. 바로 치우겠습니다.”'],apology:['“아뇨. 제 택배가 문제였죠.”'],joke:['“...농담이시죠?” 그가 한 걸음 물러선다.'],greeting:['“안녕하세요.”'],thanks:['“별말씀을요.”'],other:['“네? 어떤 말씀인지 잘 모르겠습니다.”','“죄송하지만 다시 설명해 주시겠어요?”']},
+ {identity:['“연화부동산 실장 백지한입니다. 계약할 때 뵀죠.”'],privacy:['“계약 담당자라 호수는 알고 있지만, 다른 사람한테 말하진 않습니다.”'],boundary:['“제가 너무 친한 척했나요? 죄송합니다. 업무 관련해서만 연락드릴게요.”'],relationship:['“이준이 형이랑 동네에서 오래 봤어요. 그 이상은 형한테 물어보세요.”'],home:['“하자 있으면 사진 찍어 연락 주세요. 확인하겠습니다.”'],greeting:['“안녕하세요. 이사는 잘 마치셨어요?”'],other:['“어떤 부분 말씀하시는 걸까요?”']},
+ {identity:['“저요? 임하나예요. 여기 직원이고요.” 임하나가 편의점 밖을 가리킨다. “저쪽은 단골 한시우 씨예요.”','한시우가 멋쩍게 웃는다. “아, 저한테 물으신 거였어요? 한시우입니다.”'],privacy:['임하나가 눈썹을 찌푸린다. “집 호수까지 물어보는 사람이 있으면 조심하세요.”'],boundary:['임하나: “불편하시면 안쪽에서 계산하고 가세요. 제가 봐드릴게요.”'],debt:['임하나: “손님한테까지 들키셨네요.” 한시우가 시선을 피한다.'],location:['임하나: “생수는 오른쪽 끝 냉장고에 있어요.”'],greeting:['임하나: “어서 오세요.”'],other:['임하나: “찾으시는 물건 있으세요?”','임하나: “죄송해요, 무슨 뜻인지 잘 모르겠네요.”']},
+ {identity:['“강도윤입니다. 여기 사장이에요.” 그가 카운터를 가리킨다. “저쪽 손님은 차유리 씨고요. 서로 아는 사이세요?”'],boundary:['강도윤: “불편하셨다면 죄송합니다. 편하게 이용하세요.”'],order:['강도윤: “네, 주문 도와드릴게요. 테이크아웃이세요?”'],seat:['강도윤: “창가 쪽은 손님이 계시고, 안쪽 자리는 비어 있습니다.”'],relationship:['강도윤: “시우랑은 오래 알았죠. 단골이에요.”'],debt:['강도윤: “그건 저희끼리 해결할 문제라서요.” 한시우가 조용히 고개를 끄덕인다.'],greeting:['강도윤: “어서 오세요. 주문 도와드릴까요?”'],other:['강도윤: “제가 잘 못 들었네요. 다시 말씀해 주시겠어요?”']},
+ {identity:['“203호 서이준입니다. 아까 복도에서 뵀죠.”'],boundary:['“네. 그럼 들어가 보겠습니다.”'],recycle:['“빌라 뒤편에 분리수거장이 있습니다. 수요일 저녁에 내놓으시면 돼요.”'],greeting:['“안녕하세요.”'],thanks:['“아, 네. 별말씀을요.”'],other:['“그럼 먼저 들어가 보겠습니다.”']}
+ ];
+ const opts=R[n][intent]||R[n].other;
+ const used=previous.filter(x=>x.intent===intent).length;
+ let answer=opts[Math.min(used,opts.length-1)];
+ if(used>=opts.length && intent!=='other' && used>1)answer='“그 부분은 이미 말씀드린 것 같은데요.”';
+ if(intent==='boundary')state.boundaries[n]=true;
+ if(state.boundaries[n] && intent!=='boundary' && intent!=='identity' && intent!=='recycle' && intent!=='order')answer=['“알겠습니다. 필요한 일만 말씀해 주세요.”','“네. 용건이 없으시면 이만.”','임하나: “필요하신 물건만 말씀해 주세요.”','강도윤: “주문하실 때 불러 주세요.”','“네. 그럼 들어가겠습니다.”'][n];
+ const speaker=n===2?'임하나':n===3?'강도윤':s.who;
+ answer=answer.replace(/^(임하나|강도윤|한시우|서이준):\s*/,'');
+ add(speaker,answer);
+ state.history.push({scene:n,input:t,response:answer,intent});save();
 }
-function start(){const name=$('name').value.trim();const age=Number($('age').value);if(!name){$('setupError').textContent='이름을 입력해 주세요.';return}if(!Number.isInteger(age)||age<19||age>99){$('setupError').textContent='나이는 19세부터 99세까지 입력해 주세요.';return}state={name,age,job:$('job').value,personality:$('personality').value,scene:0,history:[]};$('setup').classList.add('hide');$('game').classList.remove('hide');scene()}
+function start(){const name=$('name').value.trim();const age=Number($('age').value);if(!name){$('setupError').textContent='이름을 입력해 주세요.';return}if(!Number.isInteger(age)||age<19||age>99){$('setupError').textContent='나이는 19세부터 99세까지 입력해 주세요.';return}state={name,age,job:$('job').value,personality:$('personality').value,scene:0,history:[],boundaries:{}};$('setup').classList.add('hide');$('game').classList.remove('hide');scene()}
 $('start').addEventListener('click',start);$('send').addEventListener('click',()=>{reply($('message').value);$('message').value='';$('message').focus()});$('message').addEventListener('keydown',e=>{if(e.key==='Enter')$('send').click()});$('next').addEventListener('click',()=>{if(state.scene<scenes.length-1){state.scene++;scene()}else{add('이야기','첫날 체험 완료! 다음 업데이트에서 둘째 날이 열립니다.');$('next').disabled=true;save()}});$('reset').addEventListener('click',()=>{if(confirm('처음부터 다시 시작할까요?')){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}});
-try{const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&old.name&&Number.isInteger(old.scene)&&old.scene>=0&&old.scene<scenes.length){state=old;$('setup').classList.add('hide');$('game').classList.remove('hide');scene();add('시스템','이전 진행 상태를 불러왔습니다.')}}catch(e){}
+try{const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&old.name&&Number.isInteger(old.scene)&&old.scene>=0&&old.scene<scenes.length){state=old;state.boundaries=state.boundaries||{};$('setup').classList.add('hide');$('game').classList.remove('hide');scene();add('시스템','이전 진행 상태를 불러왔습니다.')}}catch(e){}
 })();
 </script></body></html>

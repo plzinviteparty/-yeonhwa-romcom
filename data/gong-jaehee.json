@@ -18,7 +18,8 @@
   },
   "hobbies": [
     "가벼운 애니 덕질",
-    "FPS 게임"
+    "FPS 게임",
+    "인형뽑기 (매우 능숙)"
   ],
   "smoking": "연초 헤비 스모커",
   "personality": "예민하고 공격적이며 자존감이 낮고 외로움을 많이 탐. 애교가 많고 마음이 여림. 반복된 이별로 불안형 애착을 형성함.",
@@ -59,9 +60,35 @@
       "cafe",
       "clinic",
       "store",
-      "arcade"
+      "arcade",
+      "campus"
     ],
     "clinicContext": "병원 밖에서 동물 구경, 진료 방문 아님",
     "availability": "오전 등장 없음, 저녁은 방송 일정에 따라 제한"
+  },
+  "firstMeeting": {
+    "location": "arcade",
+    "exclusive": true,
+    "scene": "인형뽑기 기계 앞에서 이미 인형 세 개를 뽑은 재희와 만남",
+    "line": "왜요? 이거 갖고 싶어요?",
+    "choices": [
+      "인형뽑기 진짜 잘하시네요.",
+      "저도 뽑는 법 좀 알려 주세요.",
+      "저 정도면 저도 뽑을 수 있겠는데요?"
+    ]
+  },
+  "campus": {
+    "requiresPlayerStudent": true,
+    "requiresFirstMeeting": true,
+    "sharedCampus": [
+      "임하나",
+      "한시우"
+    ]
+  },
+  "events": {
+    "clawGift": {
+      "description": "친밀도가 높아지면 플레이어가 고른 인형을 뽑아 선물",
+      "memory": "선물한 인형을 아직 가지고 있는지 나중에 물어봄"
+    }
   }
 }

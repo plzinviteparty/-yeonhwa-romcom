@@ -1,0 +1,46 @@
+{
+  "canon": {
+    "purpose": "365일 전체 반복 없이 분기점 세이브로 여러 엔딩을 효율적으로 감상",
+    "fileExportImport": true
+  },
+  "draft": {
+    "autoSave": "하루 종료 및 주요 이벤트 이후",
+    "manualSave": true,
+    "slots": 30,
+    "slotActions": [
+      "이름 변경",
+      "복제",
+      "불러오기",
+      "덮어쓰기",
+      "삭제",
+      "JSON 파일 저장"
+    ],
+    "branchPoints": [
+      "고백",
+      "진로 변경",
+      "중요 선택지"
+    ],
+    "preserveActiveEvent": true,
+    "preserveRunningSchedule": true,
+    "legacyKey": "yeonhwa-romcom-v05",
+    "migration": "기존 세이브 보존 및 스키마 마이그레이션",
+    "collection": {
+      "separateFromRun": true,
+      "mergeOnLoad": true,
+      "types": [
+        "엔딩",
+        "CG",
+        "특별 이벤트",
+        "직업 엔딩",
+        "업적"
+      ],
+      "exportable": true
+    },
+    "validation": [
+      "파일 형식 검증",
+      "덮어쓰기 확인",
+      "불러오기 전 백업",
+      "저장 용량 오류 처리"
+    ]
+  }
+}

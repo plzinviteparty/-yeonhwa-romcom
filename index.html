@@ -9,7 +9,14 @@
 <div id="map" class="panel"><h2>연화동 둘러보기</h2><p class="muted-note">장소를 누르면 주변 풍경과 그 시간에 만날 수 있는 주민을 확인할 수 있어요.</p><div class="town-map" id="townMap"></div><div class="place-detail" id="placeDetail">지도에서 가고 싶은 장소를 선택해 보세요.</div><div class="row"><label for="mapTime">시간대</label><select id="mapTime" aria-label="방문 시간대"><option value="morning">아침</option><option value="noon">낮</option><option value="afternoon">오후</option><option value="evening">저녁</option></select></div></div><div id="growth" class="panel"><h2>나의 성장</h2><div id="career"></div></div>
 <div id="relations" class="panel"><h2>동네 사람들</h2><p class="muted-note">선물은 선택 사항이에요. 선물 없이 대화하고 친해져도 됩니다.</p><div id="giftFeedback" class="bubble hide" role="status"></div><div id="relationships"></div><div id="giftPanel" class="gift-box hide"><b id="giftHeading">선물하기</b><label for="giftItem">어떤 선물을 줄까요?</label><select id="giftItem"></select><div class="row"><button id="gift" type="button">선물 전달</button><button class="secondary" id="cancelGift" type="button">선물하지 않기</button></div></div></div>
 <div id="phone" class="panel"><h2>휴대전화</h2><p class="muted-note">연락처를 교환한 주민과 메시지를 주고받을 수 있어요. 답장은 일정을 소모하지 않습니다.</p><div id="phoneContacts"></div><div id="phoneThread"></div></div><div id="album" class="panel"><h2>추억 앨범</h2><p class="muted-note">여러 회차에서 발견한 이야기를 모아 다시 볼 수 있어요. 잠긴 기록은 내용을 공개하지 않습니다.</p><div class="row album-tabs"><button id="albumEvents" class="secondary active">이벤트 도감</button><button id="albumEndings" class="secondary">엔딩 도감</button></div><label for="albumFilter">캐릭터</label><select id="albumFilter"></select><p id="albumCount" role="status"></p><div id="albumList" class="album-grid"></div></div><div id="story" class="panel"><div id="log" aria-live="polite"></div><div class="suggest row" id="suggest"></div><label for="message">대사 또는 행동</label><input id="message" placeholder="하고 싶은 말을 입력하세요"><button id="send" type="button">말하기</button><div class="row"><button class="secondary" id="next" type="button">다음 장소로</button><button class="secondary" id="reset" type="button">처음부터</button></div><p class="status">선택지에 따라 관계와 사건이 달라집니다.</p></div></section><footer>저장 데이터는 이 브라우저에만 보관됩니다. API 비용 0원. · 캐릭터 설정 기준표: docs/character-bible.md</footer></div>
-<dialog id="albumDialog" style="max-height:85vh;overflow:auto;width:min(92vw,620px);box-sizing:border-box;border:1px solid #d8dfd5;border-radius:16px"><h2 id="albumTitle"></h2><p class="muted-note">감상 전용 · 현재 일정과 관계에는 영향을 주지 않습니다.</p><div id="albumReplay"></div><button id="albumClose" class="secondary">닫기</button></dialog><dialog id="transferDialog" style="max-height:85vh;overflow:auto;width:min(92vw,650px);box-sizing:border-box"><h2>세이브 관리</h2><div id="slotList"></div><button id="slotNew">새 슬롯 저장</button><label style="display:block;margin:8px 0">JSON 파일을 슬롯으로 가져오기 <input id="slotFile" type="file" accept=".json,application/json"></label><p id="slotStatus" role="status"></p><hr><h3>세이브 코드 옮기기</h3><p>현재 진행을 복사해 다른 기기로 보내세요. 불러오면 이 기기의 기존 진행이 교체됩니다.</p><textarea id="transferText" rows="7" style="width:100%;box-sizing:border-box" placeholder="다른 기기의 세이브 코드를 붙여넣으세요"></textarea><div style="display:flex;flex-wrap:wrap;gap:8px"><button id="transferExport">현재 세이브 표시</button><button id="transferCopy">코드 복사</button><button id="transferImport">불러오기</button><button id="transferClose" class="secondary">닫기</button></div><p id="transferStatus" role="status"></p></dialog><button id="transferOpen" class="secondary" style="position:fixed;bottom:12px;right:12px;z-index:20">세이브 관리</button><script>
+<dialog id="albumDialog" style="max-height:85vh;overflow:auto;width:min(92vw,620px);box-sizing:border-box;border:1px solid #d8dfd5;border-radius:16px"><h2 id="albumTitle"></h2><p class="muted-note">감상 전용 · 현재 일정과 관계에는 영향을 주지 않습니다.</p><div id="albumReplay"></div><button id="albumClose" class="secondary">닫기</button></dialog><dialog id="transferDialog" style="max-height:85vh;overflow:auto;width:min(92vw,650px);box-sizing:border-box"><h2>세이브 관리</h2><div id="slotList"></div><button id="slotNew">새 슬롯 저장</button><label style="display:block;margin:8px 0">JSON 파일을 슬롯으로 가져오기 <input id="slotFile" type="file" accept=".json,application/json"></label><p id="slotStatus" role="status"></p><hr><h3>다른 기기로 옮기기</h3><p>현재 진행을 파일로 저장해 다른 기기로 보내세요. 다른 기기에서 이 메뉴를 열고 받은 파일을 선택하면 이어서 플레이할 수 있어요.</p>
+<button id="transferDownload">세이브 파일 저장</button>
+<button id="transferChoose">세이브 파일 불러오기</button>
+<input type="file" hidden id="transferFile" accept=".sav,.json,application/json">
+<details><summary>긴 코드로 옮기기</summary>
+<textarea id="transferText" rows="7" style="width:100%;box-sizing:border-box" aria-label="세이브 코드" placeholder="세이브 코드를 붙여넣으세요"></textarea>
+<button id="transferExport">현재 세이브 표시</button><button id="transferCopy">코드 복사</button><button id="transferImport">코드 불러오기</button></details>
+<p id="transferStatus" role="status"></p><button id="transferClose" class="secondary">닫기</button></dialog><button id="transferOpen" class="secondary" style="position:fixed;bottom:12px;right:12px;z-index:20">세이브 관리</button><script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id), KEY='yeonhwa-romcom-v05';
@@ -977,7 +984,47 @@ a.forEach((s,i)=>{const row=document.createElement('div');row.style.cssText='bor
 }
 $('slotNew').onclick=()=>slotAction(()=>{const a=readSlots();if(a.length>=30)throw Error('슬롯이 가득 찼습니다.');const s=snapshot(),label=prompt('슬롯 이름','DAY '+s.sim.day);if(label===null)return;a.push({label:label.trim().slice(0,80)||'DAY '+s.sim.day,time:Date.now(),state:s});storeSlots(a)});
 $('slotFile').onchange=async()=>{try{const f=$('slotFile').files[0];if(!f)return;const d=JSON.parse(await f.text());if(d.format!=='yeonhwa-save-1'||!validSave(d.state))throw Error('올바르지 않은 세이브 파일입니다.');const a=readSlots();if(a.length>=30)throw Error('슬롯이 가득 찼습니다.');a.push({label:f.name.slice(0,80),time:Date.now(),state:d.state});storeSlots(a);drawSlots()}catch(e){$('slotStatus').textContent=e.message}finally{$('slotFile').value=''}};
-$('transferOpen').onclick=()=>{try{drawSlots()}catch(e){$('slotStatus').textContent=e.message}$('transferText').value='';$('transferStatus').textContent='';$('transferDialog').showModal()};$('transferClose').onclick=()=>$('transferDialog').close();$('transferExport').onclick=()=>{if($('start').disabled){try{const raw=localStorage.getItem(KEY);if(!raw)throw Error();$('transferText').value=JSON.stringify({format:'yeonhwa-save-1',state:JSON.parse(raw)});$('transferStatus').textContent='기존 저장 데이터를 복구용으로 표시했습니다.';return}catch(e){$('transferStatus').textContent='저장 데이터를 읽을 수 없습니다.';return}}if(!state||!state.name){$('transferStatus').textContent='저장할 진행이 없습니다.';return}save();$('transferText').value=JSON.stringify({format:'yeonhwa-save-1',state});$('transferStatus').textContent='현재 진행을 표시했습니다. 코드를 복사하세요.'};$('transferCopy').onclick=async()=>{const t=$('transferText');if(!t.value)return;t.select();try{await navigator.clipboard.writeText(t.value);$('transferStatus').textContent='복사했습니다.'}catch(e){$('transferStatus').textContent='선택된 코드를 직접 복사해 주세요.'}};$('transferImport').onclick=()=>{try{const data=JSON.parse($('transferText').value),s=data.state;if(data.format!=='yeonhwa-save-1'||!s||typeof s.name!=='string'||!s.name||!Number.isInteger(s.scene)||s.scene<0||s.scene>=scenes.length||!s.sim||!Number.isInteger(s.sim.day)||s.sim.day<1||s.sim.day>366||!s.sim.affection||typeof s.sim.affection!=='object')throw Error('invalid');if(!confirm(s.name+' · DAY '+s.sim.day+' 진행을 불러올까요? 현재 기기의 진행은 교체됩니다.'))return;const previous=localStorage.getItem(KEY);if(previous)localStorage.setItem(KEY+'-transfer-backup',previous);localStorage.setItem(KEY,JSON.stringify(s));location.reload()}catch(e){$('transferStatus').textContent='세이브 코드가 올바르지 않거나 저장 공간이 부족합니다. 기존 진행은 그대로 유지됩니다.'}};
+$('transferOpen').onclick=()=>{try{drawSlots()}catch(e){$('slotStatus').textContent=e.message}$('transferText').value='';$('transferStatus').textContent='';$('transferDialog').showModal()};$('transferClose').onclick=()=>$('transferDialog').close();function transferData(){
+  if($('start').disabled){
+    const raw=localStorage.getItem(KEY);
+    if(!raw) throw Error('저장 데이터를 읽을 수 없습니다.');
+    return {format:'yeonhwa-save-1',state:JSON.parse(raw)};
+  }
+  if(!state || !state.name) throw Error('저장할 진행이 없습니다.');
+  save();
+  return {format:'yeonhwa-save-1',state};
+}
+$('transferExport').onclick=()=>{
+  try{
+    $('transferText').value=JSON.stringify(transferData());
+    $('transferStatus').textContent='현재 진행을 표시했습니다. 코드를 복사하세요.';
+  }catch(error){$('transferStatus').textContent=error.message}
+};
+$('transferDownload').onclick=()=>{
+  try{
+    const data=transferData();
+    const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/octet-stream'}));
+    const link=document.createElement('a');
+    link.href=url;
+    link.download='연화동_'+(data.state?.sim?.day || 1)+'일차.sav';
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    $('transferStatus').textContent='다운로드한 파일을 다른 기기로 보내세요.';
+  }catch(error){$('transferStatus').textContent=error.message}
+};
+$('transferChoose').onclick=()=>$('transferFile').click();
+$('transferFile').onchange=async event=>{
+  const file=event.target.files[0];
+  event.target.value='';
+  if(!file) return;
+  try{importTransfer(await file.text())}
+  catch(error){$('transferStatus').textContent='파일을 읽을 수 없습니다.'}
+};
+$('transferCopy').onclick=async()=>{const t=$('transferText');if(!t.value)return;t.select();try{await navigator.clipboard.writeText(t.value);$('transferStatus').textContent='복사했습니다.'}catch(e){$('transferStatus').textContent='선택된 코드를 직접 복사해 주세요.'}};$('transferImport').onclick=()=>importTransfer($('transferText').value);
+function importTransfer(raw){try{const data=JSON.parse(raw),s=data.state;if(data.format!=='yeonhwa-save-1'||!s||typeof s.name!=='string'||!s.name||!Number.isInteger(s.scene)||s.scene<0||s.scene>=scenes.length||!s.sim||!Number.isInteger(s.sim.day)||s.sim.day<1||s.sim.day>366||!s.sim.affection||typeof s.sim.affection!=='object')throw Error('invalid');if(!confirm(s.name+' · DAY '+s.sim.day+' 진행을 불러올까요? 현재 기기의 진행은 교체됩니다.'))return;const previous=localStorage.getItem(KEY);if(previous)localStorage.setItem(KEY+'-transfer-backup',previous);localStorage.setItem(KEY,JSON.stringify(s));location.reload()}catch(e){$('transferStatus').textContent='세이브 데이터가 올바르지 않거나 저장 공간이 부족합니다. 기존 진행은 그대로 유지됩니다.'}};
+
 for(const [value,label] of [['all','전체'],...people.map(p=>[p,p]),['solo','나의 이야기']]){const opt=document.createElement('option');opt.value=value;opt.textContent=label;$('albumFilter').append(opt)}$('albumEvents').onclick=()=>{albumMode='event';renderAlbum()};$('albumEndings').onclick=()=>{albumMode='ending';renderAlbum()};$('albumFilter').onchange=()=>{albumPerson=$('albumFilter').value;renderAlbum()};$('albumClose').onclick=()=>$('albumDialog').close();
 let savedRaw=null;try{savedRaw=localStorage.getItem(KEY);const old=JSON.parse(savedRaw||'null');if(old&&old.name&&Number.isInteger(old.scene)&&old.scene>=0&&old.scene<scenes.length){state=old;state.boundaries=state.boundaries||{};initSim();albumMigrate();$('setup').classList.add('hide');$('game').classList.remove('hide');if(old.introDone===false){showIntro()}else if(initSim().activeEvent&&typeof initSim().activeEvent.description==='string'){renderChoiceEvent();renderSim();syncSchedule()}else if(initSim().running){if(initSim().running.outing){drawTown();switchTab('map')}else advanceDay()}else if(initSim().day>1){renderSim();syncSchedule();drawTown();switchTab('life')}else{scene()}add('시스템','이전 진행 상태를 불러왔습니다.')}else if(savedRaw){throw Error('저장 데이터 형식 확인 필요')}}catch(e){$('setup').classList.remove('hide');$('game').classList.add('hide');$('start').disabled=true;const warning=document.createElement('div');warning.style.cssText='padding:16px;border:1px solid #b66;border-radius:8px;margin:12px 0;white-space:pre-wrap';warning.textContent='기존 진행을 불러오지 못했습니다. 새 게임 시작을 잠갔습니다. 저장 데이터는 삭제하지 않았습니다. 세이브 옮기기에서 백업하거나 기존 창의 세이브를 가져오세요. 오류: '+e.message; $('setup').prepend(warning);console.error(e)}
 })();

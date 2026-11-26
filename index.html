@@ -93,12 +93,13 @@ function renderSharedHomeEvening(ev,p){
  const v=initSim(),o=ev.sharedLife,day=ev.day||v.day;
  const rest=['차 한 잔만 더 마시고 쉬어요.','좋아요. 그럼 한 잔 더 마시고 들어갈게요.','두 사람은 찻잔이 식을 때까지 소파에 앉아 있었다.'];
  const goodnight=['오늘 와 줘서 고마워요. 조심히 들어가요.','저도 좋았어요. 집에 도착하면 연락할게요.','현관에서 인사를 나누고 문이 닫힐 때까지 배웅했다.'];
- const overnight=['괜찮으면 오늘 밤 같이 보낼래요?',coupleVoices[p][2][2],overnightPreparationHint(p)];
+ const overnight=['괜찮으면 오늘 밤 같이 보낼래요?',coupleVoices[p][2][2]];
  const endings={rest,goodnight,overnight};
  add('이야기','창밖이 어두워졌다. 방 안엔 소파 옆 조명만 켜져 있었다.');
  if(o.evening){
   const [line,reply,detail]=endings[o.evening];
-  add(state.name,line,true);add(p,reply);add('이야기',detail);
+  add(state.name,line,true);add(p,reply);
+  if(o.evening==='overnight')renderOvernightCloseness(p);else add('이야기',detail);
   return false;
  }
  const canStay=v.running?.slot===3&&overnightReady(p,day,true);
@@ -157,6 +158,13 @@ function overnightPreparationHint(person){
  const item=npcProfiles[person].gender==='여'?'핑거돔':'콘돔';
  return '가방에서 충전기를 꺼내는 사이, 파우치 안에 챙겨 온 '+item+' 포장이 잠깐 보였다.';
 }
+function renderOvernightCloseness(p){
+ add('이야기',overnightPreparationHint(p));
+ add(p,'입 맞춰도 돼요?');
+ add('이야기','당신이 고개를 끄덕이자 상대가 손바닥으로 뺨을 감쌌다. 짧게 입을 맞추고도 그 손은 한동안 뺨에 머물렀다.');
+ add('이야기','당신이 먼저 침대 쪽으로 손을 이끌었다. 상대는 허리에 손을 가볍게 대고, 당신이 베개에 머리를 기댈 때까지 천천히 따라 누웠다.');
+ add('이야기','둘은 나란히 누워 서로를 바라봤다. 잠시 후, 침대 옆 조명이 꺼졌다.');
+}
 const tripOvernightChoice='서로 괜찮다면 오늘 밤은 함께 보내자고 한다';
 function tripOvernightReady(o,p,day){
  if(o.stage!==1||o.group||o.people.length!==1||!vIsDating(p)||day-coupleRecord(p).since<14)return false;
@@ -169,7 +177,7 @@ $('progress').textContent=seasonalTripData[index][0]+' · '+o.stage+'일차';for
  if(decision.overnight){
   add(state.name,'괜찮으면 오늘 밤 같이 보낼래요?',true);
   add(p,decision.reply);
-  add('이야기',overnightPreparationHint(p));
+  renderOvernightCloseness(p);
  }else{
   add('이야기',decision.label);
   add('이야기',decision.reply);
@@ -1193,7 +1201,7 @@ function recordOvernightStay(p,day){
 }
 function renderOvernight(ev,p){const v=initSim(),day=ev.day||v.day;if(!ev.overnight){if(!overnightReady(p,day)||!ev.homeTouchText)return false;ev.overnight={};save()}const o=ev.overnight,a=coupleVoices[p][2];add('이야기',a[0]);add(p,a[1]);if(o.answer!==undefined){add(state.name,o.answer===1?'좋아요. 오늘 밤 함께 보내요.':'오늘은 각자 쉬고 싶어요.',true);add(p,a[o.answer===1?2:3]);if(o.answer===1){
  add('이야기','두 사람은 오늘 밤을 함께 보내기로 했다.');
- add('이야기',overnightPreparationHint(p));
+ renderOvernightCloseness(p);
 }return false}for(const [label,i] of [['좋아요. 오늘 밤 함께 보내요.',1],['오늘은 각자 쉬고 싶어요.',2]])choiceButton(label,()=>{if(o.answer!==undefined)return;o.answer=i;if(i===1){recordOvernightStay(p,day)}save();renderChoiceEvent();renderSim()});return true}
 function renderCoupleMorning(ev){const v=initSim(),p=ev.person,a=coupleVoices[p][2];$('progress').textContent='연인의 아침';add('이야기',a[4]);add(p,a[5]);if(ev.morningAnswer){add(state.name,ev.morningAnswer.label,true);add(p,ev.morningAnswer.reply);choiceButton('오늘 하루 시작하기',finishEvent);return}for(const [label,reply,i] of [[a[6],a[7],0],[a[8],a[9],1]])choiceButton(label,()=>{if(ev.morningAnswer)return;ev.morningAnswer={label,reply};coupleRecord(p).history.push({day:v.day,stage:'morning',choice:i,label,reply});socialRecord(p).lastTogether=v.day;feel(p,{security:2});remember(p,'couple:morning',label+' / '+reply);writeJournal(p+' · 함께 맞이한 아침');save();renderChoiceEvent();renderSim()})}
 

@@ -67,7 +67,7 @@
  #standingName{font-size:12px;padding:3px 7px}
  #game>.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.180-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.181-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -558,7 +558,7 @@ function renderTrip(ev){
   add('이야기',scene.title+' — '+opening);
   const eveningArrival=o.stage===1&&o.departureSlot===3;
   for(const q of o.people)add(q,tripDialogue(q,index,o.stage,i+(eveningArrival?1:0),o.group));
-  if(sharedMorning)add('이야기',trip.loveNight?loveNightScene(p,trip.loveNight).morning:scene.description);
+  if(sharedMorning)add('이야기',trip.loveNight?loveNightScene(p,trip.loveNight,trip.loveRoute).morning:scene.description);
   if(atLodge&&o.lodging){
    add(state.name,lodge.reply[player],true);add(p,lodge.answer[npc]);
    if(o.lodging==='close'){
@@ -3008,7 +3008,7 @@ function renderOvernight(ev,p,warm){
  ev.overnight=o||{regular};
  return renderEveningHomeDate(ev,p,ev.overnight,!ev.overnight.regular);
 }
-function renderCoupleMorning(ev){const v=initSim(),p=ev.person,a=coupleVoices[p][2];$('progress').textContent='연인의 아침';add('이야기',ev.loveNight?loveNightScene(p,ev.loveNight).morning:a[4]);if(!ev.loveNight)add(p,a[5]);if(ev.morningAnswer){add(state.name,ev.morningAnswer.label,true);add(p,ev.morningAnswer.reply);choiceButton('오늘 하루 시작하기',finishEvent);return}for(const [label,reply,i] of [[a[6],a[7],0],[a[8],a[9],1]])choiceButton(label,()=>{if(ev.morningAnswer)return;ev.morningAnswer={label,reply};coupleRecord(p).history.push({day:v.day,stage:'morning',choice:i,label,reply});socialRecord(p).lastTogether=v.day;feel(p,{security:2});remember(p,'couple:morning',label+' / '+reply);writeJournal(p+' · 함께 맞이한 아침');save();renderChoiceEvent();renderSim()})}
+function renderCoupleMorning(ev){const v=initSim(),p=ev.person,a=coupleVoices[p][2];$('progress').textContent='연인의 아침';add('이야기',ev.loveNight?loveNightScene(p,ev.loveNight,ev.loveRoute).morning:a[4]);if(!ev.loveNight)add(p,a[5]);if(ev.morningAnswer){add(state.name,ev.morningAnswer.label,true);add(p,ev.morningAnswer.reply);choiceButton('오늘 하루 시작하기',finishEvent);return}for(const [label,reply,i] of [[a[6],a[7],0],[a[8],a[9],1]])choiceButton(label,()=>{if(ev.morningAnswer)return;ev.morningAnswer={label,reply};coupleRecord(p).history.push({day:v.day,stage:'morning',choice:i,label,reply});socialRecord(p).lastTogether=v.day;feel(p,{security:2});remember(p,'couple:morning',label+' / '+reply);writeJournal(p+' · 함께 맞이한 아침');save();renderChoiceEvent();renderSim()})}
 
 // Replies are written in both registers so an intimate aside keeps each partner's voice.
 const stayEveningScenes = {
@@ -3755,7 +3755,155 @@ const familiarNightScenes={
   }
  }
 };
-function loveNightScene(p,count){
+const menNightRoutes = {
+ '백지한': {
+  tied: {
+   firstStart: '손목에 닿은 비단은 서늘했다. 나는 두 팔을 함께 들어 지한의 목에 걸었다. 지한이 고개를 숙이자 느슨한 넥타이 끝이 그의 뺨을 스쳤다. 내가 다리를 허리에 감아 더 끌어당겼다. 그제야 지한의 웃음이 걷혔다.',
+   repeatStart: '지한을 당겨 입 맞추려는데 모아 둔 두 손이 먼저 그의 가슴에 닿았다. 내가 눈짓으로 입술을 가리켰다. 알아들었으면서 한 번 더 해 보라는 얼굴이었다. 이번에는 내가 먼저 그의 아랫입술을 살짝 물었다.',
+   aside: ['오늘은 내가 좀 욕심내도 되죠? 어떤 얼굴 하는지 다 보고 싶어서요.', '오늘은 내가 좀 욕심내도 되지? 어떤 얼굴 하는지 다 보고 싶어서.'],
+   last: '내가 좋다고 하자 지한이 기다렸다는 듯 아랫입술을 물었다 놓았다. 입맞춤에 밀려 등이 이불에 닿았다. 내 목덜미에 그의 뜨거운 숨이 내려앉자 모아 둔 손에 자꾸 힘이 들어갔다. “흣, 아….” 내 목소리에 지한이 잠시 고개를 들었다. 내가 더 원한다고 속삭이자 그때부터는 둘 다 여유를 잃었다. 밤이 깊도록 비단이 손목을 스칠 때마다 내 숨도 같이 흔들렸다.',
+   after: '지한이 넥타이를 풀었다. 벌어진 두 손에 그가 차례로 입을 맞추는 동안 나는 눈을 감고 한참 헐떡였다. 나를 내려다보는 얼굴은 벌써 얄밉게 멀쩡했다. 손바닥을 그의 뺨에 대 보니 거기도 나만큼이나 뜨거웠다.',
+   morning: '베개 옆에 구겨진 넥타이가 보였다. 내가 반듯하게 펴 주려고 손을 뻗자 지한이 자면서도 그 손바닥에 뺨을 비볐다. 넥타이는 한참 더 구겨진 채로 두었다.'
+  },
+  untied: {
+   firstStart: '두 손으로 지한의 셔츠 단추를 하나 풀었다. 둘째 단추에 손이 닿기도 전에 그가 나를 끌어안았다. 서두르는 게 누군지 이제 알겠다는 내 눈짓에 지한이 웃었다. 웃음이 끝날 때까지 기다려 줄 마음은 내게도 없었다.',
+   repeatStart: '지한의 셔츠 깃을 양손으로 잡아 내 쪽으로 당겼다. 입술이 닿기 직전 멈춰 보니 먼저 남은 거리를 좁힌 건 그였다. 목 뒤로 손을 옮기자 지한의 잘 빗은 머리칼이 손가락 사이에서 다 흐트러졌다.',
+   aside: ['손은 계속 거기 둬요. 그렇게 잡아 주는 거 좋아해요.', '손은 계속 거기 둬. 그렇게 잡아 주는 거 좋아해.'],
+   last: '나는 그의 뒷머리를 한 움큼 쥐고 귓가에 원하는 걸 말했다. 지한이 꼭 내가 말한 만큼 나를 깊이 끌어안았다. “으응….” 뜻밖에 내 쪽에서 더 큰 소리가 났다. 내내 얼굴을 보던 지한이 이마를 맞댔다. 나중에는 우리가 무슨 말을 주고받았는지보다 그 이마에 맺힌 땀이 더 선명했다.',
+   after: '겨우 숨이 돌아왔는데 손가락에는 아직 지한의 머리카락이 감겨 있었다. 한 올씩 풀어 주면서도 내 팔이 떨렸다. 지한이 삐죽 선 제 뒷머리를 만져 보더니 잘 어울리냐고 물었다. 대답 대신 내가 한 번 더 헝클어 줬다.',
+   morning: '아침 햇살에 지한의 뒷머리 한쪽이 유난히 삐쳐 있었다. 내가 웃으니 지한은 거울도 안 보고 정확히 그 자리를 짚었다. 누가 그랬는지 안다는 눈치였다.'
+  }
+ },
+ '한시우': {
+  close: {
+   firstStart: '시우가 왼손목을 베개에 편히 얹고 내 옆으로 몸을 붙였다. 아까까지 내 눈만 봐도 웃던 사람이 지금은 내가 눈을 감으면 가만히 기다렸다. 내가 눈을 뜨자 시우가 오른손으로 내 허리를 당겼다. 그 조용한 한 번에 내 숨이 턱 막혔다.',
+   repeatStart: '내가 베개를 돌려 주자 시우가 그 위에 왼손목을 얹었다. 내가 잘했다는 듯 뺨을 톡 치니 웃음이 번졌다. 그런데 오른팔을 내 등에 두르고 가까이 오는 동안 그 웃음이 사르르 걷혔다. 나는 시우가 다음에 무슨 말을 할지 기다렸다.',
+   aside: ['나 좀 더 욕심내도 돼요? 아직 듣고 싶은 소리가 있어서.', '나 좀 더 욕심내도 돼? 아직 듣고 싶은 소리가 있어서.'],
+   last: '좋다고 했더니 시우가 내 이름을 낮게 불렀다. 대답이 제대로 나올 땐 입술을, 흐려질 땐 귓가를 찾았다. “아, 잠깐….” 그 말에는 바로 멎었다. 내가 숨을 들이켜고 셔츠 자락을 당기자 다시 다가왔다. 한 번만 더라던 건 나였는데, 한 번을 그렇게 오래 끌 줄은 몰랐다.',
+   after: '잠자리가 끝나고도 한동안 시우의 가슴에 이마를 대고 숨만 쉬었다. 시우가 어땠냐고 물어서 눈만 흘겨 주니 뒤늦게 그 장난스러운 웃음이 돌아왔다. 귀를 대 보니 그렇게 태연해 보이던 시우의 심장도 아직 쿵쿵 뛰고 있었다.',
+   morning: '시우가 간밤처럼 낮게 내 이름을 불러서 눈을 떴다. 아침부터 뭘 그렇게 진지하게 부르냐니까 사실은 내 팔에 눌려서 못 일어나는 중이란다. 둘이 같이 웃느라 조금 더 누워 있었다.'
+  }
+ },
+ '정태오': {
+  close: {
+   firstStart: '태오가 나를 번쩍 안아 올렸다. 내가 다리를 그의 허리에 감자 맨발에서 슬리퍼 한 짝이 툭 떨어졌다. 주우려던 태오가 나와 눈이 마주쳤다. 나는 고개를 젓고 그의 목을 감싸 안았다. 지금은 이 높이가 좋았다.',
+   repeatStart: '태오가 팔을 벌리고 기다렸다. 나는 슬리퍼를 벗어 두고 성큼 그 품에 안겼다. 내 발이 뜨자 늘 내가 올려다보던 얼굴이 내 눈보다 낮아졌다. 귀 끝이 벌써 빨갰다. 내가 거기에 입을 맞추자 그제야 태오가 숨을 길게 내쉬었다.',
+   aside: ['이대로 더 안고 있고 싶습니다. 괜찮습니까?', '이대로 더 안고 있고 싶어. 괜찮아?'],
+   last: '나는 내려놓지 말아 달라고 그의 귀에 대고 말했다. 태오는 선 채로 나를 고쳐 안았고, 우리는 그대로 사랑을 나눴다. “아….” 내가 그의 어깨에 얼굴을 묻자 낮게 울리는 숨이 대답처럼 돌아왔다. 허공에 뜬 발끝에 자꾸 힘이 들어갔다. 내내 나를 받쳐 주던 그 단단한 팔도 마지막엔 조금 떨렸다.',
+   after: '태오가 나를 안은 채 침대 가장자리에 앉았다. 발이 바닥에 닿았는데도 한동안 다리가 말을 듣지 않았다. 내가 그의 무릎에 도로 기대자 태오는 한 팔로 내 등을 감싼 채 다른 손으로 젖은 앞머리를 넘겨 줬다. 그 어깨에 뺨을 대고 있으니 비로소 숨이 돌아왔다.',
+   morning: '아침에 슬리퍼를 신으려고 태오의 어깨를 짚었다. 잘 잤느냐던 사람이 그 손을 내려다보다가 별안간 귀가 빨개졌다. 오늘은 내가 까치발을 들어 그 귀에 아침 인사를 했다.'
+  }
+ }
+};
+const womenNightRoutes = {
+  '오세린': {
+    lead: {
+      label: '세린과 깍지를 끼고 내가 먼저 몸을 기울인다',
+      firstStart: '내가 세린을 눕히자 그 여유로운 얼굴이 잠깐 굳었다. 목덜미에 입을 맞추고 나서야 세린이 참았던 숨을 뱉었다.',
+      repeatStart: '세린이 내 입술을 찾아왔지만 이번엔 내가 먼저 그 어깨를 밀어 눕혔다. 순순히 누운 세린이 두 손을 펴 보였다.',
+      aside: ['어디가 좋은지 제가 알려 줄까요?', '어디가 좋은지 내가 알려 줄까?'],
+      last: '세린이 내 손을 조금 옮겨 주고는 그대로 맡겼다. 내가 다시 같은 곳을 어루만지자 세린의 등이 들렸다. 아, 저 얼굴을 한 번 더 보고 싶었다. 이번엔 내가 속도를 골랐다.',
+      after: '세린이 떨리는 손으로 내 머리칼을 귀 뒤에 넘겨 줬다. 손끝에 귀가 스치자 이번엔 내가 움찔했다. 세린이 그걸 보고 소리 없이 웃었다.',
+      morning: '아침에 마주 앉았을 때 세린이 불쑥 내 손등에 입을 맞췄다. 어젯밤 일을 먼저 떠올려 얼굴이 달아오른 쪽은 나였다.'
+    },
+    follow: {
+      label: '세린의 손을 내 허리에 얹고 눈을 맞춘다',
+      firstStart: '세린은 내 허리에 놓인 손을 서두르지 않고 움직였다. 입술이 닿기 직전에 내가 먼저 다가가자 그제야 나를 깊이 끌어안았다.',
+      repeatStart: '세린의 손을 내 허리에 가져다 댔다. 세린은 내 눈을 보면서 한 손으로 나를 끌어당겼다. 벌써 내 무릎에서 힘이 빠졌다.',
+      aside: ['눈 떠 봐요. 얼굴 보고 싶어요.', '눈 떠 봐. 얼굴 보고 싶어.'],
+      last: '겨우 눈을 떴을 때 세린의 손이 방금 내가 떨었던 자리를 다시 짚었다. “아, 잠깐…….” 내 목소리에 손길이 멎었다. 내가 손등을 덮어 더 가까이 당기자 기다렸다는 듯 다시 움직였다.',
+      after: '물이 마시고 싶은데 팔 하나 들기가 싫었다. 세린이 내 등을 제 가슴에 기대게 하고, 두 손으로 감싼 컵을 내 입에 대 줬다.',
+      morning: '아침에 물잔을 들다가 세린과 눈이 마주쳤다. 세린이 먼저 웃었고, 나는 마시려던 물을 한 모금도 못 마시고 잔을 내려놨다.'
+    }
+  },
+  '임하나': {
+    lead: {
+      label: '하나를 눕히고 내 어깨를 내어 준다',
+      firstStart: '하나는 내가 다가가자마자 숨을 크게 들이켰다. 내 어깨에 팔을 걸어 주고, 그 숨이 가라앉을 때까지 귓불부터 천천히 입을 맞췄다.',
+      repeatStart: '하나가 내 목을 끌어안으려 몸을 일으켰다. 그냥 편히 있어도 된다는 뜻으로 그 등을 받쳐 눕혔다. 하나가 웃으면서 베개에 뺨을 묻었다.',
+      aside: ['조금만 더요. 저 아직 괜찮아요.', '조금만 더. 나 아직 괜찮아.'],
+      last: '하나가 내 어깨를 두 번 꼭 쥐었다. 나는 거기에 맞춰 움직이다가, 힘이 풀린 팔이 미끄러져 내리면 한 박자 쉬었다. 그러면 어김없이 하나가 다시 내 어깨를 찾아왔다.',
+      after: '하나의 팔은 축 늘어졌는데 내 옷자락을 쥔 손가락엔 아직 힘이 들어가 있었다. 손을 펴 주고 그 안에 내 손을 대신 끼웠다.',
+      morning: '하나가 잠결에 내 어깨 위로 팔을 뻗었다. 눈도 못 뜨면서 이쪽 자리만큼은 귀신같이 찾아왔다.'
+    },
+    follow: {
+      label: '하나가 내 위에 자리 잡도록 등을 받쳐 준다',
+      firstStart: '하나가 내 허리에 걸터앉았다. 낯선 높이가 어색한지 제 무릎만 보더니, 내가 허리를 받쳐 주자 그제야 눈을 맞췄다.',
+      repeatStart: '하나가 내 어깨를 짚고 올라왔다. 내가 편히 기댈 자리를 잡는 동안 하나는 뺨에 붙은 짧은 머리부터 야무지게 귀 뒤로 넘겼다.',
+      aside: ['잠깐만요. 저 아직 안 끝났어요.', '잠깐만. 나 아직 안 끝났어.'],
+      last: '먼저 숨이 찬 건 하나였는데 내가 겨우 숨을 돌리려 하면 하나가 또 시작했다. 내 목에 이마를 대고 잠깐씩 쉬면서도 번번이 제 리듬을 되찾았다. 끝내 먼저 베개를 움켜쥔 건 나였다.',
+      after: '하나가 내 가슴에 턱을 얹고 작게 웃었다. 뿌듯해하는 얼굴이 귀여워 한마디 해 주려는데 정작 내 입에선 가쁜 숨만 나왔다.',
+      morning: '눈을 뜨니 하나가 아직 내 품에 엎어져 자고 있었다. 어젯밤 그렇게 고집을 부리던 사람이 이젠 이불을 당겨 줘도 꿈쩍을 안 했다.'
+    }
+  },
+  '공재희': {
+    lead: {
+      label: '뺨을 내미는 재희의 턱을 살짝 돌린다',
+      firstStart: '재희가 뽀뽀해 달라는 듯 뺨을 내밀었다. 턱을 살짝 돌려 입술에 입을 맞추자 여태 얄밉게 올라가 있던 입꼬리가 풀렸다.',
+      repeatStart: '재희가 제 뺨을 톡톡 두드렸다. 나는 그 손부터 잡아 입을 맞추고, 재희가 눈을 감을 때까지 천천히 기다렸다.',
+      aside: ['……그래 놓고 뭘 그렇게 봐요.', '……그래 놓고 뭘 그렇게 봐.'],
+      last: '내 손이 내려갈 때마다 재희가 멀쩡한 척 시선을 피했다. 내가 그대로 기다리자 결국 재희 쪽에서 먼저 허리를 붙여 왔다. 더 해 달라는 그 몸짓에 나도 더는 웃을 여유가 없었다.',
+      after: '재희가 내 가슴팍에 얼굴을 묻고 괜히 등을 한 대 톡 쳤다. 내가 고개를 숙이자 어느새 뺨을 내밀고 있었다. 이번엔 거기에도 입을 맞춰 줬다.',
+      morning: '아침에 눈을 뜬 재희가 제 뺨을 한 번 톡 두드렸다. 모르는 척하자 결국 내 손을 가져다 제 뺨에 붙이고는 생긋 웃었다.'
+    },
+    follow: {
+      label: '원하는 데 해 보라는 듯 두 눈을 감는다',
+      firstStart: '입술로 올 줄 알았던 입맞춤이 귓바퀴에 닿았다. 내가 어깨를 움찔하자 재희가 거기서 작게 웃었다. 따뜻한 숨까지 고스란히 느껴졌다.',
+      repeatStart: '내가 두 눈을 감자 재희가 바로 다가오는 대신 내 옆으로 슬쩍 자리를 옮겼다. 이번엔 어디로 올지 몰라 나도 모르게 숨을 참았다.',
+      aside: ['어디에 해 줄 줄 알았어요?', '어디에 해 줄 줄 알았어?'],
+      last: '재희는 내가 입을 꾹 다물면 느긋하게 기다리고, 작은 소리라도 새면 꼭 그 자리를 다시 건드렸다. 결국 내가 먼저 재희의 이름을 불렀다. 그제야 장난기가 걷히고 재희가 내 몸을 단단히 끌어안았다.',
+      after: '재희가 아직도 눈을 감고 있느냐는 듯 내 속눈썹에 입을 맞췄다. 차마 바로 눈을 못 뜨고 있으니 제 쪽에서 먼저 부끄러워져 내 어깨에 코를 묻었다.',
+      morning: '아침에 내 옆에서 눈을 뜬 재희는 아무 일도 없었다는 얼굴이었다. 그러더니 내 귓가로 머리카락 한 올을 넘겨 주면서 어젯밤처럼 살짝 웃었다.'
+    }
+  },
+  '유지안': {
+    lead: {
+      label: '지안을 기대 앉히고 마주 보게 올라앉는다',
+      firstStart: '지안은 내가 마주 보고 올라앉을 수 있게 다리를 조금 벌려 줬다. 허리를 감싸는 팔이 든든해서 두 손을 마음 놓고 쓸 수 있었다.',
+      repeatStart: '지안을 기대 앉히고 가까이 붙었다. 지안이 날 받쳐 올리려다 내 손이 어깨를 누르자 웃으면서 다시 등을 기댔다.',
+      aside: ['편한 대로 해요. 제가 잡아 줄게요.', '편한 대로 해. 내가 잡아 줄게.'],
+      last: '내가 정한 속도를 지안은 끝까지 따라왔다. 내 다리가 떨리기 시작하자 허리를 단단히 받쳐 줬다. 그 팔에 체중을 맡기고 나니 조금 전부터 하고 싶었던 만큼 더 깊이 몸을 붙일 수 있었다.',
+      after: '나는 지안의 어깨에 이마를 대고 한참 숨을 골랐다. 지안은 그새 물을 마시고, 내 몫까지 따라 손 닿는 곳에 놔뒀다.',
+      morning: '아침부터 지안의 품에 등을 기대고 앉았다. 허리에 팔이 둘리니 어젯밤 마음 놓고 몸을 맡겼던 그 감각이 돌아왔다.'
+    },
+    follow: {
+      label: '지안이 나를 당기는 만큼 그 품에 기댄다',
+      firstStart: '내 등을 받쳐 누인 지안이 머리맡에 팔을 짚었다. 내가 먼저 두 팔을 벌리자 그 안으로 깊숙이 들어왔다.',
+      repeatStart: '내 허리에 감긴 지안의 팔을 놓아주지 않았다. 지안이 그대로 나를 당겨 눕혔다. 몸이 가까워지는 동안에도 내 쪽으로 무게가 쏠리지 않았다.',
+      aside: ['한 번 더 해도 돼요?', '한 번 더 해도 돼?'],
+      last: '내가 끄덕이자 지안이 다시 내 다리를 감싸 안았다. 아까와 똑같이 여유 있는 손길이었다. 나는 베개에 얼굴을 반쯤 묻고도 숨소리를 감추지 못했다. 내 손이 지안의 어깨를 두드릴 때까지 지안의 호흡은 흐트러지지 않았다.',
+      after: '손가락 하나 까딱하기 싫어 지안의 팔만 베고 누웠다. 지안은 그 팔을 그대로 둔 채 빈손으로 창문을 조금 열어 줬다. 서늘한 바람에 그제야 숨이 가라앉았다.',
+      morning: '눈을 뜨니 지안은 벌써 씻고 와서 수건으로 머리를 말리고 있었다. 나와 눈이 마주치자 도로 이불 속으로 쏙 들어왔다. 아직 차가운 뺨이 볼에 닿았다.'
+    }
+  },
+  '차유리': {
+    lead: {
+      label: '유리의 손끝에 입을 맞추고 천천히 눕힌다',
+      firstStart: '유리가 내 뺨을 따라 손끝을 움직였다. 그 손을 붙잡고 마디마다 입을 맞추자 유리의 눈이 가만히 감겼다.',
+      repeatStart: '내게 뻗어 온 유리의 손을 먼저 감싸 쥐었다. 손바닥에 입을 맞춘 채 살짝 누르자 유리가 서서히 등을 기댔다.',
+      aside: ['그 손, 거기 조금만 더 둬요.', '그 손, 거기 조금만 더 둬.'],
+      last: '유리가 어디를 만질 때 눈을 감는지 알고 싶었다. 유리의 허리께를 쓸던 손이 멎었을 때 유리가 몸을 더 가까이 붙였다. 나는 그 자리를 기억해 두고 천천히 되짚었다.',
+      after: '유리는 한동안 눈을 뜨지 않았다. 내가 손을 떼려 하자 손등을 가볍게 감싸 제 허리에 그대로 놓아뒀다.',
+      morning: '유리가 눈을 뜨기도 전에 내 손부터 더듬어 찾았다. 손목에 입술이 한 번 닿고 나서야 잠이 묻은 눈으로 나를 봤다.'
+    },
+    follow: {
+      label: '유리에게 손바닥을 펴 보이고 가만히 기다린다',
+      firstStart: '유리가 내 손을 받아 들고 손바닥 한가운데에 입을 맞췄다. 손목 안쪽을 지나 팔을 따라 올라오는 동안, 나는 유리의 머리칼이 살을 스치는 감각까지 전부 느꼈다.',
+      repeatStart: '유리의 무릎에 내 손을 펴 놓았다. 손바닥을 어루만지던 엄지가 맥박이 뛰는 자리에 오래 머물렀다. 오늘 밤 시간이 얼마나 남았는지 잊게 하는 손이었다.',
+      aside: ['조금만 더 만지고 싶어요.', '조금만 더 만지고 싶어.'],
+      last: '유리는 내 몸 어디도 건너뛸 생각이 없는 것 같았다. 한참 뒤에는 옆구리를 지나는 머리칼에조차 허리가 떨렸다. “으응…….” 내가 먼저 두 손으로 유리의 뺨을 감싸 끌어올렸을 때에야 그 느린 입술이 내게 왔다.',
+      after: '오래 어루만져진 자리가 이불에 스칠 때마다 간질거렸다. 유리는 마주 본 채 내 손가락을 제 손가락 사이에 하나씩 끼우고 나서야 눈을 감았다.',
+      morning: '아침 인사는 손바닥에 닿은 유리의 입술이었다. 간지러워 손을 오므리자 유리가 그 안에 뺨을 기댔다.'
+    }
+  }
+};
+
+function nightRoute(p,route){
+ return womenNightRoutes[p]?.[route]||menNightRoutes[p]?.[route];
+}
+function loveNightScene(p,count,route){
+ const selected=nightRoute(p,route);
+ if(selected)return selected;
  return count>1&&count%2===0?familiarNightScenes[p]:longNightScenes[p];
 }
 function renderNightPassage(p,story,part){
@@ -3767,9 +3915,8 @@ function renderNightPassage(p,story,part){
  add('이야기',reaction.next);
 }
 function renderIntimateEvening(ev,p,beat,options){
- const voice=kissEveningScenes[p],day=ev.day??initSim().day,address=memoryFor(p).address;
- const casual=side=>address[side+'Speech']==='반말'||(address[side+'Speech']==='혼용'&&day%2===0);
- const playerCasual=casual('player'),npcCasual=casual('npc');
+ const voice=kissEveningScenes[p],day=ev.day??initSim().day;
+ const playerCasual=speechRegisterIndex(p,'player',day),npcCasual=speechRegisterIndex(p,'npc',day);
  const allowed=rule=>typeof rule==='function'?rule():!!rule;
  const live=()=>state.sim.activeEvent===ev;
  const refresh=()=>{
@@ -3835,48 +3982,114 @@ function renderIntimateEvening(ev,p,beat,options){
    host==='trip'?'여행 가방에서 충전기를 꺼내자 작은 파우치가 딸려 나왔다. 지퍼 사이로 '+item+' 포장이 잠깐 비쳤다.':
    '가방을 내려놓으며 파우치를 꺼내는데, 살짝 열린 틈으로 '+item+' 포장이 보였다.';
   const invitation=beat.invitation;
-  const scene=invitation?.approach==='close'?closerNightScenes[p]:null;
+  // A save paused at the tie prompt still has a choice to make. Completed
+  // decisions keep their original scene, including the following morning.
+  const pendingTie=p==='백지한'&&invitation?.choice==='yes'&&!invitation.tieEnding;
+  const directed=!!invitation&&(invitation.directed??(pendingTie||!invitation.choice&&!!(womenNightRoutes[p]||menNightRoutes[p])));
+  const scene=invitation?.approach==='close'||(directed&&menNightRoutes[p])?closerNightScenes[p]:null;
   if(invitation){
    const lines=scene?.offer||nightInvitations[p];
    const offer=invitation.intent&&lines.intent?lines.intent:lines.ask;
    const decline=playerCasual?'오늘은 그냥 옆에 누워 있자.':'오늘은 그냥 옆에 누워 있어요.';
    if(lines.intro)add('이야기',typeof lines.intro==='string'?lines.intro:lines.intro[host]);
-   const replies=[['yes',lines.yes[playerCasual?1:0]]];
-   if(scene&&p==='백지한')replies.push(['untied',playerCasual?'넥타이는 두고, 더 가까이 와.':'넥타이는 두고, 더 가까이 와요.']);
-   replies.push(['love',playerCasual?'오늘은 나랑 잘래?':'오늘은 저랑 잘래요?']);
+   const jihan=directed&&p==='백지한',siwoo=directed&&p==='한시우',taeo=directed&&p==='정태오';
+   const replies=[];
+   if(!siwoo)replies.push(['yes',taeo?(playerCasual?'응. 안아 올려서 입 맞춰 줘.':'네. 안아 올려서 입 맞춰 줘요.'):lines.yes[playerCasual]]);
+   if(jihan){
+    replies.push(['untied',playerCasual?'넥타이는 두고, 오늘은 나랑 자.':'넥타이는 두고, 오늘은 저랑 자요.']);
+   }else{
+    if(scene&&p==='백지한')replies.push(['untied',playerCasual?'넥타이는 두고, 더 가까이 와.':'넥타이는 두고, 더 가까이 와요.']);
+    let love=playerCasual?'오늘은 나랑 잘래?':'오늘은 저랑 잘래요?';
+    if(siwoo)love=playerCasual?'응. 오늘은 하고 싶은 대로 해 줘.':'네. 오늘은 하고 싶은 대로 해 줘요.';
+    if(taeo)love=playerCasual?'안아 올려 줘. 그 품에서 사랑하고 싶어.':'안아 올려 줘요. 그 품에서 사랑하고 싶어요.';
+    replies.push(['love',love]);
+   }
    replies.push(['quiet',decline]);
-   add(p,offer[npcCasual?1:0]);
+   add(p,offer[npcCasual]);
+   const recordLove=route=>{
+    if(invitation.loveNight)return;
+    const v=initSim(),r=coupleRecord(p);
+    r.loveNights=(r.loveNights||0)+1;
+    invitation.loveNight=r.loveNights;
+    if(route)invitation.loveRoute=route;
+    const pending=host==='trip'?specialRecord().trips.find(t=>t.id===ev.tripScene.id):
+     v.overnightPending?.p===p&&v.overnightPending.day===day?v.overnightPending:null;
+    if(pending){
+     pending.loveNight=invitation.loveNight;
+     if(route)pending.loveRoute=route;
+    }
+    remember(p,'couple:love:'+day,'서로 원해서 사랑을 나눈 밤');
+    writeJournal(p+'와 사랑을 나누기로 했다.');
+   };
    const answer=invitation.choice;
    if(!answer){
     for(const [value,label] of replies){
      choiceButton(label,()=>{
       if(!live()||invitation.choice)return;
       invitation.choice=value;
-      if(value==='love'){
-       const v=initSim(),r=coupleRecord(p);
-       r.loveNights=(r.loveNights||0)+1;
-       invitation.loveNight=r.loveNights;
-       if(host==='trip'){
-        const trip=specialRecord().trips.find(t=>t.id===ev.tripScene.id);
-        if(trip)trip.loveNight=invitation.loveNight;
-       }else if(v.overnightPending?.p===p&&v.overnightPending.day===day)v.overnightPending.loveNight=invitation.loveNight;
-       remember(p,'couple:love:'+day,'서로 원해서 사랑을 나눈 밤');
-       writeJournal(p+'와 사랑을 나누기로 했다.');
-      }
+      if(directed)invitation.directed=true;
+      if(jihan&&value==='untied')recordLove('untied');
+      if(value==='love'&&!(directed&&womenNightRoutes[p]))recordLove(siwoo||taeo?'close':null);
       refresh();
      });
     }
     return true;
    }
    add(state.name,replies.find(([value])=>value===answer)[1],true);
-   if(answer==='love'){
-    const story=loveNightScene(p,invitation.loveNight);
-    add(p,longNightScenes[p].accept[npcCasual?1:0]);renderNightPassage(p,story,'start');add(p,story.aside[npcCasual?1:0]);
+   const selectDetail=(key,choices)=>{
+    if(invitation[key])return true;
+    for(const [value,label,route] of choices){
+     choiceButton(label,()=>{
+      if(!live()||invitation[key])return;
+      invitation[key]=value;
+      invitation.directed=true;
+      if(route)recordLove(route);
+      refresh();
+     });
+    }
+    return false;
+   };
+   const finishNight=()=>choiceButton(options.finishLabel||'일정 계속하기',()=>{if(live())options.onFinish()});
+   if(jihan&&answer==='yes'){
+    add('이야기',lines.together);
+    const tieChoices=[
+     ['tiedLove',playerCasual?'풀지 마. 오늘은 이대로 나랑 자.':'풀지 마요. 오늘은 이대로 저랑 자요.','tied'],
+     ['untiedLove',playerCasual?'풀어 줘. 나도 만지고 싶어.':'풀어 줘요. 저도 만지고 싶어요.','untied'],
+     ['linger',playerCasual?'조금만 더 이렇게 안고 있자.':'조금만 더 이렇게 안고 있어요.'],
+     ['release',playerCasual?'이제 풀어 줘. 오늘은 그냥 쉬자.':'이제 풀어 줘요. 오늘은 그냥 쉬어요.']
+    ];
+    if(!selectDetail('tieEnding',tieChoices))return true;
+    add(state.name,tieChoices.find(([value])=>value===invitation.tieEnding)[1],true);
+    if(invitation.tieEnding==='untiedLove')add('이야기','지한이 곧바로 넥타이를 풀었다. 두 손이 떨어지자 이번에는 내가 먼저 지한을 끌어당겼다.');
+    if(!invitation.loveRoute){
+     add('이야기',invitation.tieEnding==='linger'?'지한이 내가 내민 이마에 입을 맞췄다. 서로의 어깨에 턱을 괴고 잠깐 더 안겨 있다가, 잠이 올 무렵에는 넥타이를 풀고 이불 속에서 손을 잡았다.':'지한은 대답보다 먼저 넥타이를 풀었다. 나는 그에게 베개 한쪽을 내주고 나란히 누웠다.');
+     finishNight();return true;
+    }
+   }else if(jihan&&answer==='untied')add('이야기','지한이 넥타이를 의자 등받이에 걸었다. 돌아온 그를 내가 두 팔로 맞았다.');
+   if(directed&&womenNightRoutes[p]&&answer==='love'){
+    const routes=womenNightRoutes[p];
+    const accept=p==='임하나'?['저도 그러고 싶었어요.','나도 그러고 싶었어.']:longNightScenes[p].accept;
+    add(p,accept[npcCasual]);
+    const choices=[['lead',routes.lead.label,'lead'],['follow',routes.follow.label,'follow'],['rest','오늘은 서로 안고 쉬기로 한다']];
+    if(!selectDetail('direction',choices))return true;
+    if(invitation.direction==='rest'){
+     add('이야기',lines.quiet);finishNight();return true;
+    }
+   }
+   if(answer==='love'||invitation.loveRoute){
+    const story=loveNightScene(p,invitation.loveNight,invitation.loveRoute);
+    if(invitation.loveRoute){
+     add('이야기',invitation.loveNight>1?story.repeatStart:story.firstStart);
+    }else{
+     add(p,longNightScenes[p].accept[npcCasual]);renderNightPassage(p,story,'start');
+    }
+    add(p,story.aside[npcCasual]);
     if(!beat.nightPage){
      choiceButton('다음 장면',()=>{if(live()&&!beat.nightPage){beat.nightPage=1;refresh()}});
     }else{
-     renderNightPassage(p,story,'last');add('이야기',story.after);
-     choiceButton(options.finishLabel||'일정 계속하기',()=>{if(live())options.onFinish()});
+     if(invitation.loveRoute)add('이야기',story.last);
+     else renderNightPassage(p,story,'last');
+     add('이야기',story.after);finishNight();
     }
     return true;
    }
@@ -5681,7 +5894,7 @@ function advanceDay(){const v=initSim(),run=v.running;if(!run)return;repairPendi
  if(d.sharedLife==='home'&&run.slot!==3)reasons.push('함께 비는 저녁 시간이 없었음');
  else if(!sharedLifeSlotFree(d.p,v.day,run.slot,d.sharedLife))reasons.push('예약한 시간에 함께하기 어려움');
  if(reasons.length){run.notes.push(sharedLifeKinds[d.sharedLife]+' 취소 · '+reasons.join(' / '));run.slot++;continue}v.money-=cost;v.energy-=5;run.notes.push(d.p+' · '+sharedLifeKinds[d.sharedLife]);v.activeEvent={place:d.sharedLife==='shopping'?'store':'home',person:d.p,day:v.day,description:'함께 보내기로 한 평범한 하루.',sharedLife:{kind:d.sharedLife}};save();renderChoiceEvent();return}if(d.friendOuting){delete dateBook()[v.day];if(v.energy<10||v.money<10000||!friendBookingSlots(d.p,v.day,false).includes(run.slot)){run.notes.push('친구 외출 취소 · 일정 또는 체력·비용 부족');run.slot++;continue}v.energy-=10;v.money-=10000;run.notes.push(d.p+' · 친구 외출');v.activeEvent={place:'home',person:d.p,day:v.day,description:'친구와 함께 외출했다.',friendScene:{kind:'outing'}};save();renderChoiceEvent();return}if(d.npcLifeSupport!==undefined){const a=npcLifeEvents[d.p]?.[d.npcLifeSupport];delete dateBook()[v.day];if(!a||v.energy<5||fixedActivity(v.day,run.slot)){run.notes.push('응원 일정 취소 · 일정 또는 체력 부족');run.slot++;continue}v.energy-=5;run.notes.push(d.p+' · '+a[2]+' 응원');v.activeEvent={place:a[5],person:d.p,day:v.day,description:'약속한 응원 일정이다.',npcLifeSupport:{i:d.npcLifeSupport}};save();renderChoiceEvent();return}if(d.group){delete dateBook()[v.day];if(v.money<20000||v.energy<10||!d.group.every(p=>lovers().includes(p))||!bothConsented(...d.group)){run.notes.push('함께하는 외출 취소 · 일정 또는 관계 변경');run.slot++;continue}v.money-=20000;v.energy-=10;v.activeEvent={place:'river',person:d.group[0],groupPartners:d.group.slice(),day:v.day,description:'모두의 동의로 잡은 약속 날이다.'};save();renderChoiceEvent();return}if(v.money<20000||v.energy<10){run.notes.push('외출 약속 취소 · 비용 또는 체력 부족');delete dateBook()[v.day];run.slot++;continue}v.money-=20000;v.energy-=10;run.notes.push(d.p+' · '+dateVenue(d.p,d.venue)+' 외출 (-20,000원)');v.activeEvent={person:d.p,place:'home',description:dayLabels[run.slot]+' 약속 시간에 맞춰 도착했다.',venue:dateVenue(d.p,d.venue),day:v.day,slot:run.slot,dateEvent:true,dateDisclosed:!!d.disclosed,answered:false};socialRecord(d.p).lastSeen=v.day;delete dateBook()[v.day];save();renderChoiceEvent();return}if(a==='자유외출'){const h=healthRecord();h.fatigue=Math.min(100,h.fatigue+4);run.outing=true;save();drawTown();switchTab('map');return}const result=runActivity(a);run.notes.push(dayLabels[run.slot]+' · '+result.note);if(result.volunteer){v.activeEvent={place:'park',day:v.day,description:'봉사활동에 참여했다.',volunteerEvent:{guests:volunteerGuests()}};save();renderChoiceEvent();return}if(a==='대학 수업'&&state.job==='대학생'&&v.jaeheeIntro&&v.slot===1&&!npcLifeBusy('공재희',v.day,v.slot)&&!result.jobEvent&&!result.person&&Math.random()<.22){showEvent('campus','수업을 마치고 나오다가 모자와 마스크를 쓴 공재희를 발견했다.','공재희',a);return}if(result.jobEvent){const e=result.jobEvent;showEvent('work',result.note+'\n\n'+(relationshipTier(e[0])>=1?e[0]+'과 업무 중 다시 마주쳤다.':e[2]),e[0],a,e);return}if(result.person){showEvent(result.place,result.note+'\n\n'+(['아르바이트','카페 실습'].includes(a)&&result.person==='강도윤'?'일을 마치자 강도윤이 카운터에서 고개를 들었다.':' '+arrivalText(result.place,result.person)),result.person,a);return}if(startSurpriseVisit(a,result)||meetNeighborAfterActivity(a,result))return;run.slot++}
-const completed=v.day,notes=run.notes.slice();npcLifeTick(completed);crushNight(completed);emotionNight(completed);coupleIssueNight(completed);triangleReportNight(completed);aftermathNight(completed);exNight(completed);breakupNight(completed);if(healthRecord().fatigue>=65)developmentRecord().fatigueDays[completed]=true;healthNight(completed,run,notes);if(deliverPhone(completed))notes.push('휴대전화 · 새 메시지가 도착했다.');const beforeSleep=v.energy;v.energy=Math.min(100,v.energy+(healthRecord().sickDays?35:60));notes.push('수면 · 체력 +'+(v.energy-beforeSleep)+' ('+v.energy+'/100)');v.money-=10000;notes.push('기본 생활비 -10,000원');householdNight(completed,notes);if(state.job==='회사원'&&calendarDate(completed).last){v.money+=2400000;notes.push('월급 입금 +2,400,000원')}if(calendarDate(completed).last){v.money-=550000;notes.push('월세 및 관리비 -550,000원')}if(v.money<0)notes.push('생활비 부족 · 미납액 '+(-v.money).toLocaleString()+'원 (다음 수입에서 충당)');delete v.weekPlans[completed];v.running=null;v.slot=0;if(completed>=365)v.finished=true;else v.day++;writeJournal('DAY '+completed+' 일정 결과\n'+notes.join('\n'));if(completed>=365){v.activeEvent={place:'home',description:'2월 28일, 마지막 하루.',christmasEvent:'ending',day:v.day};save();renderChoiceEvent()}else if(v.overnightPending?.day===completed){const {p,loveNight}=v.overnightPending;delete v.overnightPending;v.activeEvent={place:'home',person:p,day:v.day,description:'다음 날 아침.',coupleMorning:true,loveNight};v.weekEnd=null;save();renderChoiceEvent()}else showEvent('home','DAY '+completed+' 일정 결과\n'+notes.join('\n'),null);renderSim();syncSchedule();drawTown()}
+const completed=v.day,notes=run.notes.slice();npcLifeTick(completed);crushNight(completed);emotionNight(completed);coupleIssueNight(completed);triangleReportNight(completed);aftermathNight(completed);exNight(completed);breakupNight(completed);if(healthRecord().fatigue>=65)developmentRecord().fatigueDays[completed]=true;healthNight(completed,run,notes);if(deliverPhone(completed))notes.push('휴대전화 · 새 메시지가 도착했다.');const beforeSleep=v.energy;v.energy=Math.min(100,v.energy+(healthRecord().sickDays?35:60));notes.push('수면 · 체력 +'+(v.energy-beforeSleep)+' ('+v.energy+'/100)');v.money-=10000;notes.push('기본 생활비 -10,000원');householdNight(completed,notes);if(state.job==='회사원'&&calendarDate(completed).last){v.money+=2400000;notes.push('월급 입금 +2,400,000원')}if(calendarDate(completed).last){v.money-=550000;notes.push('월세 및 관리비 -550,000원')}if(v.money<0)notes.push('생활비 부족 · 미납액 '+(-v.money).toLocaleString()+'원 (다음 수입에서 충당)');delete v.weekPlans[completed];v.running=null;v.slot=0;if(completed>=365)v.finished=true;else v.day++;writeJournal('DAY '+completed+' 일정 결과\n'+notes.join('\n'));if(completed>=365){v.activeEvent={place:'home',description:'2월 28일, 마지막 하루.',christmasEvent:'ending',day:v.day};save();renderChoiceEvent()}else if(v.overnightPending?.day===completed){const {p,loveNight,loveRoute}=v.overnightPending;delete v.overnightPending;v.activeEvent={place:'home',person:p,day:v.day,description:'다음 날 아침.',coupleMorning:true,loveNight,loveRoute};v.weekEnd=null;save();renderChoiceEvent()}else showEvent('home','DAY '+completed+' 일정 결과\n'+notes.join('\n'),null);renderSim();syncSchedule();drawTown()}
 
 let selectedGiftTarget=null;
 function exerciseEncounter(a){const v=initSim();const pool=a==='수영';const candidates=pool?['정태오']:a==='러닝'?['유지안','강도윤']:['강도윤','유지안','임하나'];const chance=pool?.36:.42;const roll=Math.random();if(roll>chance)return '오늘은 아는 사람을 마주치지 않았다.';const person=candidates[Math.floor(Math.random()*candidates.length)];const first=!v.met[person];v.met[person]=true;v.affection[person]=Math.min(999,(v.affection[person]||0)+(first?3:1));v.encounters.push({day:v.day,person,activity:a});const desc=person==='정태오'?'수영을 마치고 나오는 정태오와 마주쳤다.':person==='유지안'?'러닝 중인 유지안과 인사를 나눴다.':person==='강도윤'?'반려견과 산책 중인 강도윤을 만났다.':'강변에서 잠시 쉬고 있는 임하나를 만났다.';return desc+' '+person+' 호감도 +'+(first?3:1)+(first?' · 첫 만남!':'')}
@@ -5708,7 +5921,7 @@ function albumLog(){return Array.from($('log').querySelectorAll('.bubble')).map(
 function albumCapture(ev){if(!ev)return;const v=initSim(),p=ev.person,day=ev.day||v.day,log=albumLog();const capture=(id,who,title,lines=log)=>albumUnlock('event',id,who,title,lines,day);if(ev.coupleChapter?.choice!=null)capture(p+'|couple:chapter:'+ev.coupleChapter.index,p,coupleChapters[p][ev.coupleChapter.index].title);
  const homeBeat=ev.homeEvening?.intimacy||ev.sharedLife?.intimacy||ev.overnight?.intimacy;
  const night=ev.coupleChapter?.night||ev.tripScene?.night||homeBeat;
- if(night?.invitation?.choice==='love')capture(p+'|couple:loveNight',p,'둘이 사랑을 나눈 밤',log);
+ if(night?.invitation?.loveNight)capture(p+'|couple:loveNight',p,'둘이 사랑을 나눈 밤',log);
  if(homeBeat?.ending){
   const kind=homeBeat.ending==='stay'?'stay':homeBeat.kiss==='confirmed'?'kiss':homeBeat.kiss;
   const titles={stay:'둘이 맞는 아침을 기다리며',light:'짧은 입맞춤',deep:'조금 더 긴 입맞춤',kiss:'돌아가기 전 입맞춤'};

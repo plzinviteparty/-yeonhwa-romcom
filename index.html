@@ -110,7 +110,10 @@ function tripDialogue(p,season,dayStage,sceneIndex,group){
  if(sceneIndex===1)return season===1?specialMemoryVoices[p][2]:seasonalTripVoices[p][4];
  return group?friendshipVoices[p][2]:tripLodgingAndMorningVoices[p][0];
 }
-const overnightPreparationHint='가방에서 충전기를 꺼내는 사이, 파우치 안에 챙겨 온 콘돔과 핑거돔이 잠깐 보였다.';
+function overnightPreparationHint(person){
+ const item=npcProfiles[person].gender==='여'?'핑거돔':'콘돔';
+ return '가방에서 충전기를 꺼내는 사이, 파우치 안에 챙겨 온 '+item+' 포장이 잠깐 보였다.';
+}
 const tripOvernightChoice='서로 괜찮다면 오늘 밤은 함께 보내자고 한다';
 function tripOvernightReady(o,p,day){
  if(o.stage!==1||o.group||o.people.length!==1||!vIsDating(p)||day-coupleRecord(p).since<14)return false;
@@ -121,7 +124,7 @@ function renderTrip(ev){const v=initSim(),o=ev.tripScene,p=ev.person,index=o.sea
 if(step===2&&tripOvernightReady(o,p,v.day))scenes[2].opts.splice(2,0,tripOvernightChoice);
 $('progress').textContent=seasonalTripData[index][0]+' · '+o.stage+'일차';for(let i=0;i<=Math.min(step,scenes.length-1);i++){const scene=scenes[i];add('이야기',scene.title+' — '+scene.description);for(const q of o.people){add(q,tripDialogue(q,index,o.stage,i,o.group))}if(o.steps[i]){add(state.name,o.steps[i].label,true);if(o.steps[i].overnight){
  add(p,o.steps[i].reply);
- add('이야기',overnightPreparationHint);
+ add('이야기',overnightPreparationHint(p));
 }else add('이야기',o.steps[i].reply)}}if(step>=scenes.length){if(!o.answer){o.answer=o.steps.map(x=>x.label).join(' / ');for(const q of o.people){socialRecord(q).lastTogether=v.day;socialRecord(q).lastSeen=v.day;if(o.group)socialRecord(q).friendship++;else if(vIsDating(q))feel(q,{security:2});remember(q,'trip:'+o.id+':'+o.stage,o.answer)}if(o.stage===2){const t=specialRecord().trips.find(t=>t.id===o.id);if(t)t.status='complete'}save()}choiceButton('일정 계속하기',()=>{if(v.running)v.running.slot=3;finishEvent()});return}for(const [i,label] of scenes[step].opts.entries())choiceButton(label,()=>{if(o.steps.length!==step)return;let reply='함께 보낸 순간을 기억에 남겼다.';if(o.stage===1&&step===2){if(!o.group&&i===1){const c=touchContext(p,v.day);reply=c.tired||c.conflicted?'상대는 오늘은 편하게 쉬고 싶다고 말했다. 그 마음을 존중했다.':'상대가 괜찮다고 답한 뒤 나란히 앉아 이야기를 나누었다.'}else reply=i===scenes[step].opts.length-1?'각자의 휴식 시간을 존중하며 하루를 마쳤다.':'늦은 시간까지 이야기하다 각자 편안히 쉬었다.'}if(label===tripOvernightChoice){
  if(!tripOvernightReady(o,p,v.day))return;
  o.steps.push({label,reply:coupleVoices[p][2][2],overnight:true});
@@ -1089,7 +1092,7 @@ function renderCoupleDate(ev,p){if(!romanceBonusAllowed(ev,'coupleDate'))return 
 function overnightReady(p,day){const v=initSim();if(v.romance[p]!=='dating'||day>=364||v.overnightPending||!v.running||!v.running.plan.slice(v.running.slot+1).every(a=>a==='휴식')||fixedActivity(day+1,0)||dateBook()[day+1]?.slot===0||[299,300].includes(day+1)||npcLifeBusy(p,day+1,0))return false;const r=coupleRecord(p),c=touchContext(p,day);return day-r.since>=14&&!!r.seen.early&&!!r.seen.steady&&!r.seen.overnight&&!c.conflicted&&!c.tired&&c.security>=5&&dateHistory(p).filter(x=>x.day>r.since&&x.day<=day).length>=2&&!relationshipBoundaryLine(p,day)}
 function renderOvernight(ev,p){const v=initSim(),day=ev.day||v.day;if(!ev.overnight){if(!overnightReady(p,day)||!ev.homeTouchText)return false;ev.overnight={};save()}const o=ev.overnight,a=coupleVoices[p][2];add('이야기',a[0]);add(p,a[1]);if(o.answer!==undefined){add(state.name,o.answer===1?'좋아요. 오늘 밤 함께 보내요.':'오늘은 각자 쉬고 싶어요.',true);add(p,a[o.answer===1?2:3]);if(o.answer===1){
  add('이야기','두 사람은 오늘 밤을 함께 보내기로 했다.');
- add('이야기',overnightPreparationHint);
+ add('이야기',overnightPreparationHint(p));
 }return false}for(const [label,i] of [['좋아요. 오늘 밤 함께 보내요.',1],['오늘은 각자 쉬고 싶어요.',2]])choiceButton(label,()=>{if(o.answer!==undefined)return;o.answer=i;if(i===1){v.overnightPending={p,day};coupleRecord(p).seen.overnight=day;v.running.notes.push(p+'와 함께 보내는 밤');remember(p,'couple:overnight','함께 밤을 보내기로 함')}save();renderChoiceEvent();renderSim()});return true}
 function renderCoupleMorning(ev){const v=initSim(),p=ev.person,a=coupleVoices[p][2];$('progress').textContent='연인의 아침';add('이야기',a[4]);add(p,a[5]);if(ev.morningAnswer){add(state.name,ev.morningAnswer.label,true);add(p,ev.morningAnswer.reply);choiceButton('오늘 하루 시작하기',finishEvent);return}for(const [label,reply,i] of [[a[6],a[7],0],[a[8],a[9],1]])choiceButton(label,()=>{if(ev.morningAnswer)return;ev.morningAnswer={label,reply};coupleRecord(p).history.push({day:v.day,stage:'morning',choice:i,label,reply});socialRecord(p).lastTogether=v.day;feel(p,{security:2});remember(p,'couple:morning',label+' / '+reply);writeJournal(p+' · 함께 맞이한 아침');save();renderChoiceEvent();renderSim()})}
 

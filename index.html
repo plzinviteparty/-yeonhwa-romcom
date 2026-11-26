@@ -67,7 +67,7 @@
  #standingName{font-size:12px;padding:3px 7px}
  #game>.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.179-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.180-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -5402,13 +5402,222 @@ const christmasLines={"공재희":["크리스마스에 뭐 해요?","오늘 방�
 const eveScenes={"공재희":[["재희가 오락실 앞에서 손을 흔들었다.","오늘 방송 쉬는 날이에요.","오늘은 같이 놀아요.","웅ㅋㅋ"],["인형뽑기 기계 앞에 섰다.","저거 귀엽다.","같이 뽑아요.","좋아요."],["따뜻한 음료를 마셨다.","손 시려.","따뜻한 거 마셔요.","고마워요."],["재희가 작은 포장 상자를 내밀었다.","이거 골라 왔어요.","고마워요. 잘 간직할게요.","진짜?"],["거리의 조명이 반짝였다.","내년에도 볼 수 있겠죠?","그랬으면 좋겠어요.","나도요."],["집으로 돌아갈 시간이 되었다.","좀 아쉽다.","다음에 또 만나요.","약속."]],"강도윤":[["마감 안내판이 걸린 오후 네 시. 도윤이 앞치마를 벗고 모카의 목줄을 챙긴다.","오늘은 제가 준비했어요. 그래도 마음에 안 드는 게 있으면 꼭 말해 줘요.","오늘은 도윤 씨도 하고 싶은 걸 해요.","그럼… 일단 모카랑 같이 걸을까요? 제가 좋아하는 길이 있어요."],["강변에서 모카가 눈을 헤치며 달린다. 도윤이 웃다가 당신의 장갑을 살핀다.","손 시렵지 않아요? 제 주머니 따뜻한데.","같이 주머니에 손 넣을까요?","어, 잠깐만. 제가 먼저 말하려고 했는데."],["가게로 돌아오니 두 사람 몫의 식사가 차려져 있다. 도윤은 자기 접시보다 당신의 접시를 먼저 살핀다.","맛있어요? 부족하면 더 만들어 올게요.","이제 앉아서 같이 먹어요.","…네. 오늘은 저도 대접받는 기분이네요."],["도윤이 작은 상자를 내민다. 안에는 직접 고른 원두와 손글씨 카드가 있다.","가게 말고 제 이름으로 드리는 선물이에요.","도윤 씨가 골라 준 거라서 좋아요.","그렇게 말하면 다음에는 더 잘하고 싶어지잖아요."],["빈 잔을 정리하던 도윤이 문득 손을 멈춘다.","내년에는 어떤 크리스마스를 보내고 싶어요?","도윤 씨도 행복한 크리스마스였으면 좋겠어요.","…그 안에 제가 있어도 되는 거죠?"],["가게 밖에서 헤어질 시간이 되었다. 도윤은 문을 잠그고도 한참 움직이지 않는다.","조금만 더 걸을까요? 오늘은 보내기가 아쉽네요.","좋아요. 조금 더 같이 있어요.","다행이다. 오늘은 괜히 괜찮은 척하기 싫어서요."]],"서이준":[["빌라 앞에서 이준이 목도리를 고쳐 매고 기다린다.","왔어요? 식당 예약해 놨어요.","기다리셨어요?","좀 일찍 나왔어요. …기다린 건 아니고."],["골목의 고양이 급식소에 눈이 쌓였다. 이준이 눈을 털어 낸다.","잠깐만요. 이 녀석 밥부터 줘야 돼요.","저도 도울게요.","…고마워요. 둘이 하니까 금방이네요."],["식당에서 이준이 메뉴판을 당신 쪽으로 돌린다.","여기 메뉴 괜찮아 보여요. 먹고 싶은 거 골라요.","같이 골라요.","그래요. 혼자 먹을 것도 아니니까."],["이준이 작은 포장 상자를 꺼낸다. 안에는 따뜻한 장갑이 들어 있다.","맨날 손 차갑잖아요. 그래서 골랐어요.","끼워 주실래요?","…손 줘 봐요."],["조명이 비치는 골목에서 이준이 걸음을 늦춘다.","혼자 쉬는 게 제일 좋았는데, 요즘은 좀 다르네요.","어떻게 다른데요?","…안 보이면 뭐 하고 있나 신경 쓰여요."],["빌라 앞에 도착했지만 이준은 현관 비밀번호를 누르지 않는다.","내일도 시간 있어요?","내일도 만나요.","…그래요. 기다릴게요."]],"백지한":[["지한이 예약한 식당 앞에서 기다린다. 평소보다 단정한 차림이다.","오늘은 제가 좀 신경 썼는데, 알아봐 주실래요?","오늘 멋있네요.","이런 말 한마디에 기분이 좋아지네."],["장식이 가득한 거리에서 지한이 사람들 사이로 손을 내민다.","놓치면 곤란하니까. 손 잡아도 돼요?","네. 잡아요.","그럼 오늘은 제가 놓지 않을게요."],["식사가 끝나갈 무렵 지한이 잔을 내려놓는다.","오늘 다른 약속은 없죠?","오늘은 지한 씨랑 보내기로 했잖아요.","그 말이 듣고 싶었나 봐요."],["지한이 작은 상자를 건넨다. 고른 소품에는 당신의 취향이 반영되어 있다.","전에 눈여겨보던 거 기억했어요.","그걸 기억했어요?","들려준 얘기는 생각보다 잘 기억하거든요."],["야경을 보던 지한의 웃음이 잠시 사라진다.","내가 당신한테 어느 정도로 특별한지 궁금해요.","지한 씨는 지한 씨대로 특별해요.","…그걸로 만족해야 하는데, 쉽지가 않네요."],["집 앞에서 지한이 손을 놓고 한 걸음 물러선다.","내일도 나한테 시간 좀 줄래요?","내일 이야기해요.","좋아요. 이번엔 농담 아니니까."]],"한시우":[["오락실에서 한시우와 만났다.","오늘은 승부보다 같이 노는 게 좋네요.","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["한시우가 포장한 선물을 내민다. 안에는 한정판 키링이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일도 같이 놀아요. 이번엔 진짜 약속!","내일 또 봐요.","네. 조심히 들어가요."]],"정태오":[["강변 산책로에서 정태오와 만났다.","추우시면 말씀하십시오. 무리하실 필요 없습니다.","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["정태오가 포장한 선물을 내민다. 안에는 손난로이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일도 뵙고 싶습니다.","내일 또 봐요.","네. 조심히 들어가요."]],"임하나":[["작은 서점에서 임하나와 만났다.","오늘은 제 시간을 제가 정했어요.","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["임하나가 포장한 선물을 내민다. 안에는 직접 뜬 목도리이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일도 만나면 좋겠어요.","내일 또 봐요.","네. 조심히 들어가요."]],"차유리":[["겨울 전시회에서 차유리와 만났다.","이런 전시는 혼자 봐도 좋지만 같이 보니 또 다르네요.","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["차유리가 포장한 선물을 내민다. 안에는 직접 디자인한 엽서이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일 시간 맞으면 또 봐요.","내일 또 봐요.","네. 조심히 들어가요."]],"오세린":[["조용한 찻집에서 오세린와 만났다.","오늘은 서두르지 않아도 되겠네요.","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["오세린가 포장한 선물을 내민다. 안에는 꽃무늬 찻잔이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일도 따뜻하게 보내요.","내일 또 봐요.","네. 조심히 들어가요."]],"유지안":[["거리 공연 광장에서 유지안와 만났다.","오늘은 관객으로 즐기는 것도 좋네요!","오늘 함께 와서 좋아요.","저도 오늘을 기다렸어요."],["연말 장식을 구경하며 천천히 걸었다.","잠깐 사진 남길까요?","같이 찍어요.","좋아요. 오늘의 기록이네요."],["따뜻한 식사를 앞에 두고 올해 있었던 일을 이야기했다.","올해 기억에 남는 일이 있어요?","함께 보낸 시간이 기억에 남아요.","그렇게 기억해 주니 좋네요."],["유지안가 포장한 선물을 내민다. 안에는 작은 음악 상자이(가) 들어 있다.","어울릴 것 같아서 골랐어요.","소중하게 간직할게요.","마음에 들어서 다행이에요."],["거리의 조명이 하나씩 켜졌다.","내년에는 어떤 일을 하고 싶어요?","내년에도 함께 이야기하고 싶어요.","그럼 좋겠네요."],["헤어질 시간이 다가왔다.","내일도 같이 웃을 수 있으면 좋겠어요.","내일 또 봐요.","네. 조심히 들어가요."]]};
 Object.assign(eveScenes,{"한시우":[["시우가 오락실 앞에서 승리 포즈를 취했다.","오늘은 랭크 안 돌려요. 우리 둘이 노는 날이니까!","오늘은 승부 말고 재미로 해요.","오케이! 근데 지면 살짝 억울할 듯ㅋㅋ"],["시우가 연말 장식 앞에서 휴대전화를 꺼냈다.","와, 이 배경이면 인증샷 각인데요?","같이 브이 하고 찍어요.","오예! 오늘의 프로필 후보 생겼다."],["시우가 식사를 앞에 놓고 웃음을 멈췄다.","올해 경기 말고도 기억에 남는 게 많더라고요.","저도 시우 씨와 논 날들이 기억나요.","와… 그 말 생각보다 엄청 좋네요."],["시우가 한정판 키링이 든 상자를 내밀었다.","이거 구하는 데 은근 난이도 높았어요!","가방에 달고 다닐게요.","앗, 장착 인증 기대합니다!"],["시우가 장식 조명을 보며 입김을 불었다.","내년에도 우리 이렇게 놀 수 있겠죠?","내년에도 같이 새로운 걸 해 봐요.","콜! 그 약속은 진짜 지킬래요."],["시우가 돌아가는 길을 확인하다 당신을 봤다.","내일도 시간 있어요? 이번엔 장난 아님.","내일 또 봐요.","오예… 아니, 진짜 좋네요."]],"정태오":[["태오가 강변 입구에서 장갑을 고쳐 끼고 기다렸다.","오늘은 충분히 시간을 확보했습니다.","휴무를 함께 보내 줘서 고마워요.","…제가 원해서 시간을 비운 것입니다."],["태오가 한적한 길을 찾았다.","이쪽 조명이 좋고 길도 안전하군요.","여기서 천천히 구경해요.","알겠습니다. 저도 서두르고 싶지 않습니다."],["태오가 식사 중 숟가락을 내려놓았다.","올해는 근무 외의 일도 기억에 남았습니다.","태오 씨도 자기 시간이 있었으면 좋겠어요.","…그렇게 생각해 주시는 것이 고맙습니다."],["태오가 손난로가 들어 있는 상자를 건넸다.","추운 날 외출하실 때 쓰시면 좋겠습니다.","태오 씨가 골라 줘서 더 좋아요.","다행입니다. 실용적이기만 한 선물일까 걱정했습니다."],["태오가 가로등 아래서 멈췄다.","앞으로도 함께 걸을 시간이 있으면 좋겠습니다.","저도 그런 시간이 더 있었으면 해요.","…기억하겠습니다."],["태오가 귀갓길을 가리켰다.","내일도 뵐 수 있겠습니까?","네. 내일 또 봐요.","감사합니다. 기다리고 있겠습니다."]],"임하나":[["하나가 작은 서점 앞에서 웃었다.","오늘은 제가 제 시간을 정했어요.","오늘 하고 싶은 걸 하나 씨가 골라요.","……그럼 책부터 보고 싶어요!"],["하나가 장식이 달린 골목에서 멈췄다.","저 이런 불빛 아래서 사진 찍어 보고 싶었어요.","우리 같이 사진 남겨요.","네! 제가 먼저 찍자고 해도 되는 거죠."],["하나가 메뉴판을 천천히 살폈다.","오늘은 가격 말고 먹고 싶은 걸 생각해 볼래요.","하나 씨가 원하는 걸 먹어요.","……이런 날이 있어서 좋네요."],["하나가 직접 뜬 목도리를 내밀었다.","뜨면서 어떤 색이 어울릴지 계속 생각했어요.","소중히 쓰고 싶어요.","……제가 만든 게 그렇게 좋다고 해 주니까 기뻐요."],["하나가 불빛을 바라봤다.","내년에는 제가 가고 싶은 곳을 더 많이 가고 싶어요.","하나 씨의 계획을 응원할게요.","네. 그중에 같이 가고 싶은 곳도 많아요."],["하나가 가방 끈을 고쳐 잡았다.","저… 내일도 보고 싶다고 말해도 돼요?","내일 또 만나고 싶어요.","……네. 제가 먼저 연락할게요."]],"차유리":[["유리가 전시회 입구에서 티켓을 들어 보였다.","오, 왔어요? 서로 마음에 드는 작품 찾아요.","유리 씨가 어떤 걸 고르는지 궁금해요.","좋다! 감상 끝나면 비교해 봐요."],["유리가 조명이 비친 유리창을 찍었다.","이 빛은 그림으로 옮기고 싶네요.","나도 마음에 드는 색을 찾아볼게요.","오, 우리 눈에 들어오는 게 다르니까 재밌다."],["유리가 식사 중 스케치북을 꺼냈다.","올해는 제 그림을 다시 많이 생각했어요.","유리 씨가 하고 싶은 작업이 궁금해요.","나중에 보여 줄게요. 꽤 빨리요."],["유리가 직접 디자인한 엽서를 내밀었다.","오늘 생각하면서 색을 골랐어요.","작품처럼 잘 간직할게요.","오, 작품 대접 받았네. 기분 좋다!"],["유리가 창에 반사된 불빛을 봤다.","내년에도 그림 그리고 제 생활 잘 꾸리고 싶어요.","저도 제 생활을 잘 꾸리면서 같이 만나요.","좋아요. 서로 그런 모습이 더 좋으니까."],["유리가 코트 단추를 채웠다.","내일 시간 되면 얼굴 또 볼래요?","내일도 시간 맞춰 봐요.","좋다. 각자 할 일도 챙기면서요."]],"오세린":[["세린이 찻집 창가에서 손을 흔들었다.","으음, 오늘은 차가 식을 때까지 천천히 이야기해요.","세린 씨도 편하게 쉬어요.","아아, 그 말만으로 여유가 생기네요."],["세린이 작은 나무의 장식을 바라봤다.","어머, 손으로 만든 장식 같네요.","같이 천천히 구경해요.","네. 이런 시간은 서두르지 않아도 좋죠."],["세린이 따뜻한 차를 따랐다.","올해는 병원 밖에서 보내는 시간도 소중했어요.","세린 씨의 일상도 더 알고 싶어요.","으음, 앞으로 천천히 이야기해 드릴게요."],["세린이 꽃무늬 찻잔을 내밀었다.","차를 마실 때 오늘이 떠오르면 좋겠어요.","따뜻한 차를 마실 때마다 생각할게요.","어머, 그렇게 말씀해 주시니 좋네요."],["세린이 조용한 거리를 바라봤다.","내년에도 각자가 원하는 삶을 살았으면 해요.","서로의 생활을 존중하면서 만나요.","아아, 그런 관계라면 참 좋겠어요."],["세린이 목도리를 정돈했다.","내일도 따뜻한 시간을 보낼 수 있을까요?","내일 또 이야기해요.","네. 편안한 밤 보내고 내일 봐요."]],"유지안":[["지안이 공연 광장에서 손을 흔들었다.","와우! 오늘은 무대 말고 관객석 담당이에요!","오늘은 지안 씨도 마음껏 즐겨요.","예쓰! 오늘의 안무는 신나게 놀기!"],["지안이 장식 조명에 맞춰 박자를 탔다.","헐, 저 조명 완전 뮤비 같지 않아요?","지안 씨가 좋아하는 노래가 떠오르네요.","와, 그 노래 기억하고 있었어요?"],["지안이 식사를 하다 진지해졌다.","올해는 무대 아닌 곳에서도 춤이 좋다는 걸 느꼈어요.","지안 씨가 좋아하는 춤을 계속 보고 싶어요.","……그 말 들으니 더 하고 싶네요."],["지안이 작은 음악 상자를 건넸다.","이 멜로디 듣는데 오늘 생각났어요!","좋은 날에 꼭 틀어 둘게요.","와우, 그럼 오늘 플레이리스트로 저장!"],["지안이 두 손을 주머니에 넣었다.","내년에도 좋아하는 걸 계속 좋아할 수 있으면 좋겠어요.","지안 씨의 내년을 응원해요.","고마워요! 그쪽 내년도 제가 응원할래요."],["지안이 귀갓길을 가리켰다.","내일도 같이 웃을 수 있으면 좋겠어요.","내일 또 봐요.","넵! 오늘 엔딩 완전 좋다!"]],"공재희":[["재희가 오락실 앞에서 분홍색 장갑을 흔들었다.","오늘 방송 안 켰어요ㅋㅋ 그냥 같이 놀고 싶어서.","오늘은 재희 씨가 하고 싶은 거 해요.","헐 좋다. 나 진짜 하고 싶은 거 많음!"],["재희가 인형뽑기 기계 앞에 섰다.","저거 귀엽다. 곰인형이랑 같이 두면 좋겠다.","같이 도전해 봐요.","웅ㅋㅋ 오늘은 한 번만 더!"],["재희가 따뜻한 딸기 음료를 감쌌다.","방송에서는 계속 말해야 되는데 오늘은 그냥 웃어도 되네.","재희 씨가 편하게 있어도 좋아요.","……그 말 좀 좋음. 진짜로."],["재희가 작은 포장 상자를 내밀었다.","고르는데 한참 걸렸어요. 나름 취향 생각했음ㅋㅋ","재희 씨가 골라 줘서 좋아요.","헐 진짜? 나 오늘 성공했네."],["재희가 거리 조명을 올려다봤다.","내년에도 우리 이렇게 놀 수 있겠죠?","각자 바빠도 시간 맞춰서 놀아요.","웅. 답장 늦어도 혼자 막 생각 안 할게요."],["재희가 돌아가는 길을 확인했다.","아 벌써 가요? 내일도 볼 수 있음?","내일 또 봐요.","웅… 나 진짜 기다릴게요ㅋㅋ"]]});
 const eveNeutralVoice={"서이준":["…추운데 왔네요. 들어가죠.","고양이 밥만 챙기고 가요.","먹고 싶은 걸 골라요. 시간은 많으니까.","사이즈 맞으면 좋겠네요.","…내년에도 각자 잘 지내면 좋겠어요.","그럼 들어가요. 감기 조심하고요."],"강도윤":["하하, 오늘은 편하게 즐겨요.","모카가 신났네요. 천천히 걸어요.","오늘은 저도 앉아서 먹을게요.","부담 갖지 말고 편하게 써 주세요.","서로 하고 싶은 일이 잘됐으면 좋겠네요.","따뜻하게 들어가요. 오늘 고마웠어요."],"한시우":["오예! 연말 이벤트 시작!","오케이, 사진은 나중에 보고 지금 놀죠!","올해 경기 썰은 다음에 또 풀게요.","키링 마음에 들면 가방에 달아요!","내년에도 각자 레벨업 합시다!","ㅇㅋ! 다음에 또 게임해요."],"백지한":["오늘은 편한 손님으로 모실게요.","좋아요. 각자 걸음대로 가죠.","그럼 맛있는 것부터 신경 쓰죠.","부담 없이 받아요. 잘 어울릴 것 같아서요.","좋죠. 서로 자기 계획도 챙겨야죠.","알겠어요. 오늘은 여기까지로 예약 완료."],"정태오":["시간 맞춰 주셔서 감사합니다.","알겠습니다. 혼잡한 곳은 피하시죠.","올해도 무사히 마무리할 수 있으면 좋겠습니다.","필요할 때 사용하십시오.","서로 건강하고 안전한 한 해였으면 합니다.","귀갓길 조심하십시오. 다음에 뵙겠습니다."],"임하나":["네! 오늘은 저도 편하게 놀고 싶어요.","이렇게 천천히 걷는 것도 좋아요.","저도 올해는 하고 싶은 걸 많이 생각했어요.","따뜻하게 쓰시면 좋겠어요.","내년에는 제 계획도 먼저 세워 볼래요.","오늘 함께해 주셔서 정말 감사해요."],"차유리":["오, 왔어요! 전시부터 볼까요?","좋아요. 각자 마음에 드는 구도 찾아요.","올해는 그림에 대해 생각할 일이 많았죠.","엽서는 마음에 드는 데 붙여 둬요.","서로 작업도 생활도 잘 풀렸으면 좋겠네요.","오케이, 저는 돌아가서 그림 좀 그릴게요."],"오세린":["아아, 와 주셔서 고마워요.","으음, 천천히 둘러보면 좋겠네요.","올해도 참 많은 일이 있었죠.","차 마실 때 편히 쓰세요.","각자의 하루가 편안한 해였으면 좋겠어요.","오늘은 충분히 쉬었네요. 잘 들어가요."],"유지안":["와우! 오늘은 신나게 즐겨 봐요!","좋죠! 거리 구경도 재밌잖아요.","올해도 춤을 계속 춘 게 제일 기억나요.","좋아하는 곡처럼 오래 남으면 좋겠다!","내년에는 더 멋진 안무 만들래요!","넵! 오늘 푹 쉬고 다음에 또 놀아요!"],"공재희":["웅ㅋㅋ 오늘은 방송 걱정 안 할래요.","오케이. 구경부터 해요!","아 올해 진짜 별일 많았음ㅋㅋ","마음에 들면 꼭 쓰기!","내년엔 나도 하고 싶은 거 좀 더 해 볼래요.","웅. 집 가서 따뜻하게 있어요."]};
+const eveCasualScenes={
+ "강도윤":[["오늘은 내가 준비했어. 그래도 마음에 안 드는 게 있으면 꼭 말해 줘.","{호칭}, 오늘은 하고 싶은 걸 골라 봐. 나도 같이 할래.","그럼… 일단 모카랑 같이 걸을까? 내가 좋아하는 길이 있어.","오늘은 편하게 즐기자."],["손 안 시려? 내 주머니 따뜻한데.","주머니에 손 같이 넣을까?","어, 잠깐만. 내가 먼저 말하려고 했는데.","모카가 신났네. 천천히 걷자."],["맛있어? 부족하면 더 만들어 올게.","이제 앉아서 같이 먹자.","…응. 오늘은 나도 대접받는 기분이네.","오늘은 나도 앉아서 먹을게."],["가게 말고 내 이름으로 주는 선물이야.","{호칭}, 직접 골라 준 거라서 더 좋아.","그렇게 말하면 다음엔 더 잘하고 싶어지잖아.","부담 갖지 말고 편하게 써 줘."],["내년엔 어떤 크리스마스를 보내고 싶어?","{호칭}, 내년 이맘때도 이렇게 웃는 얼굴을 보고 싶어.","…그 안에 나도 있어도 되는 거지?","서로 하고 싶은 일이 잘됐으면 좋겠다."],["조금만 더 걸을까? 오늘은 보내기가 아쉽네.","좋아. 조금 더 같이 있자.","다행이다. 오늘은 괜히 괜찮은 척하기 싫었거든.","따뜻하게 하고 들어가. 오늘 고마웠어."]],
+ "서이준":[["왔어? 식당 예약해 놨어.","{호칭}, 오래 기다렸어?","좀 일찍 나왔어. …기다린 건 아니고.","…추운데 왔네. 들어가자."],["잠깐만. 이 녀석 밥부터 줘야 돼.","나도 도울게.","…고마워. 둘이 하니까 금방이네.","고양이 밥만 챙기고 가자."],["여기 메뉴 괜찮아 보여. 먹고 싶은 거 골라.","같이 고르자.","그래. 혼자 먹을 것도 아니니까.","먹고 싶은 거 골라. 시간 많으니까."],["맨날 손 차갑잖아. 그래서 골랐어.","끼워 줄래?","…손 줘 봐.","사이즈 맞으면 좋겠네."],["혼자 쉬는 게 제일 좋았는데, 요즘은 좀 다르네.","어떻게 다른데?","…안 보이면 뭐 하고 있나 신경 쓰여.","…내년에도 각자 잘 지내면 좋겠다."],["내일도 시간 있어?","내일도 만나자.","…그래. 기다릴게.","그럼 들어가. 감기 조심하고."]],
+ "백지한":[["오늘은 내가 좀 신경 썼는데, 알아봐 줄래?","오늘 멋있네.","이런 말 한마디에 기분이 좋아지네.","오늘은 편하게 구경해. 안내는 내가 할게."],["놓치면 곤란하니까. 손 잡아도 돼?","응. 잡아.","그럼 오늘은 내가 놓지 않을게.","좋아. 각자 걸음대로 가자."],["오늘 다른 약속은 없지?","{호칭}, 오늘은 우리 둘이 보내기로 했잖아.","그 말이 듣고 싶었나 봐.","그럼 맛있는 것부터 신경 쓰자."],["전에 눈여겨보던 거 기억했어.","그걸 기억했어?","들려준 얘기는 생각보다 잘 기억하거든.","부담 없이 받아. 잘 어울릴 것 같아서."],["{호칭}, 내가 얼마나 특별한 사람인지 가끔 궁금해.","{호칭}, 나한테는 정말 특별해.","…그걸로 만족해야 하는데, 쉽지가 않네.","좋지. 서로 자기 계획도 챙겨야지."],["내일도 나한테 시간 좀 줄래?","내일 이야기하자.","좋아. 이번엔 농담 아니니까.","알겠어. 오늘은 여기까지로 예약 완료."]],
+ "한시우":[["오늘은 랭크 안 돌려. 우리 둘이 노는 날이니까!","오늘은 승부 말고 재미로 하자.","오케이! 근데 지면 살짝 억울할 듯ㅋㅋ","오예! 연말 이벤트 시작!"],["와, 이 배경이면 인증샷 각인데?","같이 브이 하고 찍자.","오예! 오늘 프로필 후보 생겼다.","오케이, 사진은 나중에 보고 지금 놀자!"],["올해는 경기 말고도 기억에 남는 게 많더라.","{호칭}, 나도 올해는 같이 놀았던 날들이 먼저 생각나.","와… 그 말 생각보다 엄청 좋네.","올해 경기 썰은 다음에 또 풀게."],["이거 구하는 데 은근 난이도 높았어!","가방에 달고 다닐게.","앗, 가방에 달면 인증샷도 보내 줘!","키링 마음에 들면 가방에 달아!"],["내년에도 우리 이렇게 놀 수 있겠지?","내년에도 같이 새로운 걸 해 보자.","콜! 그 약속은 진짜 지킬래.","내년에도 각자 레벨업하자!"],["내일도 시간 있어? 이번엔 장난 아님.","내일 또 보자.","오예… 아니, 진짜 좋다.","오케이! 다음에 또 게임하자."]],
+ "정태오":[["오늘은 시간을 넉넉히 비워 뒀어.","쉬는 날 같이 보내 줘서 고마워.","…내가 원해서 비워 둔 시간이야.","시간 맞춰 줘서 고마워."],["이쪽 조명이 좋고 길도 안전하군.","여기서 천천히 구경하자.","알겠어. 나도 서두르고 싶지 않아.","알겠어. 사람 많은 곳은 피하자."],["올해는 근무 말고도 기억에 남는 일이 많았어.","{호칭}, 내년엔 쉬는 날에 하고 싶은 일도 더 많이 했으면 좋겠어.","…그렇게 생각해 줘서 고마워.","올해도 무사히 마무리할 수 있으면 좋겠어."],["추운 날에 나올 때 쓰면 좋겠어.","{호칭}, 직접 골라 줘서 더 좋아.","다행이네. 실용적이기만 한 선물일까 걱정했어.","필요할 때 써."],["앞으로도 함께 걸을 시간이 있으면 좋겠어.","나도 그런 시간이 더 있었으면 해.","…기억할게.","서로 건강하고 안전한 한 해였으면 해."],["내일도 볼 수 있을까?","응. 내일 또 보자.","고마워. 기다리고 있을게.","귀갓길 조심해. 다음에 보자."]],
+ "임하나":[["오늘은 내가 내 시간을 정했어.","{호칭}, 오늘은 하고 싶은 걸 골라 봐.","……그럼 책부터 보고 싶어!","응! 오늘은 나도 편하게 놀고 싶어."],["나 이런 불빛 아래서 사진 찍어 보고 싶었어.","우리 같이 사진 남기자.","응! 내가 먼저 찍자고 해도 되는 거지?","이렇게 천천히 걷는 것도 좋아."],["오늘은 가격 말고 먹고 싶은 걸 생각해 볼래.","{호칭}, 먹고 싶었던 걸로 골라.","……이런 날이 있어서 좋네.","나도 올해는 하고 싶은 걸 많이 생각했어."],["뜨면서 어떤 색이 어울릴지 계속 생각했어.","소중하게 쓸게.","……내가 만든 건데 그렇게 좋아해 주니까 기뻐.","따뜻하게 쓰면 좋겠어."],["내년에는 내가 가고 싶은 곳에 더 많이 가고 싶어.","{호칭}, 내년에 어디 다녀왔는지 들려줘. 나도 응원할게.","응. 그중엔 같이 가고 싶은 곳도 많아.","내년엔 내 계획도 먼저 세워 볼래."],["나… 내일도 보고 싶다고 말해도 돼?","내일 또 만나고 싶어.","……응. 내가 먼저 연락할게.","오늘 함께해 줘서 정말 고마워."]],
+ "차유리":[["오, 왔어? 각자 마음에 드는 작품 찾아보자.","{호칭}, 어떤 작품을 고를지 벌써 궁금해.","좋다! 다 보고 나서 비교해 보자.","오, 왔어! 전시부터 볼까?"],["이 빛은 그림으로 옮기고 싶네.","나도 마음에 드는 색을 찾아볼게.","오, 우리 눈에 들어오는 게 다르니까 재밌다.","좋아. 각자 마음에 드는 구도를 찾아보자."],["올해는 내 그림을 다시 많이 생각했어.","{호칭}, 다음엔 어떤 작업을 하고 싶어? 궁금해.","나중에 보여 줄게. 아마 꽤 빨리.","올해는 그림에 대해 생각할 일이 많았지."],["오늘 생각하면서 색을 골랐어.","작품처럼 잘 간직할게.","오, 작품 대접 받았네. 기분 좋다!","엽서는 마음에 드는 데 붙여 둬."],["내년에도 그림 그리고 내 생활 잘 꾸리고 싶어.","나도 내 생활을 잘 챙길게. 그렇게 같이 만나자.","좋아. 서로 그런 모습이 더 좋으니까.","서로 작업도 생활도 잘 풀렸으면 좋겠다."],["내일 시간 되면 얼굴 또 볼래?","내일도 시간 맞춰 보자.","좋다. 각자 할 일도 챙기면서.","오케이, 난 돌아가서 그림 좀 그릴게."]],
+ "오세린":[["으음, 오늘은 차가 식을 때까지 천천히 이야기하자.","{호칭}, 오늘은 같이 편하게 쉬자.","아아, 그 말만으로 여유가 생기네.","아아, 와 줘서 고마워."],["어머, 손으로 만든 장식 같네.","같이 천천히 구경하자.","응. 이런 시간은 서두르지 않아도 좋잖아.","으음, 천천히 둘러보면 좋겠네."],["올해는 병원 밖에서 보내는 시간도 소중했어.","{호칭}, 병원 밖에서는 뭘 하며 지내? 더 듣고 싶어.","으음, 앞으로 천천히 얘기해 줄게.","올해도 참 많은 일이 있었지."],["차 마실 때 오늘이 떠오르면 좋겠어.","따뜻한 차를 마실 때마다 생각할게.","어머, 그렇게 말해 주니까 좋네.","차 마실 때 편하게 써."],["내년에도 각자 원하는 삶을 살았으면 해.","서로의 생활을 존중하면서 만나자.","아아, 그런 관계라면 참 좋겠어.","각자의 하루가 편안한 한 해였으면 좋겠어."],["내일도 이렇게 따뜻한 시간을 보낼 수 있을까?","내일 또 이야기하자.","응. 편안한 밤 보내고 내일 보자.","오늘은 충분히 쉬었네. 잘 들어가."]],
+ "유지안":[["와우! 오늘은 무대 말고 관객석 담당이야!","{호칭}, 오늘은 마음껏 즐겨.","예쓰! 오늘의 안무는 신나게 놀기!","와우! 오늘은 신나게 즐겨 보자!"],["헐, 저 조명 완전 뮤비 같지 않아?","{호칭}, 우리 그때 같이 들은 노래가 떠오르네.","와, 그 노래 기억하고 있었어?","좋지! 거리 구경도 재밌잖아."],["올해는 무대 밖에서도 내가 춤을 참 좋아하는구나 싶었어.","{호칭}, 앞으로도 그렇게 좋아하는 춤을 추는 모습, 계속 보고 싶어.","……그 말 들으니 더 하고 싶네.","올해도 춤을 계속 춘 게 제일 기억나."],["이 멜로디 듣는데 오늘 생각났어!","좋은 날에 꼭 틀어 둘게.","와우, 그럼 오늘 플레이리스트로 저장!","좋아하는 곡처럼 오래 남으면 좋겠다!"],["내년에도 좋아하는 걸 계속 좋아할 수 있으면 좋겠어.","{호칭}, 내년에도 응원할게.","{호칭}, 고마워! 나도 내내 응원할게.","내년에는 더 멋진 안무 만들래!"],["내일도 같이 웃을 수 있으면 좋겠어.","내일 또 보자.","응! 오늘 엔딩 완전 좋다!","응! 오늘 푹 쉬고 다음에 또 놀자!"]],
+ "공재희":[["오늘 방송 안 켰어ㅋㅋ 그냥 같이 놀고 싶어서.","{호칭}, 오늘은 하고 싶은 거 하자.","헐, 좋다. 나 진짜 하고 싶은 거 많아!","웅ㅋㅋ 오늘은 방송 걱정 안 할래."],["저거 귀엽다. 곰인형이랑 같이 두면 좋겠다.","같이 도전해 보자.","웅ㅋㅋ 오늘은 한 번만 더!","오케이. 구경부터 하자!"],["방송에서는 계속 말해야 되는데 오늘은 그냥 웃어도 되네.","{호칭}, 계속 얘기 안 해도 돼. 난 이렇게 있는 것도 좋아.","……그 말 좀 좋다. 진짜로.","아, 올해 진짜 별일 많았어ㅋㅋ"],["고르는 데 한참 걸렸어. 나름 취향 생각했다고ㅋㅋ","{호칭}, 날 생각하면서 골라 줘서 좋아.","헐, 진짜? 나 오늘 성공했네.","마음에 들면 꼭 쓰기!"],["내년에도 우리 이렇게 놀 수 있겠지?","각자 바빠도 시간 맞춰서 놀자.","웅. 답장 늦어도 혼자 막 생각 안 할게.","내년엔 나도 하고 싶은 거 좀 더 해 볼래."],["아, 벌써 가? 내일도 볼 수 있어?","내일 또 보자.","웅… 나 진짜 기다릴게ㅋㅋ","웅. 집 가서 따뜻하게 있어."]]
+};
+const evePoliteFixes={
+ "웅ㅋㅋ 오늘은 한 번만 더!":"네ㅋㅋ 오늘은 한 번만 더 해 봐요!",
+ "손 시렵지 않아요? 제 주머니 따뜻한데.":"손 안 시려요? 제 주머니 따뜻한데요.",
+ "어, 잠깐만. 제가 먼저 말하려고 했는데.":"어, 잠깐만요. 제가 먼저 말하려고 했는데요.",
+ "다행이다. 오늘은 괜히 괜찮은 척하기 싫어서요.":"다행이네요. 오늘은 괜히 괜찮은 척하기 싫어서요.",
+ "좀 일찍 나왔어요. …기다린 건 아니고.":"좀 일찍 나왔어요. …오래 기다린 건 아니고요.",
+ "그래요. 혼자 먹을 것도 아니니까.":"그래요. 혼자 먹을 것도 아니니까요.",
+ "이런 말 한마디에 기분이 좋아지네.":"이런 말 한마디에 기분이 좋아지네요.",
+ "놓치면 곤란하니까. 손 잡아도 돼요?":"놓치면 곤란하잖아요. 손 잡아도 돼요?",
+ "내가 당신한테 어느 정도로 특별한지 궁금해요.":"{호칭}, 제가 얼마나 특별한 사람인지 가끔 궁금해요.",
+ "내일도 나한테 시간 좀 줄래요?":"내일도 저한테 시간 좀 줄래요?",
+ "좋아요. 이번엔 농담 아니니까.":"좋아요. 이번엔 농담 아니에요.",
+ "오케이! 근데 지면 살짝 억울할 듯ㅋㅋ":"오케이! 근데 지면 살짝 억울할 것 같아요ㅋㅋ",
+ "오예! 오늘의 프로필 후보 생겼다.":"오예! 오늘 프로필 후보 생겼어요.",
+ "내일도 시간 있어요? 이번엔 장난 아님.":"내일도 시간 있어요? 이번엔 장난 아니에요.",
+ "좋다! 감상 끝나면 비교해 봐요.":"좋아요! 다 보고 나서 비교해 봐요.",
+ "나도 마음에 드는 색을 찾아볼게요.":"저도 마음에 드는 색을 찾아볼게요.",
+ "오, 우리 눈에 들어오는 게 다르니까 재밌다.":"오, 우리 눈에 들어오는 게 다르니까 재밌네요.",
+ "오, 작품 대접 받았네. 기분 좋다!":"오, 작품 대접 받았네요. 기분 좋아요!",
+ "좋아요. 서로 그런 모습이 더 좋으니까.":"좋아요. 서로 그런 모습이 더 좋으니까요.",
+ "좋다. 각자 할 일도 챙기면서요.":"좋아요. 각자 할 일도 챙기면서요.",
+ "고마워요! 그쪽 내년도 제가 응원할래요.":"{호칭}, 고마워요! 저도 내내 응원할게요.",
+ "넵! 오늘 엔딩 완전 좋다!":"넵! 오늘 엔딩 완전 좋았어요!",
+ "좋아하는 곡처럼 오래 남으면 좋겠다!":"좋아하는 곡처럼 오래 남으면 좋겠어요!",
+ "오늘 방송 안 켰어요ㅋㅋ 그냥 같이 놀고 싶어서.":"오늘 방송 안 켰어요ㅋㅋ 그냥 같이 놀고 싶어서요.",
+ "헐 좋다. 나 진짜 하고 싶은 거 많음!":"헐, 좋아요. 저 진짜 하고 싶은 거 많아요!",
+ "저거 귀엽다. 곰인형이랑 같이 두면 좋겠다.":"저거 귀엽죠? 곰인형이랑 같이 두면 좋겠어요.",
+ "방송에서는 계속 말해야 되는데 오늘은 그냥 웃어도 되네.":"방송에서는 계속 말해야 되는데 오늘은 그냥 웃어도 되네요.",
+ "……그 말 좀 좋음. 진짜로.":"……그 말 좀 좋아요. 진짜로요.",
+ "고르는데 한참 걸렸어요. 나름 취향 생각했음ㅋㅋ":"고르는 데 한참 걸렸어요. 나름 취향 생각했거든요ㅋㅋ",
+ "헐 진짜? 나 오늘 성공했네.":"헐, 진짜요? 저 오늘 성공했네요.",
+ "웅. 답장 늦어도 혼자 막 생각 안 할게요.":"네. 답장 늦어도 혼자 막 생각 안 할게요.",
+ "아 벌써 가요? 내일도 볼 수 있음?":"아, 벌써 가요? 내일도 볼 수 있어요?",
+ "웅… 나 진짜 기다릴게요ㅋㅋ":"네… 저 진짜 기다릴게요ㅋㅋ",
+ "웅ㅋㅋ 오늘은 방송 걱정 안 할래요.":"네ㅋㅋ 오늘은 방송 걱정 안 할래요.",
+ "아 올해 진짜 별일 많았음ㅋㅋ":"아, 올해 진짜 별일 많았어요ㅋㅋ",
+ "내년엔 나도 하고 싶은 거 좀 더 해 볼래요.":"내년엔 저도 하고 싶은 거 좀 더 해 볼래요.",
+ "웅. 집 가서 따뜻하게 있어요.":"네. 집에 가서 따뜻하게 있어요.",
+ "나 아직 좀 속상해요. 오늘은 막 안아 주면 괜찮아지는 그런 거 아님…":"저 아직 좀 속상해요. 오늘은 그냥 안아 준다고 괜찮아질 것 같진 않아요.",
+ "오늘은 도윤 씨도 하고 싶은 걸 해요.":"{호칭}, 오늘은 하고 싶은 걸 골라 봐요. 저도 같이 할래요.",
+ "도윤 씨가 골라 준 거라서 좋아요.":"{호칭}, 직접 골라 준 거라서 더 좋아요.",
+ "도윤 씨도 행복한 크리스마스였으면 좋겠어요.":"{호칭}, 내년 이맘때도 이렇게 웃는 얼굴을 보고 싶어요.",
+ "기다리셨어요?":"{호칭}, 오래 기다렸어요?",
+ "오늘은 지한 씨랑 보내기로 했잖아요.":"{호칭}, 오늘은 우리 둘이 보내기로 했잖아요.",
+ "지한 씨는 지한 씨대로 특별해요.":"{호칭}, 저한테는 정말 특별해요.",
+ "저도 시우 씨와 논 날들이 기억나요.":"{호칭}, 저도 올해는 같이 놀았던 날들이 먼저 생각나요.",
+ "태오 씨도 자기 시간이 있었으면 좋겠어요.":"{호칭}, 내년엔 쉬는 날에 하고 싶은 일도 더 많이 했으면 좋겠어요.",
+ "태오 씨가 골라 줘서 더 좋아요.":"{호칭}, 직접 골라 줘서 더 좋아요.",
+ "오늘 하고 싶은 걸 하나 씨가 골라요.":"{호칭}, 오늘은 하고 싶은 걸 골라 봐요.",
+ "하나 씨가 원하는 걸 먹어요.":"{호칭}, 먹고 싶었던 걸로 골라요.",
+ "하나 씨의 계획을 응원할게요.":"{호칭}, 내년에 어디 다녀왔는지 들려줘요. 저도 응원할게요.",
+ "유리 씨가 어떤 걸 고르는지 궁금해요.":"{호칭}, 어떤 작품을 고를지 벌써 궁금해요.",
+ "유리 씨가 하고 싶은 작업이 궁금해요.":"{호칭}, 다음엔 어떤 작업을 하고 싶어요? 궁금해요.",
+ "세린 씨도 편하게 쉬어요.":"{호칭}, 오늘은 같이 편하게 쉬어요.",
+ "세린 씨의 일상도 더 알고 싶어요.":"{호칭}, 병원 밖에서는 뭘 하며 지내요? 더 듣고 싶어요.",
+ "오늘은 지안 씨도 마음껏 즐겨요.":"{호칭}, 오늘은 마음껏 즐겨요.",
+ "지안 씨가 좋아하는 노래가 떠오르네요.":"{호칭}, 우리 그때 같이 들은 노래가 떠오르네요.",
+ "지안 씨가 좋아하는 춤을 계속 보고 싶어요.":"{호칭}, 앞으로도 그렇게 좋아하는 춤을 추는 모습, 계속 보고 싶어요.",
+ "지안 씨의 내년을 응원해요.":"{호칭}, 내년에도 응원할게요.",
+ "오늘은 재희 씨가 하고 싶은 거 해요.":"{호칭}, 오늘은 하고 싶은 거 해요.",
+ "재희 씨가 편하게 있어도 좋아요.":"{호칭}, 계속 얘기 안 해도 돼요. 저는 이렇게 있는 것도 좋아요.",
+ "재희 씨가 골라 줘서 좋아요.":"{호칭}, 저를 생각하면서 골라 줘서 좋아요."
+};
+const eveHurtCasual={
+ "서이준":"…아직 지난 얘기가 마음에 걸려. 오늘은 조금 천천히 지내자.",
+ "강도윤":"아직 마음이 편해지진 않았어. 오늘은 내 속도대로 있어도 될까?",
+ "한시우":"나 지금 농담으로 넘기고 싶은 기분은 아니야. 조금 있다 얘기하자.",
+ "백지한":"오늘은 마음이 좀 복잡해. 가까워지는 것보다 얘기가 먼저일 것 같아.",
+ "정태오":"지난 일은 아직 정리하지 못했어. 오늘은 거리를 좀 두고 싶어.",
+ "임하나":"나도 아직 마음이 좀 아파. 괜찮은 척하고 싶지는 않아.",
+ "차유리":"아직 그때 얘기가 걸려. 오늘은 평소처럼 스킨십하기는 싫어.",
+ "오세린":"아직 서운한 마음이 남아 있어. 서두르지 않았으면 해.",
+ "유지안":"오늘은 웃으면서 넘어가고 싶지 않아. 조금 쉬었다 얘기하자.",
+ "공재희":"나 아직 좀 속상해. 오늘은 그냥 안아 준다고 괜찮아질 것 같진 않아."
+};
+const eveNeutralAcknowledgments={
+ "강도윤":[["왔네요. 저쪽 길부터 걸어 봐요.","왔네. 저쪽 길부터 걸어 보자."],["모카도 그쪽으로 가고 싶은가 봐요.","모카도 그쪽으로 가고 싶은가 봐."],["얘기 듣다 보니 벌써 한 해가 다 갔다는 게 실감 나네요.","얘기 듣다 보니 벌써 한 해가 다 갔다는 게 실감 나네."],["마음에 들면 저도 기쁘죠.","마음에 들면 나도 기쁘지."],["나중에 어떻게 됐는지 서로 얘기해 줘요.","나중에 어떻게 됐는지 서로 얘기해 주자."],["저도 즐거웠어요. 모카랑 여기서 인사할게요.","나도 즐거웠어. 모카랑 여기서 인사할게."]],
+ "서이준":[["…맞춰 왔네요. 식당은 이쪽이에요.","…맞춰 왔네. 식당은 이쪽이야."],["저 녀석 먹는 것만 보고 갈게요.","저 녀석 먹는 것만 보고 갈게."],["…그랬어요? 그 얘기는 처음 듣네요.","…그랬어? 그 얘기는 처음 듣네."],["…다행이네요. 추울 때 꼭 껴요.","…다행이네. 추울 때 꼭 껴."],["계획대로 되면 나중에 들려줘요.","계획대로 되면 나중에 들려줘."],["…저도요. 잘 들어가요.","…나도. 잘 들어가."]],
+ "한시우":[["오예, 왔어요! 어디부터 갈까요?","오예, 왔어! 어디부터 갈까?"],["좋아요. 저쪽 장식도 보고 가요!","좋아. 저쪽 장식도 보고 가자!"],["와, 그런 일도 있었어요? 그거 더 듣고 싶은데요.","와, 그런 일도 있었어? 그거 더 듣고 싶은데."],["히히, 구해 온 보람 있네요!","히히, 구해 온 보람 있네!"],["콜! 내년에 어디까지 했는지 얘기해 봐요.","콜! 내년에 어디까지 했는지 얘기해 보자."],["저도요! 오늘 같이 놀아서 좋았어요.","나도! 오늘 같이 놀아서 좋았어."]],
+ "정태오":[["오셨군요. 강변은 이쪽입니다.","왔구나. 강변은 이쪽이야."],["이 길로 가면 조명이 잘 보입니다.","이 길로 가면 조명이 잘 보여."],["그런 일이 있었군요. 들려주셔서 감사합니다.","그런 일이 있었구나. 들려줘서 고마워."],["마음에 드신다니 다행입니다.","마음에 든다니 다행이야."],["원하는 일이 잘 풀리길 바랍니다.","원하는 일이 잘 풀리길 바라."],["저도 즐거웠습니다. 조심히 들어가십시오.","나도 즐거웠어. 조심히 들어가."]],
+ "백지한":[["오셨네요. 자리 잘 잡아 뒀어요.","왔네. 자리 잘 잡아 뒀어."],["이쪽 길은 사람도 적어서 걷기 좋네요.","이쪽 길은 사람도 적어서 걷기 좋네."],["그런 일도 있었어요? 얘기 듣는 재미가 있네요.","그런 일도 있었어? 얘기 듣는 재미가 있네."],["그러면 잘 고른 거네요. 마음이 놓여요.","그러면 잘 고른 거네. 마음이 놓여."],["나중에 계획이 어떻게 됐는지 알려 줘요. 저도 알려 줄게요.","나중에 계획이 어떻게 됐는지 알려 줘. 나도 알려 줄게."],["저도 즐거웠어요. 오늘 시간 내 줘서 고마워요.","나도 즐거웠어. 오늘 시간 내 줘서 고마워."]],
+ "임하나":[["와 주셨네요. 저 서점에 먼저 들러도 돼요?","와 줬네. 나 서점에 먼저 들러도 돼?"],["네. 저쪽 불빛도 가까이서 보고 싶어요.","응. 저쪽 불빛도 가까이서 보고 싶어."],["그랬군요. 저도 한 해 동안 기억에 남은 게 하나 있어요.","그랬구나. 나도 한 해 동안 기억에 남은 게 하나 있어."],["……다행이에요. 목도리가 따뜻했으면 좋겠어요.","……다행이야. 목도리가 따뜻했으면 좋겠어."],["네. 내년 이맘때는 어디에 다녀왔는지 얘기해 줄게요.","응. 내년 이맘때는 어디에 다녀왔는지 얘기해 줄게."],["저도요. 집에 가는 길에도 오늘 생각이 날 것 같아요.","나도. 집에 가는 길에도 오늘 생각이 날 것 같아."]],
+ "차유리":[["반가워요. 표는 벌써 받아 왔어요.","반가워. 표는 벌써 받아 왔어."],["저 창에 비친 빛까지 보면서 가요.","저 창에 비친 빛까지 보면서 가자."],["오, 그런 일도 있었어요? 얘기 들으니까 그림처럼 떠올라요.","오, 그런 일도 있었어? 얘기 들으니까 그림처럼 떠올라."],["좋아해 줘서 기뻐요. 그리는 재미가 있었거든요.","좋아해 줘서 기뻐. 그리는 재미가 있었거든."],["내년에 뭘 하고 있을지 서로 기대해 봐요.","내년에 뭘 하고 있을지 서로 기대해 보자."],["저도 재밌었어요. 잘 가요!","나도 재밌었어. 잘 가!"]],
+ "오세린":[["어서 와요. 이쪽 창가 자리가 따뜻해요.","어서 와. 이쪽 창가 자리가 따뜻해."],["네. 가까이 가니까 장식이 더 잘 보이네요.","응. 가까이 가니까 장식이 더 잘 보이네."],["으음, 얘길 들으니 어떤 한 해였는지 알 것 같아요.","으음, 얘길 들으니 어떤 한 해였는지 알 것 같아."],["저도 기뻐요. 찻잔은 쓰는 사람이 있어야 더 예쁘잖아요.","나도 기뻐. 찻잔은 쓰는 사람이 있어야 더 예쁘잖아."],["그러게요. 서로 편안한 한 해를 보냈으면 좋겠어요.","그러게. 서로 편안한 한 해를 보냈으면 좋겠어."],["저도 좋은 저녁이었어요. 편안한 밤 보내요.","나도 좋은 저녁이었어. 편안한 밤 보내."]],
+ "유지안":[["왔어요? 오늘은 공연을 실컷 볼 수 있겠어요!","왔어? 오늘은 공연을 실컷 볼 수 있겠다!"],["좋아요. 저 조명 있는 쪽으로 가 봐요!","좋아. 저 조명 있는 쪽으로 가 보자!"],["와, 그 얘기는 오늘 처음 들었어요!","와, 그 얘기는 오늘 처음 들었어!"],["헤헤, 그 멜로디가 마음에 들면 좋겠어요!","헤헤, 그 멜로디가 마음에 들면 좋겠어!"],["좋아요! 내년에 그 계획이 어디까지 갔는지 들려줘요.","좋아! 내년에 그 계획이 어디까지 갔는지 들려줘."],["저도요! 오늘 같이 웃어서 좋았어요.","나도! 오늘 같이 웃어서 좋았어."]],
+ "공재희":[["왔어요? 저 분홍 장갑 덕분에 바로 보였죠?","왔어? 나 분홍 장갑 덕분에 바로 보였지?"],["저 기계엔 뭐 들었는지 보기만 하고 가요ㅋㅋ","저 기계엔 뭐 들었는지 보기만 하고 가자ㅋㅋ"],["헐, 그거 처음 듣는 얘기예요. 그래서 어떻게 됐어요?","헐, 그거 처음 듣는 얘기야. 그래서 어떻게 됐어?"],["진짜요? 그거 고르길 잘했네요ㅋㅋ","진짜? 그거 고르길 잘했네ㅋㅋ"],["오, 기억해 둘게요. 저도 하고 싶은 거 정해 볼래요.","오, 기억해 둘게. 나도 하고 싶은 거 정해 볼래."],["저도요. 집에 조심히 가요ㅋㅋ","나도. 집에 조심히 가ㅋㅋ"]]
+};
+
+const eveNeutralChoices=[
+ ['반갑게 인사한다'],['천천히 함께 걷는다'],['올해 있었던 일을 이야기한다'],
+ ['선물 고마워요.','선물 고마워.'],['각자의 내년 계획을 이야기한다'],['오늘 즐거웠어요.','오늘 즐거웠어.']
+];
+function eveVoiceProfile(p,day,historical=false){
+ const a=memoryFor(p).address;
+ function role(side){
+  // Older albums did not store the agreement date with each line.
+  if(historical&&(!a.offerDay||day<a.offerDay)){
+   const laterNickname=side==='npc'&&a.nicknameOffered>0&&a.nicknameOffered<=day;
+   return {casual:false,call:laterNickname?(a.npcToPlayer||''):''};
+  }
+  return {casual:!!speechRegisterIndex(p,side,day),call:agreedAddress(p,side,day)};
+ }
+ return {player:role('player'),npc:role('npc')};
+}
+function eveSpoken(p,side,day,polite,casual,profile,call=false){
+ const voice=(profile||eveVoiceProfile(p,day))[side];
+ let line=voice.casual?casual:(evePoliteFixes[polite]||polite);
+ if(line.includes('{호칭}, ')){
+  let term=voice.call;
+  if(!term&&side==='player'&&polite.includes(p.slice(1)+' 씨')){
+   const given=p.slice(1);
+   term=voice.casual&&npcProfiles[p].age<=Number(state.age)?vocative(given):given+' 씨';
+  }
+  line=line.replaceAll('{호칭}, ',()=>term?term+', ':'');
+ }
+ else if(call&&voice.call)line=voice.call+', '+line;
+ if(side==='npc'&&p==='강도윤')line=line.replace(/^하하[,!.… ]+/, '').replace(/ 하하[.,] /g,' ');
+ return chatSpacing(line);
+}
+function eveDialogue(p,index,day,romantic,hurt,profile){
+ const scene=eveScenes[p][index],casual=eveCasualScenes[p][index];
+ const npc=(polite,informal,call=false)=>eveSpoken(p,'npc',day,polite,informal,profile,call);
+ const player=(polite,informal,call=false)=>eveSpoken(p,'player',day,polite,informal,profile,call);
+ const opening=romantic?npc(scene[1],casual[0],index===0)
+  :hurt&&index===0?npc(touchProfiles[p].hurt[1],eveHurtCasual[p])
+  :npc(eveNeutralVoice[p][index],casual[3],index===0);
+ const neutral=eveNeutralChoices[index],action=neutral.length===1;
+ const acknowledgment=eveNeutralAcknowledgments[p][index];
+ return {
+  narration:scene[0],opening,
+  warm:{label:player(scene[2],casual[1],index===3),reply:npc(scene[3],casual[2],index===5),warm:true,action:false},
+  quiet:{label:action?neutral[0]:player(neutral[0],neutral[1],index===3),reply:npc(...acknowledgment,index===5),warm:false,action}
+ };
+}
+function readEveStep(p,index,step,lines){
+ if(typeof step.warm==='boolean')return step;
+ if(step.label===eveNeutralChoices[index][0])return lines.quiet;
+ if(step.label===eveScenes[p][index][2])return lines.warm;
+ return step;
+}
+function renderEveVisit(ev,p){
+ const v=initSim(),x=christmasState(),day=ev.day??v.day;
+ if(!ev.eveContext||!ev.eveVoice){
+  ev.eveContext=ev.eveContext||seasonContext(p,day);
+  ev.eveVoice=ev.eveVoice||eveVoiceProfile(p,day);
+  save();
+ }
+ const c=ev.eveContext,romantic=c.romantic&&!c.conflicted&&!c.tired;
+ const steps=ev.eveSteps||(ev.eveSteps=[]),n=steps.length,total=eveScenes[p].length;
+ $('progress').textContent='크리스마스이브 · '+Math.min(n+1,total)+'/'+total;
+ let current;
+ for(let i=0;i<Math.min(n+1,total);i++){
+  current=eveDialogue(p,i,day,romantic,c.conflicted,ev.eveVoice);
+  add('이야기',current.narration);add(p,current.opening);
+  if(i<n){
+   const answer=readEveStep(p,i,steps[i],current);
+   steps[i]=answer;
+   if(answer.action)add('이야기',answer.label);
+   else add(state.name,answer.label,true);
+   add(p,answer.reply);
+  }
+ }
+ if(n>=total){
+  choiceButton('이브 마치기',()=>{if(v.activeEvent===ev)finishEvent()});
+  return;
+ }
+ const choices=romantic?[current.warm,current.quiet]:[current.quiet];
+ for(const answer of choices)choiceButton(answer.label,()=>{
+  if(v.activeEvent!==ev||steps.length!==n)return;
+  steps.push(answer);
+  v.affection[p]=Math.min(999,v.affection[p]+(c.conflicted?0:answer.warm?3:1));
+  if(answer.warm)socialRecord(p).interest++;
+  else if(!c.conflicted)feel(p,{security:1});
+  if(n===3){x.gift=p+'의 크리스마스 선물';writeJournal(x.gift+' 받음')}
+  if(steps.length===total){
+   x.eveDone=true;ev.answered=true;socialRecord(p).lastTogether=day;
+   const m=memoryFor(p);
+   (m.preferences.seasonHistory||(m.preferences.seasonHistory=[])).push({
+    id:'christmasEve',day,choices:steps.map(s=>s.label),reply:answer.reply,eveVoice:ev.eveVoice
+   });
+   remember(p,'season:christmasEve',answer.reply);
+   writeJournal(nameWith(p)+' 크리스마스이브를 보냈다.');
+  }
+  save();renderChoiceEvent();
+ });
+}
 function christmasState(){const v=initSim();return v.christmas||(v.christmas={})}
 function christmasFriends(){const v=initSim();return people.filter(p=>v.met[p]&&relationshipTier(p)>=1)}
+const eveInvitations={
+ '공재희':['{호칭}, 이브에 뭐 해요?','{호칭}, 이브에 뭐 해?'],
+ '서이준':['{호칭}, 이브에 약속 있어요? …없으면 저랑 저녁 먹어요.','{호칭}, 이브에 약속 있어? …없으면 나랑 저녁 먹자.'],
+ '강도윤':['{호칭}, 이브에 가게 문을 조금 일찍 닫으려고요. 저녁 같이 먹을래요?','{호칭}, 이브에 가게 문을 조금 일찍 닫으려고. 저녁 같이 먹을래?'],
+ '한시우':['{호칭}, 이브에 시간 있어요? 저랑 놀러 가요!','{호칭}, 이브에 시간 있어? 나랑 놀러 가자!'],
+ '백지한':['{호칭}, 이브 저녁 아직 비어 있어요? 이번에는 제가 먼저 예약하고 싶어서요.','{호칭}, 이브 저녁 아직 비어 있어? 이번엔 내가 먼저 예약하고 싶어서.'],
+ '정태오':['{호칭}, 이브 저녁에 시간이 괜찮으십니까? 함께 식사하고 싶습니다.','{호칭}, 이브 저녁에 시간 괜찮아? 같이 식사하고 싶어.'],
+ '임하나':['{호칭}, 혹시 이브에 약속 없으시면… 저랑 같이 보내실래요?','{호칭}, 혹시 이브에 약속 없으면… 나랑 같이 보낼래?'],
+ '차유리':['{호칭}, 이브에 같이 맛있는 거 먹으러 갈래요?','{호칭}, 이브에 같이 맛있는 거 먹으러 갈래?'],
+ '오세린':['{호칭}, 이브에 따뜻한 차라도 함께 마실까요?','{호칭}, 이브에 따뜻한 차라도 함께 마실까?'],
+ '유지안':['{호칭}, 이브에 같이 놀아요! 혹시 시간 비어 있어요?','{호칭}, 이브에 같이 놀자! 혹시 시간 비어 있어?']
+};
 function christmasPlan(){const v=initSim(),x=christmasState();v.weekEnd=null;v.activeEvent={place:'home',description:'크리스마스이브 저녁을 어떻게 보낼까?',christmasEvent:'plan',day:v.day};save();renderChoiceEvent();renderSim()}
 function christmasGate(){const v=initSim(),x=christmasState();if(v.day===299&&!x.eveDone){v.activeEvent={place:'park',description:'크리스마스이브. 연화동에 따뜻한 조명이 켜졌다.',christmasEvent:'eve',day:v.day};}else if(v.day===300&&!x.dayDone){v.activeEvent={place:'park',description:'크리스마스. 한 해 동안 쌓아 온 마음을 돌아보는 날이다.',christmasEvent:'day',day:v.day,candidates:confessionCandidates()};}else return false;v.weekEnd=null;save();renderChoiceEvent();renderSim();return true}
-function renderChristmas(ev){const v=initSim(),x=christmasState(),kind=ev.christmasEvent;$('progress').textContent='크리스마스';if(kind==='plan'){for(const p of christmasFriends()){if(socialRecord(p).contact&&socialRecord(p).interest>=3)add(p,christmasLines[p][0]);choiceButton(p+'와 이브 보내기',()=>{x.partner=p; x.planned=true;writeJournal('크리스마스이브 약속 · '+p);save();finishEvent()})}choiceButton('혼자 보내기',()=>{x.partner=null;x.planned=true;save();finishEvent()});return}
-if(kind==='eve'){if(!x.planned){for(const p of christmasFriends())choiceButton(p+'와 함께 보내기',()=>{x.partner=p;x.planned=true;save();renderChoiceEvent()});choiceButton('혼자 보내기',()=>{x.planned=true;x.partner=null;save();renderChoiceEvent()});return}const p=x.partner;if(!p){add('이야기','좋아하는 음식을 준비하고 조용히 한 해를 돌아보았다.');choiceButton('이브 마치기',()=>{x.eveDone=true;save();finishEvent()});return}const scenes=eveScenes[p],steps=ev.eveSteps||(ev.eveSteps=[]),n=steps.length;if(!ev.eveContext){ev.eveContext=seasonContext(p,ev.day||v.day);save()}const c=ev.eveContext,romantic=c.romantic&&!c.conflicted&&!c.tired;$('progress').textContent='크리스마스이브 · '+Math.min(n+1,scenes.length)+'/'+scenes.length;for(let i=0;i<=Math.min(n,scenes.length-1);i++){const a=scenes[i];add('이야기',a[0]);add(p,romantic?a[1]:c.conflicted&&i===0?touchProfiles[p].hurt[1]:eveNeutralVoice[p][i]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}}if(n>=scenes.length){choiceButton('이브 마치기',finishEvent);return}const a=scenes[n],neutral=['반갑게 인사한다','천천히 함께 걷는다','올해 있었던 일을 이야기한다','선물 고마워요.','각자의 내년 계획을 이야기한다','오늘 즐거웠어요.'][n];for(const [label,reply,warm] of [[romantic?a[2]:neutral,romantic?a[3]:eveNeutralVoice[p][n],romantic],...(romantic?[[neutral,eveNeutralVoice[p][n],false]]:[])])choiceButton(label,()=>{if(steps.length!==n)return;steps.push({label,reply});v.affection[p]=Math.min(999,v.affection[p]+(c.conflicted?0:warm?3:1));if(warm)socialRecord(p).interest++;else if(!c.conflicted)feel(p,{security:1});if(n===3){x.gift=p+'의 크리스마스 선물';writeJournal(x.gift+' 받음')}if(steps.length===scenes.length){x.eveDone=true;ev.answered=true;socialRecord(p).lastTogether=v.day;const m=memoryFor(p);(m.preferences.seasonHistory||(m.preferences.seasonHistory=[])).push({id:'christmasEve',day:v.day,choices:steps.map(x=>x.label),reply});remember(p,'season:christmasEve',reply);writeJournal(p+'와 크리스마스이브를 보냈다.')}save();renderChoiceEvent()});return}
-
+function renderChristmas(ev){const v=initSim(),x=christmasState(),kind=ev.christmasEvent;$('progress').textContent='크리스마스';if(kind==='plan'){for(const p of christmasFriends()){if(socialRecord(p).contact&&socialRecord(p).interest>=3)add(p,eveSpoken(p,'npc',ev.day??v.day,...eveInvitations[p]));choiceButton(nameWith(p)+' 이브 보내기',()=>{x.partner=p; x.planned=true;writeJournal('크리스마스이브 약속 · '+p);save();finishEvent()})}choiceButton('혼자 보내기',()=>{x.partner=null;x.planned=true;save();finishEvent()});return}
+if(kind==='eve'){if(!x.planned){for(const p of christmasFriends())choiceButton(nameWith(p)+' 함께 보내기',()=>{x.partner=p;x.planned=true;save();renderChoiceEvent()});choiceButton('혼자 보내기',()=>{x.planned=true;x.partner=null;save();renderChoiceEvent()});return}const p=x.partner;if(!p){add('이야기','좋아하는 음식을 준비하고 조용히 한 해를 돌아보았다.');choiceButton('이브 마치기',()=>{x.eveDone=true;save();finishEvent()});return}renderEveVisit(ev,p);return}
 if(kind==='day'){const candidates=ev.candidates||[];add('이야기',lovers().length?'크리스마스의 인연을 소중히 간직한다.':'크리스마스에도 마음을 서두를 필요는 없다.');for(const p of candidates)choiceButton(p+'와 따로 이야기하기',()=>{x.dayDone=true;ev.christmasEvent=null;ev.person=p;ev.newConfession=true;save();renderChoiceEvent()});choiceButton('크리스마스 마치기',()=>{x.dayDone=true;finishEvent()});return}
 if(kind==='ending'){lifeEndingRender(ev);return}}
 function playDay(){const v=initSim();showFestivalNotice();if(document.getElementById('festivalNoticeDialog'))return;if(v.day===1||v.activeEvent||v.running||v.finished)return;
@@ -5550,7 +5759,46 @@ function friendAlbumLines(key,p,page){
   return [p,friendSceneReplies[p][kind][index][wasCasual&&!wasPolite?1:0]];
  });
 }
-function openAlbumEntry(rec,key){const d=$('albumDialog'),body=$('albumReplay');$('albumTitle').textContent=rec.title;body.replaceChildren();if(key?.endsWith('|trip:2:1'))body.append(illustrationFigure('autumnLodge'));for(const page of rec.pages){const heading=document.createElement('h3');heading.textContent=calendarDate(page.day).label+' · '+(page.player||'이전 회차');body.append(heading);for(const [who,line] of friendAlbumLines(key,rec.person,page)){const bubble=document.createElement('div');bubble.className='bubble'+(who===page.player?' me':'');const title=document.createElement('strong');title.textContent=who;const t=document.createElement('span');t.textContent=line;bubble.append(title,t);body.append(bubble)}}if(!d.open)d.showModal()}
+// Old Eve pages recorded literal dialogue. Reconstruct only a transcript corroborated
+// by this run's dated choices; keep already-rendered pages and other runs as saved.
+function eveAlbumLines(p,page){
+ const v=state?.sim;
+ if(!v||v.christmas?.partner!==p||page.player!==state.name||!eveScenes[p])return page.lines;
+ const history=v.relationshipMemory?.[p]?.preferences?.seasonHistory?.find(h=>h.id==='christmasEve'&&h.day===page.day);
+ const scenes=eveScenes[p];
+ if(!history||history.eveVoice||history.choices?.length!==scenes.length)return page.lines;
+ const profile=eveVoiceProfile(p,page.day,true);
+ const legacy=(line)=>chatSpacing(p==='강도윤'?line.replace(/^하하[,!.… ]+/, '').replace(/ 하하[.,] /g,' '):line);
+ const short=page.lines.length===1;
+ if(short){
+  // A save predating the album may only contain the final line.
+  const i=scenes.length-1,[who,line]=page.lines[0];
+  if(who!==p||![history.reply,legacy(history.reply||'')].includes(line))return page.lines;
+  const warm=history.choices[i]===scenes[i][2];
+  if(!warm&&history.choices[i]!==eveNeutralChoices[i][0])return page.lines;
+  if(history.reply!==(warm?scenes[i][3]:eveNeutralVoice[p][i]))return page.lines;
+  const part=eveDialogue(p,i,page.day,warm,false,profile);
+  return [[p,(warm?part.warm:part.quiet).reply]];
+ }
+ const offset=page.lines.findIndex(row=>row[0]==='이야기'&&row[1]===scenes[0][0]);
+ if(offset<0||page.lines.length-offset!==4*scenes.length)return page.lines;
+ const out=page.lines.slice(0,offset);
+ for(let i=0;i<scenes.length;i++){
+  const [narration,opening,answer,reply]=page.lines.slice(offset+i*4,offset+i*4+4);
+  const row=scenes[i],neutral=eveNeutralVoice[p][i],hurt=i===0&&opening[1]===legacy(touchProfiles[p].hurt[1]);
+  const romantic=opening[1]===legacy(row[1]);
+  if(narration[0]!=='이야기'||narration[1]!==row[0]||opening[0]!==p||answer[0]!==page.player||reply[0]!==p)return page.lines;
+  if(!romantic&&!hurt&&opening[1]!==legacy(neutral))return page.lines;
+  if(answer[1]!==chatSpacing(history.choices[i]))return page.lines;
+  const warm=history.choices[i]===row[2];
+  if(!warm&&history.choices[i]!==eveNeutralChoices[i][0]||warm&&!romantic)return page.lines;
+  if(reply[1]!==legacy(warm?row[3]:neutral))return page.lines;
+  const lines=eveDialogue(p,i,page.day,romantic,hurt,profile),chosen=warm?lines.warm:lines.quiet;
+  out.push(narration,[p,lines.opening],[chosen.action?'이야기':page.player,chosen.label],[p,chosen.reply]);
+ }
+ return out;
+}
+function openAlbumEntry(rec,key){const d=$('albumDialog'),body=$('albumReplay');$('albumTitle').textContent=rec.title;body.replaceChildren();if(key?.endsWith('|trip:2:1'))body.append(illustrationFigure('autumnLodge'));for(const page of rec.pages){const heading=document.createElement('h3');heading.textContent=calendarDate(page.day).label+' · '+(page.player||'이전 회차');body.append(heading);for(const [who,line] of (key==='event:'+rec.person+'|christmasEve'?eveAlbumLines(rec.person,page):friendAlbumLines(key,rec.person,page))){const bubble=document.createElement('div');bubble.className='bubble'+(who===page.player?' me':'');const title=document.createElement('strong');title.textContent=who;const t=document.createElement('span');t.textContent=line;bubble.append(title,t);body.append(bubble)}}if(!d.open)d.showModal()}
 
 function save(){try{if(state){stampPhoneSpeech();albumData();}localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function chatSpacing(s){return typeof s==='string'?s.replace(/([가-힣a-zA-Z0-9!?.,…]) *([ㅋㅎㅠㅜ]{2,})/g,'$1 $2'):s}

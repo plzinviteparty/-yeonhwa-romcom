@@ -122,10 +122,16 @@ function tripOvernightReady(o,p,day){
 }
 function renderTrip(ev){const v=initSim(),o=ev.tripScene,p=ev.person,index=o.season??1,scenes=tripScenes(o);o.steps=o.steps||[];if(o.answer&&!o.steps.length)o.steps=scenes.map(()=>({label:o.answer,reply:'함께 시간을 보냈다.'}));const step=o.steps.length;
 if(step===2&&tripOvernightReady(o,p,v.day))scenes[2].opts.splice(2,0,tripOvernightChoice);
-$('progress').textContent=seasonalTripData[index][0]+' · '+o.stage+'일차';for(let i=0;i<=Math.min(step,scenes.length-1);i++){const scene=scenes[i];add('이야기',scene.title+' — '+scene.description);for(const q of o.people){add(q,tripDialogue(q,index,o.stage,i,o.group))}if(o.steps[i]){add(state.name,o.steps[i].label,true);if(o.steps[i].overnight){
- add(p,o.steps[i].reply);
- add('이야기',overnightPreparationHint(p));
-}else add('이야기',o.steps[i].reply)}}if(step>=scenes.length){if(!o.answer){o.answer=o.steps.map(x=>x.label).join(' / ');for(const q of o.people){socialRecord(q).lastTogether=v.day;socialRecord(q).lastSeen=v.day;if(o.group)socialRecord(q).friendship++;else if(vIsDating(q))feel(q,{security:2});remember(q,'trip:'+o.id+':'+o.stage,o.answer)}if(o.stage===2){const t=specialRecord().trips.find(t=>t.id===o.id);if(t)t.status='complete'}save()}choiceButton('일정 계속하기',()=>{if(v.running)v.running.slot=3;finishEvent()});return}for(const [i,label] of scenes[step].opts.entries())choiceButton(label,()=>{if(o.steps.length!==step)return;let reply='함께 보낸 순간을 기억에 남겼다.';if(o.stage===1&&step===2){if(!o.group&&i===1){const c=touchContext(p,v.day);reply=c.tired||c.conflicted?'상대는 오늘은 편하게 쉬고 싶다고 말했다. 그 마음을 존중했다.':'상대가 괜찮다고 답한 뒤 나란히 앉아 이야기를 나누었다.'}else reply=i===scenes[step].opts.length-1?'각자의 휴식 시간을 존중하며 하루를 마쳤다.':'늦은 시간까지 이야기하다 각자 편안히 쉬었다.'}if(label===tripOvernightChoice){
+$('progress').textContent=seasonalTripData[index][0]+' · '+o.stage+'일차';for(let i=0;i<=Math.min(step,scenes.length-1);i++){const scene=scenes[i];add('이야기',scene.title+' — '+scene.description);for(const q of o.people){add(q,tripDialogue(q,index,o.stage,i,o.group))}const decision=o.steps[i];if(decision){
+ if(decision.overnight){
+  add(state.name,'괜찮으면 오늘 밤 같이 보낼래요?',true);
+  add(p,decision.reply);
+  add('이야기',overnightPreparationHint(p));
+ }else{
+  add('이야기',decision.label);
+  add('이야기',decision.reply);
+ }
+}}if(step>=scenes.length){if(!o.answer){o.answer=o.steps.map(x=>x.label).join(' / ');for(const q of o.people){socialRecord(q).lastTogether=v.day;socialRecord(q).lastSeen=v.day;if(o.group)socialRecord(q).friendship++;else if(vIsDating(q))feel(q,{security:2});remember(q,'trip:'+o.id+':'+o.stage,o.answer)}if(o.stage===2){const t=specialRecord().trips.find(t=>t.id===o.id);if(t)t.status='complete'}save()}choiceButton('일정 계속하기',()=>{if(v.running)v.running.slot=3;finishEvent()});return}for(const [i,label] of scenes[step].opts.entries())choiceButton(label,()=>{if(o.steps.length!==step)return;let reply='함께 보낸 순간을 기억에 남겼다.';if(o.stage===1&&step===2){if(!o.group&&i===1){const c=touchContext(p,v.day);reply=c.tired||c.conflicted?'상대는 오늘은 편하게 쉬고 싶다고 말했다. 그 마음을 존중했다.':'상대가 괜찮다고 답한 뒤 나란히 앉아 이야기를 나누었다.'}else reply=i===scenes[step].opts.length-1?'각자의 휴식 시간을 존중하며 하루를 마쳤다.':'늦은 시간까지 이야기하다 각자 편안히 쉬었다.'}if(label===tripOvernightChoice){
  if(!tripOvernightReady(o,p,v.day))return;
  o.steps.push({label,reply:coupleVoices[p][2][2],overnight:true});
 }else o.steps.push({label,reply});

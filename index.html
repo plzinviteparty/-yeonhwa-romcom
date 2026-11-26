@@ -17,13 +17,74 @@
 .phone-message-group .bubble.me{align-self:flex-end;border-color:#d5e6dc;border-radius:16px 4px 16px 16px;background:#e0efe6}
 .phone-message-group .bubble strong{color:#52665a;margin-bottom:3px}
 .phone-message-group > button{align-self:flex-end;width:fit-content;max-width:90%;margin:0;padding:7px 12px;border-radius:14px;text-align:left}
+.wrap>header{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 2px 15px;border-bottom:1px solid #c9d3c7}
+.wrap>header small{grid-column:1;color:#657568;font-size:12px}
+.wrap>header h1{grid-column:1;margin:0;color:#274d3c;font-family:ui-serif,"AppleMyungjo","Batang",serif;font-size:clamp(24px,5vw,31px);letter-spacing:-.055em}
+.wrap>header #helpOpen{grid-column:2;grid-row:1/3}
+#game>.tabs{padding:4px;border-radius:14px;background:#edf1eb}
+#game>.tabs button{min-height:38px;border-radius:10px;background:transparent;color:#48594e}
+#game>.tabs button.active{background:#345843;color:#fff}
+#storyScene{--ink:#355e4a;--paper:#eef1e8;min-width:0}
+#storyScene[data-person="공재희"],#standingDialog[data-person="공재희"]{--ink:#793a55;--paper:#f9eaf0}
+#storyScene[data-person="유지안"],#standingDialog[data-person="유지안"]{--ink:#864555;--paper:#f6e9e9}
+#storyScene[data-person="차유리"],#standingDialog[data-person="차유리"]{--ink:#5a4875;--paper:#eeeaf4}
+#storyScene[data-person="오세린"],#standingDialog[data-person="오세린"]{--ink:#714f3d;--paper:#f6eee4}
+#storyScene[data-person="임하나"],#standingDialog[data-person="임하나"]{--ink:#3f5071;--paper:#eaf0f5}
+#storyScene.has-standing{display:grid;grid-template-columns:clamp(114px,27%,198px) minmax(0,1fr);grid-template-rows:auto;gap:0;border:1px solid #dddfd7;border-radius:15px;overflow:hidden;background:#fffdfa}
+#storyScene.has-standing #storyArt,#storyStanding{grid-area:1/1;min-width:0;margin:0}
+#storyScene.has-standing #storyArt{position:relative;overflow:hidden}
+#storyScene.has-standing #storyArt .scene-art{position:absolute;inset:0;margin:0;border-radius:0}
+#storyScene.has-standing #storyArt img{width:100%;height:100%;object-fit:cover}
+#storyStanding[hidden]{display:none}
+#storyStanding{position:relative;background:radial-gradient(ellipse at 50% 35%,#fff9,transparent 65%),var(--paper);border-inline-end:1px solid #37312914;isolation:isolate}
+#storyStanding::before,#standingDialog .standing-display::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,#7165740b 1px,transparent 1px),linear-gradient(#7165740b 1px,transparent 1px);background-size:18px 18px}
+#storyScene.has-backdrop #storyStanding{background:linear-gradient(to top,#17241dbf,transparent 58%)}
+#storyScene.has-backdrop #storyStanding::before{display:none}
+#standingZoom{position:relative;width:100%;height:100%;margin:0;padding:8px 4px 9px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:0;color:var(--ink);background:transparent}
+.standing-crop{position:relative;display:block;flex:none;height:clamp(174px,32vh,260px);aspect-ratio:160/464;overflow:hidden}
+.standing-crop img{position:absolute;top:0;left:0;width:500%;height:100%;max-width:none;display:block}
+#standingName{border-radius:20px;padding:3px 10px;background:#fffffff2;color:var(--ink);font-size:13px;font-weight:700;line-height:1.25}
+.standing-expand{position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#fffd;color:var(--ink);font:16px/1 system-ui,sans-serif}
+#storyScene.has-standing #log{grid-area:1/2;align-self:stretch;min-width:0;height:0;min-height:100%;max-height:none;overflow:auto;overscroll-behavior-y:contain;padding:8px 10px;scrollbar-width:thin}
+#log .bubble{overflow-wrap:anywhere;word-break:normal}
+#log .bubble[data-voice="npc"]{background:#f1f4f0;color:#233629}
+#log .bubble[data-voice="narration"]{background:transparent;color:#565f58;padding:7px 5px;font-size:14px}
+#log .bubble[data-voice="narration"] strong{display:none}
+#log .bubble[data-voice="system"]{font-size:12px;color:#536358;background:#f5f5ee}
+#storyScene.has-standing #log .bubble{margin:0 0 8px}
+#story #suggest{margin-block:10px 4px;gap:7px}
+#story #suggest button{margin:0;min-height:44px;padding:9px 12px;color:#294e3f;background:#f0f4ef;border:1px solid #c9d7cb;text-wrap:pretty}
+#story button:focus-visible,#standingDialog button:focus-visible,#game>.tabs button:focus-visible{outline:3px solid #507e6a;outline-offset:-3px}
+#standingDialog{box-sizing:border-box;width:min(88vw,370px);max-height:90vh;max-height:90dvh;padding:0;overflow:auto;border-radius:20px;border:1px solid #ddd6d5;background:#fffdfa;color:#302f31}
+#standingDialog .standing-display{display:grid;place-items:center;position:relative;padding:16px 0;background:var(--paper,#eef1e8)}
+#standingDialog .standing-crop{height:min(54vh,450px);height:min(54dvh,450px)}
+#standingDialog .standing-controls{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+#standingDialog h2{margin:0;font-size:18px;color:var(--ink)}
+#standingClose{width:auto;min-height:40px;margin:0}
+@media(max-width:520px){
+ #storyScene.has-standing{grid-template-columns:clamp(76px,24%,106px) minmax(0,1fr)}
+ .standing-crop{height:clamp(146px,24vh,195px)}
+ #storyScene.has-standing #log{padding:6px}
+ #storyScene.has-standing #log .bubble{padding:7px 8px;font-size:14px;line-height:1.55}
+ #storyScene.has-standing #log .bubble[data-voice="narration"]{font-size:13px}
+ #standingZoom{padding:7px 1px}
+ #standingName{font-size:12px;padding:3px 7px}
+ #game>.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 </style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.176-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
 <div id="map" class="panel"><h2>연화동 둘러보기</h2><p class="muted-note">장소를 누르면 주변 풍경과 그 시간에 만날 수 있는 주민을 확인할 수 있어요.</p><div class="town-map" id="townMap"></div><div class="place-detail" id="placeDetail">지도에서 가고 싶은 장소를 선택해 보세요.</div><div class="row"><label for="mapTime">시간대</label><select id="mapTime" aria-label="방문 시간대"><option value="morning">아침</option><option value="noon">낮</option><option value="afternoon">오후</option><option value="evening">저녁</option></select></div></div><div id="growth" class="panel"><h2>나의 성장</h2><div id="career"></div></div>
 <div id="relations" class="panel"><h2>동네 사람들</h2><p class="muted-note">선물은 선택 사항이에요. 선물 없이 대화하고 친해져도 됩니다.</p><div id="giftFeedback" class="bubble hide" role="status"></div><div id="relationships"></div><div id="giftPanel" class="gift-box hide"><b id="giftHeading">선물하기</b><label for="giftItem">어떤 선물을 줄까요?</label><select id="giftItem"></select><div class="row"><button id="gift" type="button">선물 전달</button><button class="secondary" id="cancelGift" type="button">선물하지 않기</button></div></div></div>
-<div id="phone" class="panel"><h2>휴대전화</h2><p class="muted-note">연락처를 교환한 주민과 메시지를 주고받을 수 있어요. 답장은 일정을 소모하지 않습니다.</p><div id="phoneContacts"></div><div id="phoneThread"></div></div><div id="album" class="panel"><h2>추억 앨범</h2><p class="muted-note">여러 회차에서 발견한 이야기를 모아 다시 볼 수 있어요. 잠긴 기록은 내용을 공개하지 않습니다.</p><div class="row album-tabs"><button id="albumEvents" class="secondary active">이벤트 도감</button><button id="albumEndings" class="secondary">엔딩 도감</button></div><label for="albumFilter">캐릭터</label><select id="albumFilter"></select><p id="albumCount" role="status"></p><div id="albumList" class="album-grid"></div></div><div id="story" class="panel"><div id="storyArt" hidden></div><div id="log" aria-live="polite"></div><div class="suggest row" id="suggest"></div><label for="message">대사 또는 행동</label><input id="message" placeholder="하고 싶은 말을 입력하세요"><button id="send" type="button">말하기</button><div class="row"><button class="secondary" id="next" class="hide" type="button">다음 장소로</button><button class="secondary" id="reset" type="button">처음부터</button></div><p class="status">선택지에 따라 관계와 사건이 달라집니다.</p></div></section><footer>저장 데이터는 이 브라우저에만 보관됩니다. API 비용 0원. · 캐릭터 설정 기준표: docs/character-bible.md</footer></div>
+<div id="phone" class="panel"><h2>휴대전화</h2><p class="muted-note">연락처를 교환한 주민과 메시지를 주고받을 수 있어요. 답장은 일정을 소모하지 않습니다.</p><div id="phoneContacts"></div><div id="phoneThread"></div></div><div id="album" class="panel"><h2>추억 앨범</h2><p class="muted-note">여러 회차에서 발견한 이야기를 모아 다시 볼 수 있어요. 잠긴 기록은 내용을 공개하지 않습니다.</p><div class="row album-tabs"><button id="albumEvents" class="secondary active">이벤트 도감</button><button id="albumEndings" class="secondary">엔딩 도감</button></div><label for="albumFilter">캐릭터</label><select id="albumFilter"></select><p id="albumCount" role="status"></p><div id="albumList" class="album-grid"></div></div><div id="story" class="panel"><div id="storyScene">
+<div id="storyArt" hidden></div>
+<figure id="storyStanding" hidden><button id="standingZoom" type="button" aria-label="스탠딩 크게 보기" aria-haspopup="dialog">
+<span class="standing-crop" aria-hidden="true"><img id="standingAtlas" alt="" width="800" height="464" decoding="async"></span>
+<span id="standingName"></span><span class="standing-expand" aria-hidden="true">⤢</span></button></figure>
+<div id="log" aria-live="polite" tabindex="0" aria-label="대화 기록"></div></div><div class="suggest row" id="suggest"></div><label for="message">대사 또는 행동</label><input id="message" placeholder="하고 싶은 말을 입력하세요"><button id="send" type="button">말하기</button><div class="row"><button class="secondary" id="next" class="hide" type="button">다음 장소로</button><button class="secondary" id="reset" type="button">처음부터</button></div><p class="status">선택지에 따라 관계와 사건이 달라집니다.</p></div></section><footer>저장 데이터는 이 브라우저에만 보관됩니다. API 비용 0원. · 캐릭터 설정 기준표: docs/character-bible.md</footer></div>
+<dialog id="standingDialog" aria-labelledby="standingTitle"><div class="standing-display"><span class="standing-crop"><img id="standingDetail" alt="전신 일러스트" width="800" height="464" decoding="async"></span></div>
+<div class="standing-controls"><h2 id="standingTitle"></h2><button id="standingClose" class="secondary" type="button" autofocus>닫기</button></div></dialog>
 <dialog id="albumDialog" style="max-height:85vh;overflow:auto;width:min(92vw,620px);box-sizing:border-box;border:1px solid #d8dfd5;border-radius:16px"><h2 id="albumTitle"></h2><p class="muted-note">감상 전용 · 현재 일정과 관계에는 영향을 주지 않습니다.</p><div id="albumReplay"></div><button id="albumClose" class="secondary">닫기</button></dialog><dialog id="transferDialog" style="max-height:85vh;overflow:auto;width:min(92vw,650px);box-sizing:border-box"><h2>세이브 관리</h2><div id="slotList"></div><button id="slotNew">새 슬롯 저장</button><label style="display:block;margin:8px 0">세이브 파일(.sav, .json)을 슬롯으로 가져오기 <input id="slotFile" type="file"></label><p id="slotStatus" role="status"></p><hr><h3>다른 기기로 옮기기</h3><p>현재 진행을 파일로 저장해 다른 기기로 보내세요. 다른 기기에서 이 메뉴를 열고 받은 파일을 선택하면 이어서 플레이할 수 있어요.</p>
 <button id="transferDownload">세이브 파일 저장</button>
 <button id="transferChoose">세이브 파일 불러오기</button>
@@ -496,7 +557,7 @@ const introPages=[
 '연화빌라 202호.\n열쇠를 돌리자 아직 아무것도 놓이지 않은 방이 모습을 드러낸다.\n이곳에서 보낼 365일. 일도, 친구도, 사랑도 아직 정해지지 않았다.\n우선 짐부터 풀어야겠다.'
 ];
 function beginIntro(){state.introPage=0;showIntro()}
-function showIntro(){const n=state.introPage||0;$('introText').textContent=introPages[n];$('introNext').textContent=n===introPages.length-1?'연화동 생활 시작하기':'다음';switchTab('intro');$('where').textContent='연화동으로 가는 길';$('clock').textContent='봄 · DAY 1';$('progress').textContent='프롤로그 '+(n+1)+' / '+introPages.length;save()}
+function showIntro(){setStoryStanding(null);const n=state.introPage||0;$('introText').textContent=introPages[n];$('introNext').textContent=n===introPages.length-1?'연화동 생활 시작하기':'다음';switchTab('intro');$('where').textContent='연화동으로 가는 길';$('clock').textContent='봄 · DAY 1';$('progress').textContent='프롤로그 '+(n+1)+' / '+introPages.length;save()}
 $('introNext').addEventListener('click',()=>{if(state.introPage<introPages.length-1){state.introPage++;showIntro()}else{state.introDone=true;state.introPage=null;scene()}});
 const npcArrival={"공재희":"분홍색 포인트가 들어간 검은 옷을 입은 여자가 휴대전화를 들여다보고 있다.",
 '강도윤':'카운터 안쪽에서 키 큰 남자가 원두 통을 정리하고 있다. 손님이 들어오자 고개를 들고 환하게 웃는다.',
@@ -798,7 +859,7 @@ function choiceButton(label,fn){const b=document.createElement('button');b.type=
 function isBeforeScheduleEvent(ev){
  return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
 }
-function finishEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;checkLifeAchievements();recordRomanceAfterglow(ev);albumCapture(ev);if((ev.tripScene||ev.homeEvening?.choice==='stay'||ev.homeEvening?.intimacy?.ending==='stay'||ev.sharedLife?.intimacy?.ending==='stay'||ev.overnight?.intimacy?.ending==='stay'||ev.sharedLife?.evening==='overnight'||ev.overnight?.answer===1)&&v.running){
+function finishEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;setStoryStanding(null);checkLifeAchievements();recordRomanceAfterglow(ev);albumCapture(ev);if((ev.tripScene||ev.homeEvening?.choice==='stay'||ev.homeEvening?.intimacy?.ending==='stay'||ev.sharedLife?.intimacy?.ending==='stay'||ev.overnight?.intimacy?.ending==='stay'||ev.sharedLife?.evening==='overnight'||ev.overnight?.answer===1)&&v.running){
  v.activeEvent=null;
  v.running.slot=4;
  advanceDay();
@@ -1617,6 +1678,45 @@ function renderCrossQuestion(ev){const v=initSim(),p=ev.person;$('progress').tex
 function renderCrossIntro(ev){const v=initSim();$('progress').textContent='교차 이야기 · 어색한 인사';add('한시우','……안녕하세요, 형.');add('서이준','네.');add('한시우','요즘 잘 지내시죠?');add('서이준','뭐, 그렇죠.');add('이야기','한시우가 어색하게 웃었다. 서이준은 냉장고에서 음료를 꺼냈다.');if(ev.answered){add(state.name,ev.selected,true);for(const [p,line] of ev.crossReplies)add(p,line);choiceButton('일정 계속하기',finishEvent);return}for(const [label,replies] of [['두 사람에게 반갑게 인사한다.',[['한시우','어, 왔어요? 뭐 사러 왔어요?'],['서이준','안녕하세요.']]],['두 분은 원래 아는 사이예요?',[['한시우','아, 예전에 몇 번 뵀어요.'],['서이준','네. 그 정도예요.']]],['모른 척하고 물건을 고른다.',[['이야기','두 사람은 별다른 말을 나누지 않고 각자 계산대로 향했다.']]]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.crossReplies=replies;v.ijunSiwooIntro={day:v.day,choice:label};remember('서이준','cross-store','한시우와 어색하게 인사하는 모습을 봄');remember('한시우','cross-store','서이준과 어색하게 인사하는 모습을 봄');writeJournal('교차 이야기 · 서이준과 한시우의 어색한 인사');save();renderChoiceEvent()})}
 function renderJaeheeGift(ev){const v=initSim();$('progress').textContent='공재희 · 흰색 곰인형';add('이야기','집게에 매달린 흰색 곰인형이 경품 출구로 떨어졌다. 재희가 인형을 꺼내 당신에게 내밀었다.');add('공재희','이거 가져요. 나 집에 인형 너무 많아서.');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,n] of [['고마워요. 잘 간직할게요.','웅ㅋㅋ 잃어버리지 마요.',3],['볼 때마다 재희 씨 생각나겠네요.','뭐야. ……그럼 더 잘 보이는 데 둬요.',4]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeBear={day:v.day,name:'흰색 곰인형'};remember('공재희','claw-bear','흰색 곰인형을 선물함');v.affection['공재희']=Math.min(999,v.affection['공재희']+n);if(n===4)socialRecord('공재희').interest++;writeJournal('공재희에게 흰색 곰인형을 받았다.');save();renderChoiceEvent();renderSim()})}
 function renderJaeheeIntro(ev){const v=initSim();$('progress').textContent='첫 만남 · 공재희';add('공재희','아싸ㅋㅋ 또 뽑았어.');add('공재희','왜요? 이거 갖고 싶어요?');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,score] of [['인형뽑기 진짜 잘하시네요.','그쵸? 나 이거 좀 잘해요ㅋㅋ',3],['저도 뽑는 법 좀 알려 주세요.','어디 봐요. 일단 저 인형부터 노려 봐요.',3],['저 정도면 저도 뽑을 수 있겠는데요?','오? 해 봐요. 궁금한데ㅋㅋ',1]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeIntro={day:v.day,choice:label,affection:score};v.met['공재희']=true;v.affection['공재희']=score;v.talkCount['공재희']=1;socialRecord('공재희').lastSeen=v.day;writeJournal('공재희 · 오락실에서 처음 만났다');save();renderChoiceEvent();renderSim()})}
+const standingCast=['공재희','유지안','차유리','오세린','임하나'];
+const standingAtlas='assets/cast-standing.webp';
+let standingUnavailable=false;
+function drawStandingCell(img,index){
+ if(!img.src)img.src=standingAtlas;
+ img.style.transform='translateX(-'+(20*index)+'%)';
+}
+function setStoryStanding(person){
+ const frame=$('storyStanding'),scene=$('storyScene');
+ const index=standingUnavailable?-1:standingCast.indexOf(person);
+ if(index<0){
+  frame.hidden=true;
+  delete frame.dataset.person;
+  delete scene.dataset.person;
+  scene.classList.remove('has-standing');
+  return;
+ }
+ if(!frame.hidden&&frame.dataset.person===person)return;
+ frame.dataset.person=scene.dataset.person=person;
+ $('standingName').textContent=person;
+ $('standingZoom').setAttribute('aria-label',person+' 스탠딩 크게 보기');
+ drawStandingCell($('standingAtlas'),index);
+ frame.hidden=false;
+ scene.classList.add('has-standing');
+}
+$('standingAtlas').addEventListener('error',()=>{
+ standingUnavailable=true;
+ setStoryStanding(null);
+});
+$('standingZoom').addEventListener('click',()=>{
+ const person=$('storyStanding').dataset.person,index=standingCast.indexOf(person);
+ if(index<0)return;
+ const dialog=$('standingDialog');
+ dialog.dataset.person=person;
+ $('standingTitle').textContent=person;
+ drawStandingCell($('standingDetail'),index);
+ if(!dialog.open)dialog.showModal();
+});
+$('standingClose').addEventListener('click',()=>$('standingDialog').close());
 const sceneIllustrations={
  autumnRiver:{file:'assets/autumn-river.webp',alt:'노을이 저문 연화천에 가로등과 단풍이 비치는 저녁 산책로'},
  autumnLodge:{file:'assets/autumn-lodge.webp',alt:'단풍이 보이는 숙소 창가와 따뜻한 조명 아래 찻잔 두 개'}
@@ -1641,13 +1741,14 @@ function illustrationFigure(id){
 }
 function renderStoryIllustration(id){
  const root=$('storyArt');
+ $('storyScene').classList.toggle('has-backdrop',!!id);
  if(root.dataset.illustration===(id||''))return;
  root.dataset.illustration=id||'';
  root.replaceChildren();
  root.hidden=!id;
  if(id)root.append(illustrationFigure(id));
 }
-function renderChoiceEvent(){departureTalkEvent=null;const v=initSim(),ev=v.activeEvent;if(!ev)return;
+function renderChoiceEvent(){setStoryStanding(null);departureTalkEvent=null;const v=initSim(),ev=v.activeEvent;if(!ev)return;
 if(ev.newConfession&&(!ev.offerState||ev.offerState.stage==='ask')&&!v.running&&dateBook()[v.day]?.trip){
  v.activeEvent=null;
  save();
@@ -3442,7 +3543,12 @@ const ev=state?.sim?.activeEvent,target=singleSpeechTarget(ev);if(target&&!ev.sp
 const log=$('log'),side=me?'player':'npc';
  const name=target&&(me||who===target)&&addressAvailableInEvent(ev)?agreedAddress(target,side,ev.day??state.sim.day):'';
  if(name&&!typed)text=withAddress(text,name,target,side);
- text=chatSpacing(text);const el=document.createElement('div');el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;el.append(title,body);log.append(el);log.scrollTop=log.scrollHeight}
+ text=chatSpacing(text);
+ const npc=!me&&people.includes(who);
+ if(npc&&!(ev?.carePerson||/^DAY \d+ 일정 결과/.test(ev?.description||'')))setStoryStanding(who);
+ const el=document.createElement('div');
+ el.dataset.voice=me?'player':npc?'npc':who==='이야기'?'narration':'system';
+ el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;el.append(title,body);log.append(el);log.scrollTop=log.scrollHeight}
 const introReplies=[
 [['서이준','“아, 죄송합니다. 바로 옮길게요.”',2],['서이준','“...그러네요. 죄송합니다.”',0],['서이준','“그런 농담은 별로 안 좋아합니다.”',-3]],
 [['백지한','“네. 이준이 형도 제가 중개해 드렸거든요.”',2],['백지한','“입주 전에 확인했지만, 불편한 곳이 있으면 바로 연락 주세요.”',1],['백지한','“하하, 시작부터 인상이 강렬했겠는데요?”',2]],
@@ -3450,7 +3556,7 @@ const introReplies=[
 [['강도윤','“네, 아이스 아메리카노 한 잔이요. 잠시만 기다려 주세요.”',1],['강도윤','“네, 창가 끝자리는 비어 있어요. 편하게 앉으세요.”',1],['강도윤','“노트북 쓰는 분은 유리 씨고, 방금 들어온 친구는 시우예요. 둘 다 단골이죠.”',2]],
 [['서이준','“네. 이사는 다 마치셨어요?”',1],['서이준','“빌라 뒤쪽에 분리수거장이 있어요. 현관 나가서 왼쪽으로 돌아가시면 됩니다.”',2],['이야기','가볍게 목례하고 집으로 들어왔다.',0]]
 ];
-function scene(){renderStoryIllustration(null);const v=initSim();if(v.day>1){$('next').classList.add('hide');switchTab('life');return}v.activeEvent=null;v.introChoices=v.introChoices||{};$('next').classList.remove('hide');renderSim();syncSchedule();switchTab('story');const n=state.scene,s=scenes[n];$('where').textContent=s.place;$('clock').textContent='DAY 01 · '+['14:00','14:20','16:00','17:00','21:00'][n];$('progress').textContent=(n+1)+' / '+scenes.length+' 장면';$('log').innerHTML='';add('이야기',s.intro);$('suggest').innerHTML='';const chosen=v.introChoices[n];$('next').disabled=chosen===undefined;for(const [i,t] of s.suggest.entries()){const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=t;b.disabled=chosen!==undefined;b.addEventListener('click',()=>{if(v.introChoices[n]!==undefined)return;v.introChoices[n]=i;const [p,response,delta]=introReplies[n][i];const key='intro-choice:'+n;if(!v.topicRewards[key]){v.topicRewards[key]=true;if(people.includes(p)){v.met[p]=true;v.talkCount[p]=(v.talkCount[p]||0)+1;v.affection[p]=Math.max(0,Math.min(999,(v.affection[p]||0)+delta))}}save();scene()});$('suggest').append(b)}if(chosen!==undefined){const [p,response]=introReplies[n][chosen];add(state.name,s.suggest[chosen],true);add(p,response)}$('next').textContent=n===scenes.length-1?'첫날 마치기':'다음 장소로';save()}
+function scene(){setStoryStanding(null);renderStoryIllustration(null);const v=initSim();if(v.day>1){$('next').classList.add('hide');switchTab('life');return}v.activeEvent=null;v.introChoices=v.introChoices||{};$('next').classList.remove('hide');renderSim();syncSchedule();switchTab('story');const n=state.scene,s=scenes[n];$('where').textContent=s.place;$('clock').textContent='DAY 01 · '+['14:00','14:20','16:00','17:00','21:00'][n];$('progress').textContent=(n+1)+' / '+scenes.length+' 장면';$('log').innerHTML='';add('이야기',s.intro);$('suggest').innerHTML='';const chosen=v.introChoices[n];$('next').disabled=chosen===undefined;for(const [i,t] of s.suggest.entries()){const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=t;b.disabled=chosen!==undefined;b.addEventListener('click',()=>{if(v.introChoices[n]!==undefined)return;v.introChoices[n]=i;const [p,response,delta]=introReplies[n][i];const key='intro-choice:'+n;if(!v.topicRewards[key]){v.topicRewards[key]=true;if(people.includes(p)){v.met[p]=true;v.talkCount[p]=(v.talkCount[p]||0)+1;v.affection[p]=Math.max(0,Math.min(999,(v.affection[p]||0)+delta))}}save();scene()});$('suggest').append(b)}if(chosen!==undefined){const [p,response]=introReplies[n][chosen];add(state.name,s.suggest[chosen],true);add(p,response)}$('next').textContent=n===scenes.length-1?'첫날 마치기':'다음 장소로';save()}
 function reply(t){
  t=String(t||'').trim();if(!t)return;
  const current=initSim(),active=current.activeEvent;

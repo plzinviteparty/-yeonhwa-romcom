@@ -1053,7 +1053,7 @@ function confirmPendingOutings(day){
  if(changed)save();
 }
 
-function phoneBadge(){const d=phoneData(),n=Object.values(d.threads).flat().filter(m=>!m.reply).length;$('phoneTab').textContent='휴대전화'+(n?' ('+n+')':'')}
+function phoneBadge(){const d=phoneData(),n=Object.values(d.threads).reduce((n,t)=>n+unreadPhoneCount(t),0);$('phoneTab').textContent='휴대전화'+(n?' ('+n+')':'')}
 const extraPhoneScripts={"공재희":[["인형 또 뽑았어요","집에 둘 데 없는데","어떤 인형이에요?","분홍색 토끼ㅋㅋ","다음에 보여 줘요.","웅 가져갈게요"],["오늘 편집하다가 영상 날릴 뻔함ㅋㅋ","저장 진짜 중요하다…","복구했어요?","다행히 자동 저장 있었어요ㅠㅠ","이제 좀 쉬어요.","웅 맛있는 거 먹어야지ㅋㅋ"],["편의점 신상 디저트 먹어봤어요?","후기 궁금한데","아직 안 먹어 봤어요.","그럼 제가 먼저 먹어봄ㅋㅋ","같이 먹어 볼래요?","오 좋죠ㅋㅋ"],["오늘 방송 안 켜고 쉴 거예요","뭐 하고 놀지 고민중","푹 쉬어요.","웅 오늘은 진짜 쉬어야지","저랑 놀아요.","헐 좋아요ㅋㅋ"]],"서이준":[["현관 앞 택배가 와 있더군요.","혹시 댁 물건인지 확인해 보세요.","알려 주셔서 감사해요.","별일 아닙니다.","이웃이 이준 씨라 다행이에요.","그 정도예요? ……듣기는 좋네요."],["오늘은 일이 일찍 끝났어요.","오랜만에 여유가 있네요.","푹 쉬세요.","네. 그러려고요.","저랑 이야기할 여유도 있어요?","있어요. 지금은요."],["빌라 앞에 처음 보는 고양이가 있어요.","조금만 다가가도 뒤로 숨네요.","멀리서 지켜봐야겠네요.","네. 저도 여기서만 보려고요.","다음에 같이 보러 가요.","네. 조용히 가 보죠."],["요즘 저녁은 잘 챙겨 먹어요?","바쁘면 자꾸 거르게 되잖아요.","잘 챙기려고요.","다행입니다.","이준 씨도 잘 챙겨요.","알겠습니다. 걱정해 주셔서 감사합니다."]],"강도윤":[["오늘 쿠키가 조금 남았어요.","내일 드릴까요?","감사해요!","따로 챙겨 둘게요.","저만 주시는 거예요?","이상하네. 다른 사람한테는 잘 안 들키는데요."],["원두 샘플이 잔뜩 왔어요.","향이 전부 달라서 재미있네요.","어떤 게 제일 좋아요?","오늘은 과일 향이 나는 게 좋네요.","다음에 저도 골라 볼래요.","좋아요. 같이 골라요."],["오늘 강아지가 장난감을 숨겨 놨어요.","한참 찾았네요 ㅎㅎ","귀엽네요.","덕분에 웃었어요.","사진도 보여 주세요.","좋아요! 다음에 찍어 둘게요."],["오늘은 저도 커피 말고 차가 당기네요.","이런 날도 있죠.","차도 좋아하세요?","네, 향이 좋은 차요.","같이 마시면 좋겠어요.","저도 그러면 좋겠네요."]],"한시우":[["오늘 연습에서 이겼어요!","야호!!","축하해요!","히히 감사합니다!","제일 먼저 자랑하러 왔어요?","오, 눈치 빠른데요?"],["편의점 신상 봤어요?","이름부터 수상해요 ㅋㅋ","맛이 궁금하네요.","제가 먼저 먹어 볼게요.","같이 도전해요.","오예! 혼자 죽지 않겠다!"],["오늘 알람 세 개나 껐어요.","큰일 날 뻔 ㅋㅋ","피곤했나 봐요.","그러게요. 일찍 자야죠.","제가 깨워 드릴까요?","히히. 진짜요?"],["요즘 듣는 노래 있어요?","플레이리스트가 지겨워졌어요.","추천해 드릴게요.","오! 기대할게요.","같이 들으면 좋겠네요.","좋죠!"]],"정태오":[["오늘 수영 기록이 조금 좋아졌습니다.","꾸준히 하니 효과가 있군요.","축하합니다!","감사합니다.","다음엔 같이 수영해요.","좋습니다. 시간을 맞춰 보죠."],["오늘 동네가 조용했습니다.","별일 없는 하루가 좋군요.","다행이에요.","그렇습니다.","태오 씨도 편히 쉬어요.","네. 감사합니다."],["길을 걷다가 괜찮은 산책로를 발견했습니다.","사람이 많지 않더군요.","좋은 곳이네요.","네. 조용합니다.","같이 가 보고 싶어요.","그럼 다음에 안내하겠습니다."],["오늘 식사를 조금 늦게 했습니다.","이제 쉬려고 합니다.","고생하셨어요.","감사합니다.","쉬기 전에 저랑 이야기해요.","좋습니다. 잠시라면......"]],"백지한":[["오늘 매물 사진을 정리하다 보니","집마다 분위기가 참 다르네요.","어떤 집이 좋으세요?","채광 좋은 집이요.","저랑 취향이 맞는지 궁금해요.","어라, 집 취향만요?"],["괜찮은 식당을 하나 발견했어요.","혼자 가기엔 아깝더라고요.","어떤 음식이에요?","파스타가 괜찮아 보여요.","저랑 가면 되겠네요.","그 말을 기다렸나 봅니다."],["오늘은 일찍 끝났는데","뭘 해야 잘 놀았다는 소문이 날까요?","영화라도 보세요.","그것도 좋죠.","저랑 놀면 되죠.","이렇게 쉽게 해결될 일이었네요?"],["오늘 길에서 예쁜 조명을 봤어요.","동네가 제법 분위기 있더라고요.","어디예요?","다음에 알려 드리죠.","같이 보러 가요.","좋아요. 혼자 보기 아까웠거든요."]],"임하나":[["...... 있잖아요.","오늘 과외가 조금 일찍 끝났어요.","잘됐네요. 쉬어요.","네. 그러려고요.","저랑 이야기할래요?","네! 좋아요."],["오늘 편의점에 새 빵이 들어왔어요.","맛있어 보여서 하나 샀어요.","맛있게 드세요.","감사해요.","다음엔 같이 먹어요.","...... 좋아요."],["요즘 읽을 책을 찾고 있어요.","추천해 주실 만한 게 있나요?","생각해 볼게요.","감사해요.","같이 서점 구경할까요?","저랑요? 좋아요."],["오늘은 집에 가는 길이 조용했어요.","그냥 조금 이야기하고 싶어서요.","편하게 이야기해요.","고마워요.","먼저 연락해 줘서 좋아요.","...... 정말요?"]],"차유리":[["작업하다가 색 조합 하나 건졌어요.","이런 날은 기분 좋다.","축하해요!","고마워요.","다음에 보여 줄래요?","좋아요. 같이 봐요."],["오늘은 아무것도 안 사고 구경만 했어요.","나름 대단하지 않아요?","잘 참았네요.","그러니까요!","다음엔 같이 구경할까요?","좋아요. 어디부터 갈까요?"],["새로운 음악 틀어 놓고 작업 중이에요.","집중이 잘되네요.","어떤 음악이에요?","잔잔한 연주곡이요.","저도 같이 듣고 싶어요.","그럼 나중에 같이 들어 볼래요?"],["오늘 작업 끝!","이제 맛있는 거 먹을 시간이에요.","맛있게 먹어요.","네!","뭐 먹을지 같이 정할까요?","좋아요. 뭐 먹고 싶어요?"]],"오세린":[["오늘 진료를 잘 마쳤어요.","마음이 한결 가볍네요.","고생하셨어요.","고마워요. 후후.","세린 씨도 돌봄받아야죠.","어머, 그렇게 말해 주니 좋네요."],["허브차를 새로 샀어요.","향이 참 좋네요.","무슨 차예요?","캐모마일이에요.","같이 마시고 싶어요.","좋아요. 여유 있을 때 마셔요."],["오늘 귀여운 강아지가 왔어요.","꼬리를 어찌나 흔들던지.","귀엽겠어요.","어머, 정말요?","세린 씨도 웃었겠네요.","그럼요. 덕분에 웃었죠."],["으음, 오늘은 저녁 메뉴가 고민이네요.","뭘 먹을까 싶어요.","따뜻한 국물 어때요?","좋은 생각이네요.","같이 먹으면 더 좋겠어요.","어머, 그래요?"]],"유지안":[["오늘 학생이 어려운 동작을 성공했어요!","와우! 제가 더 신났네요.","축하해요!","예쓰! 기분 최고예요.","지안 씨도 멋졌겠네요.","오~ 칭찬 감사합니다!"],["새 운동화 구경 중이에요.","색깔이 너무 많다!","잘 어울리는 걸 골라요.","좋죠!","같이 골라 볼까요?","예쓰! 의견 환영!"],["오늘 스트레칭하다가","몸이 좀 가벼워진 느낌이에요!","꾸준히 하니까 그렇죠.","맞아요!","다음에 같이 해요.","좋죠! 같이 풀어요."],["요즘 신나는 노래 찾고 있어요.","추천곡 있어요?","찾아 볼게요.","오예!","같이 들으면서 춤춰요.","와우, 그거 재밌겠다!"]]};for(const p of Object.keys(extraPhoneScripts))phoneScripts[p].push(...extraPhoneScripts[p]);
 const memoryPhoneLines={"공재희":["지난번에 놀았던 거 생각남","또 가고 싶어요ㅋㅋ","요즘 왜 안 보여요","바빠요?"],"서이준":["지난번에 같이 나갔던 거요. 생각보다 재밌었어요.","그때 말하기는 좀 민망해서요.","요즘 얼굴 보기 힘드네요.","별일 있는 건 아니죠?"],"강도윤":["어제 이야기하다 보니 시간이 정말 빨리 갔어요.","오늘도 좋은 하루 보내세요!","요즘 얼굴을 못 봤네요.","잘 지내고 계세요?"],"한시우":["어제 진짜 재밌었어요 ㅋㅋ","히히. 다음에도 놀아요!","요즘 왜 이렇게 안 보여요?","잘 지내죠?"],"정태오":["어제 함께한 시간이 좋았습니다.","감사 인사를 드리고 싶었습니다.","최근 뵙지 못했군요.","잘 지내고 계십니까?"],"백지한":["어제는 제가 시간 가는 줄도 몰랐네요.","이런 일이 흔한 건 아닌데.","요즘 좀처럼 못 뵙네요.","잘 지내시죠?"],"임하나":["...... 있잖아요. 어제 정말 즐거웠어요.","말씀드리고 싶어서 연락했어요.","요즘 잘 지내세요?","한동안 못 뵌 것 같아서요."],"차유리":["어제 같이 있으니까 기분 전환 제대로 됐어요!","다음에도 시간 맞춰 볼까요?","요즘 얼굴 보기 어렵네요.","잘 지내고 있어요?"],"오세린":["어제 덕분에 여유로운 시간을 보냈어요.","고맙다는 말씀 드리고 싶었어요.","한동안 못 뵈었네요.","요즘 어떻게 지내세요?"],"유지안":["어제 완전 재밌었어요!","예쓰, 다음에도 같이 놀아요!","요즘 통 못 봤네요!","잘 지내고 있죠?"]};
 const npcVoice={"공재희":["ㅇㅋㅋㅋ","모야. 나도요.","그럼 날짜 잡아요.","아 그래요?","나도 보고 싶었어요."],"서이준":["뭐, 기억해 둘게요.","…저만 그런 줄 알았는데.","다음엔 미리 말해요. 시간 비워 둘 테니까.","다행입니다.","그건 얼굴 보고 얘기해요."],"강도윤":["하하, 제가 더 고맙죠.","그 말 들으니 괜히 웃음이 나네요.","다음에는 제가 먼저 연락할게요.","잘 지낸다니 마음이 놓여요.","얼른 얼굴 보고 이야기하고 싶네요."],"한시우":["오예! 성공했네요.","어, 저만 그런 줄 알았는데!","이번엔 저랑 팀 먹어요!","오, 다행이다!","그럼 다음에 꼭 봐요!"],"백지한":["제 점수 좀 올라갔나요?","이러면 제가 또 기대하잖아요.","다음 코스도 생각해 둘게요.","그럼 안심해도 되겠네요.","이번엔 제가 먼저 찾아갈까요?"],"정태오":["감사합니다.","…저도 그렇습니다.","다음 일정을 확인해 보겠습니다.","다행입니다. 무리하지 마십시오.","다음에 뵙겠습니다."],"임하나":["다행이에요. 마음에 드셨으면 했어요.","저도요. ……말해 주셔서 고마워요.","다음에도 시간 괜찮으시면 좋겠어요.","걱정했는데 다행이에요.","네. 다음에 꼭 이야기해요."],"차유리":["좋다! 잘 골랐네요.","오, 통했네요.","다음엔 다른 데도 가 볼까요?","좋아요. 잘 쉬어요.","시간 맞으면 얼굴 봐요."],"오세린":["아아, 마음이 전해졌나 봐요.","저도 그 시간이 참 좋았어요.","다음에도 여유롭게 만나요.","마음이 놓이네요.","차 한잔하면서 이야기해요."],"유지안":["와우, 기분 좋네요!","저도 계속 생각났어요!","다음엔 더 신나게 놀아요!","좋아요! 컨디션 잘 챙겨요.","다음에 만나서 밀린 얘기 다 해요!"]},careerAdvice={"공재희":"남들이 하라는 거 말고 내가 할 수 있는 거부터 해 보면 안 돼요?","서이준":"잘하는 일이랑 계속 하고 싶은 일은 다르잖아요. 저도 일 바꾸고 나서야 알았어요.","강도윤":"잘하는 일이 꼭 평생 해야 할 일은 아니잖아요. 저도 제 가게를 어떻게 꾸려 갈지 고민 중이에요.","한시우":"잘한다고 계속 재밌는 건 아니더라고요. 다른 것도 해 보고 결정하면 안 돼요?","백지한":"그만둘 때 들어갈 돈부터 계산해 봐요. 하고 싶은 일도 현실적인 계획이 있어야 오래 가죠.","정태오":"지금 당장 결론을 내릴 필요는 없습니다. 생활을 유지할 방법부터 확보하십시오.","임하나":"저도 해야 하는 일과 하고 싶은 일이 자꾸 헷갈려요. 그래도 자기 마음을 무시하지 않았으면 좋겠어요.","차유리":"작은 작업부터 직접 해 봐요. 생각만 할 때랑 돈 받고 할 때는 다르거든요.","오세린":"직업이 삶의 전부는 아니에요. 어떤 하루를 살고 싶은지부터 생각해 보면 어떨까요?","유지안":"꿈이 바뀌어도 실패는 아니잖아요. 저도 무대 말고 다른 곳에서 춤추고 있으니까요."};
@@ -1228,7 +1228,250 @@ function jihanChange(kind,day){
 }
 const jihanPhoneNormal=[['오늘은 제가 좀 욕심을 내도 돼요?','다음에 만날 때는 제 옆에 오래 있어 줘요.','좋아요. 저도 더 오래 있고 싶어요.','그 말 기억해 둘게요. 기대해도 되는 거죠?','각자 시간도 필요해요.','알죠. 그래도 보고 싶은 건 숨기기 싫네요.'],['아까 헤어지고 나니까 좀 아쉽더군요.','다음에는 제가 먼저 손 내밀어도 돼요?','좋아요.','좋네. 다음에 얼굴 보고 얘기해요.','오늘은 각자 쉬어요.','좋아요. 푹 쉬어요.'],['오늘따라 목소리가 듣고 싶네요.','제가 이렇게 먼저 찾는 것도 꽤 드문 일인데.','저도 보고 싶어요.','그럼 다음에 만날 때는 조금 더 가까이 있어요.','지금은 혼자 있고 싶어요.','알겠어요. 여유 생기면 연락 줘요.']];
 const jihanPhoneScar=[['오늘 어디예요?','혼자 있는 거예요? 그냥 궁금해서요.','오늘은 별일 없어요. 우리 이야기해요.','…그래요. 내가 또 괜한 생각을 했나 봐요.','일정을 전부 알려 줄 필요는 없어요.','…알아요. 조금 시간을 갖죠.'],['오늘도 약속 있어요?','나한테는 왜 이렇게 묻기 어려운 사람이 됐을까.','불안한 마음은 이야기해도 돼요.','…그럼 조금만 들어 줘요.','추궁하는 건 그만해요.','알겠어요. 지금은 제가 진정하는 게 먼저겠네요.'],['지금 뭐 해요?','답장 없으면 자꾸 지난 일이 생각나요.','지한 씨 마음을 이해하고 싶어요.','…내가 이렇게까지 신경 쓸 줄은 몰랐네요.','답장을 재촉하지 말아 주세요.','…알겠어요. 기다릴게요.']];
-function jihanPhoneTick(day,d){const p=JIHAN,z=socialRecord(p),r=jihanBond(),dating=vIsDating(p),ex=exRecord(p);if(!z.contact||day<r.mutedUntil||(!dating&&!(r.scar&&ex&&initSim().romance[p]==='ended'&&aftermathRecord(p)?.status==='friend'&&ex.remaining>=3)))return 0;const t=d.threads[p]||(d.threads[p]=[]),pending=t.findLast(m=>m.jihanBond&&!m.reply),pressure=relationshipPressure(p);if(pending){if(dating&&r.scar&&pressure.distrust>=5&&day-pending.day>=1&&(!pending.followups||pending.followups.length<2)&&(!pending.followups?.length||pending.followups.at(-1).day<day)){pending.followups=(pending.followups||[]);pending.followups.push({day,line:pending.followups.length?'…누구랑 있는지는 왜 말을 안 해요?':'왜 답장이 없어요? 바쁜 거예요?'});feel(p,{obsession:1});return 1}return 0}if(t.some(m=>!m.reply)||day-r.lastPhone<(r.scar&&pressure.distrust>=5?2:7))return 0;if(!dating){if(r.exPing)return 0;r.exPing=true;t.push({day,jihanBond:true,script:['…아직도 가끔 생각나요.','다시 이야기할 수 있으면 좋겠네요.','나중에 이야기해요.','기다릴게요.','더 연락하지 말아 주세요.','…알겠어요.'],contextKey:'jihan:ex:'+day});}else{const pool=r.scar&&pressure.distrust>=4?jihanPhoneScar:jihanPhoneNormal;t.push({day,jihanBond:true,script:pool[r.phoneCount++%pool.length].slice(),contextKey:'jihan:bond:'+day})}r.lastPhone=day;d.last[p]=day;return 1}
+const pressureTextVoices={
+ '백지한':[
+  {
+   polite:['어디예요?','혼자 있어요?','물어볼 게 하나 더 있어요.','지금 옆에 누가 있으면, 그 사람 앞에서는 내 전화 못 받아요?','누구랑 있는지 묻고 싶어서 이러는 거예요.','나 좀 봐요. 문자 한 줄이 그렇게 어려워요?'],
+   casual:['어디야?','혼자 있어?','물어볼 게 하나 더 있어.','지금 옆에 누가 있으면, 그 사람 앞에서는 내 전화 못 받아?','누구랑 있는지 묻고 싶어서 이러는 거야.','나 좀 봐. 문자 한 줄이 그렇게 어려워?'],
+   choices:[["나 여기 있어요. 목소리 들으면서 얘기할까요?","나 여기 있어. 목소리 들으면서 얘기할까?"],["어디서 누구랑 있는지까지는 묻지 말아 줘요.","어디서 누구랑 있는지까지는 묻지 마."]],
+   answers:[['답 왔네요. ……좋다. 잠깐만 나랑 얘기해요.','답 왔네. ……좋다. 잠깐만 나랑 얘기해.'],['알겠어요. 어디 있는지는 그만 물을게요. 먼저 연락 줘요.','알겠어. 어디 있는지는 그만 물을게. 먼저 연락 줘.']]
+  },{
+   polite:['나한테 언제 전화해 줄 수 있어요?','몇 시쯤인지 말해 줘요.','그 시간은 비워 둘게요.','다른 사람 전화 오면 받지 말고.','……싫어요? 그 잠깐도 나 혼자 차지하면 안 돼요?','몇 시에 걸면 돼요. 그 말부터 해 줘요.'],
+   casual:['나한테 언제 전화해 줄 수 있어?','몇 시쯤인지 말해 줘.','그 시간은 비워 둘게.','다른 사람 전화 오면 받지 말고.','……싫어? 그 잠깐도 나 혼자 차지하면 안 돼?','몇 시에 걸면 돼. 그 말부터 해 줘.'],
+   choices:[["나도 통화하고 싶어요. 언제 되는지 보고 먼저 걸게요.","나도 통화하고 싶어. 언제 되는지 보고 먼저 걸게."],["지금 몇 시라고 정하진 않을래요. 내가 전화할게요.","지금 몇 시라고 정하진 않을래. 내가 전화할게."]],
+   answers:[['기다리는 건 할 수 있어요. 나한테도 내 차례가 있다는 것만 알면.','기다리는 건 할 수 있어. 나한테도 내 차례가 있다는 것만 알면.'],['……전화까지 내 맘대로 정했네요. 오늘은 먼저 안 걸게요.','……전화까지 내 맘대로 정했네. 오늘은 먼저 안 걸게.']]
+  }
+ ],
+ '강도윤':[
+  {
+   polite:['오늘은 내가 먼저 보고 싶다고 해도 돼요?','아까부터 썼다 지웠다 하고 있어요.','먹고 싶은 거 있냐고 물으면 대답해 줄 것 같아서요.','그냥 그걸로 보낼걸.','……그래도 오늘은 내가 보고 싶다는 말에 답 좀 해 줘요.','나도 그 말 듣고 싶어요.'],
+   casual:['오늘은 내가 먼저 보고 싶다고 해도 돼?','아까부터 썼다 지웠다 하고 있어.','먹고 싶은 거 있냐고 물으면 대답해 줄 것 같아서.','그냥 그걸로 보낼걸.','……그래도 오늘은 내가 보고 싶다는 말에 답 좀 해 줘.','나도 그 말 듣고 싶어.'],
+   choices:[["말해 줘서 좋아요. 나도 보고 싶어요.","말해 줘서 좋아. 나도 보고 싶어."],["보고 싶다고 해도 돼요. 내 대답은 조금 기다려 줘요.","보고 싶다고 해도 돼. 내 대답은 조금 기다려 줘."]],
+   answers:[['그렇게 말해 주니까 좋네요. 괜히 다른 얘기 안 꺼내길 잘했어요.','그렇게 말해 주니까 좋네. 괜히 다른 얘기 안 꺼내길 잘했어.'],['내가 듣고 싶은 답이 있어서 자꾸 보냈네요. 오늘은 여기까지 할게요.','내가 듣고 싶은 답이 있어서 자꾸 보냈네. 오늘은 여기까지 할게.']]
+  },{
+   polite:['혹시 내가 뭐 잘못했어요?','마음에 걸리는 게 있으면 말해 줘요.','사실 딱히 짚이는 것도 없는데.','내가 뭘 잘못한 거면 고치기라도 하잖아요.','나 혼자 기다리고 있는 건지, 그것만 좀 알려 줄래요?','괜찮을 때 연락 달라고 써야 하는데, 오늘은 그 말이 잘 안 써져요.'],
+   casual:['혹시 내가 뭐 잘못했어?','마음에 걸리는 게 있으면 말해 줘.','사실 딱히 짚이는 것도 없는데.','내가 뭘 잘못한 거면 고치기라도 하잖아.','나 혼자 기다리고 있는 건지, 그것만 좀 알려 줄래?','괜찮을 때 연락 달라고 써야 하는데, 오늘은 그 말이 잘 안 써져.'],
+   choices:[["잘못한 거 없어요. 답이 늦어도 우리 괜찮아요.","잘못한 거 없어. 답이 늦어도 우리 괜찮아."],["내가 바로 답을 못 해도 잘못부터 찾지는 말아요.","내가 바로 답을 못 해도 잘못부터 찾지는 마."]],
+   answers:[['그러면 됐어요. 나도 숨 좀 돌리고 있을게요.','그러면 됐어. 나도 숨 좀 돌리고 있을게.'],['답이 없다고 혼자 일을 너무 키웠네요. 나중에 얘기해요.','답이 없다고 혼자 일을 너무 키웠네. 나중에 얘기하자.']]
+  }
+ ],
+ '서이준':[
+  {
+   polite:['통화 돼요?','급한 일은 아니에요.','……그러면 안 걸어도 되겠다고 생각하려나.','솔직히 답 없으니까 좀 신경 쓰여요.','아까 급한 일 아니라는 말은 취소할게요.','목소리 듣고 싶어요.'],
+   casual:['통화 돼?','급한 일은 아니야.','……그러면 안 걸어도 되겠다고 생각하려나.','솔직히 답 없으니까 좀 신경 쓰여.','아까 급한 일 아니라는 말은 취소할게.','목소리 듣고 싶어.'],
+   choices:[["나도 목소리 듣고 싶어요. 잠깐 통화해요.","나도 목소리 듣고 싶어. 잠깐 통화하자."],["전화는 내가 여유 있을 때 걸게요. 지금은 기다려 줘요.","전화는 내가 여유 있을 때 걸게. 지금은 기다려 줘."]],
+   answers:[['…왔네요. 괜히 말 돌렸어요. 연락 기다렸어요.','…왔네. 괜히 말 돌렸어. 연락 기다렸어.'],['알겠어요. 이 뒤로는 더 안 보낼게요.','알겠어. 이 뒤로는 더 안 보낼게.']]
+  },{
+   polite:['내 문자 기다려 본 적 있어요?','난 요즘 좀 그래요.','화면 켜지면 이름부터 봐요.','다른 이름이면 다시 엎어 두고.','……나만 그러는 건지 물어보고 싶었어요.','이건 대충 웃고 넘기지 말아요.'],
+   casual:['내 문자 기다려 본 적 있어?','난 요즘 좀 그래.','화면 켜지면 이름부터 봐.','다른 이름이면 다시 엎어 두고.','……나만 그러는 건지 물어보고 싶었어.','이건 대충 웃고 넘기지 마.'],
+   choices:[["기다린 적 있어요. 나도 알림 오면 이름부터 봐요.","기다린 적 있어. 나도 알림 오면 이름부터 봐."],["좋아하는 걸 답장 속도로 확인하지는 말아요.","좋아하는 걸 답장 속도로 확인하지는 마."]],
+   answers:[['…이 답은 지우지 말아요. 나중에 또 읽게.','…이 답은 지우지 마. 나중에 또 읽게.'],['나도 답 늦을 때 있는데. 그렇게 묻는 거 별로였겠네요. 그만할게요.','나도 답 늦을 때 있는데. 그렇게 묻는 거 별로였겠네. 그만할게.']]
+  }
+ ],
+ '공재희':[
+  {
+   polite:['뭐 해요 👀','나 지금 폰 들고 대기 중인데ㅋㅋ','아니 근데 왜 내가 먼저 보내 놓고 눈치 보지','딱 한 글자만 보내 봐요. 점도 됨.','점 하나 온다고 좋아할 내가 좀 웃기네.','사실 나 보고 싶었냐고 물어보려고 했어요.'],
+   casual:['뭐 해 👀','나 지금 폰 들고 대기 중인데ㅋㅋ','아니 근데 왜 내가 먼저 보내 놓고 눈치 보지','딱 한 글자만 보내 봐. 점도 됨.','점 하나 온다고 좋아할 내가 좀 웃기네.','사실 나 보고 싶었냐고 물어보려고 했어.'],
+   choices:[["나 왔어요. 기다렸어요?","나 왔어. 기다렸어?"],["폰 계속 보고 있으면 더 애타요. 내가 다시 톡할게요.","폰 계속 보고 있으면 더 애타. 내가 다시 톡할게."]],
+   answers:[['아 왔다. 나 방금 웃은 거 비밀이에요ㅋㅋ','아 왔다. 나 방금 웃은 거 비밀이야ㅋㅋ'],['웅. 이제 폰 엎어 놓을게요. 먼저 톡 줘요.','웅. 이제 폰 엎어 놓을게. 먼저 톡 줘.']]
+  },{
+   polite:['나 오늘 딱 하나만 물어볼래요','요즘 좋은 거 보면 누구한테 제일 먼저 보내요?','나는 여기부터 켜거든요.','……왜 물어보긴. 내 이름 나오면 좋으니까.','이런 건 빨리 대답해 줘야 내가 덜 민망한데ㅠ','나 지우기 전에 빨리 와요ㅠㅠ'],
+   casual:['나 오늘 딱 하나만 물어볼래','요즘 좋은 거 보면 누구한테 제일 먼저 보내?','나는 여기부터 켜거든.','……왜 물어보긴. 내 이름 나오면 좋으니까.','이런 건 빨리 대답해 줘야 내가 덜 민망한데ㅠ','나 지우기 전에 빨리 와ㅠㅠ'],
+   choices:[["재밌는 거 보면 같이 웃고 싶어서 여기부터 찾아요.","재밌는 거 보면 같이 웃고 싶어서 여기부터 찾아."],["누구한테 먼저 보내는지 순서는 안 정할래요.","누구한테 먼저 보내는지 순서는 안 정할래."]],
+   answers:[['오케이. 나 이거 캡처해도 돼요? 혼자 볼 건데ㅋㅋ','오케이. 나 이거 캡처해도 돼? 혼자 볼 건데ㅋㅋ'],['앗. 내가 답 정해 놓고 물어봤네요. 그만 물어볼게요.','앗. 내가 답 정해 놓고 물어봤네. 그만 물어볼게.']]
+  }
+ ],
+ '임하나':[
+  {
+   polite:['……잠깐만 얘기할 수 있어요?','바쁘면 이따 답해 줘도 돼요.','방금 제가 이따 해도 된다고 했는데요.','자꾸 이 창에서 못 나가겠어요.','언제쯤 다시 얘기할 수 있는지만 말해 줄래요?','알면 그때까진 가만히 있을 수 있을 것 같아요.'],
+   casual:['……잠깐만 얘기할 수 있어?','바쁘면 이따 답해 줘도 돼.','방금 내가 이따 해도 된다고 했는데.','자꾸 이 창에서 못 나가겠어.','언제쯤 다시 얘기할 수 있는지만 말해 줄래?','알면 그때까진 가만히 있을 수 있을 것 같아.'],
+   choices:[["네, 얘기해요. 나 지금 듣고 있어요.","응, 얘기하자. 나 지금 듣고 있어."],["지금은 답하기 어려워요. 내가 먼저 연락할게요.","지금은 답하기 어려워. 내가 먼저 연락할게."]],
+   answers:[['아, 이제 폰 내려놔도 되겠다. 답해 줘서 좋아요.','아, 이제 폰 내려놔도 되겠다. 답해 줘서 좋아.'],['네. 기다린다고 해 놓고 계속 보내면 기다리는 게 아니죠. 저도 할 일 하고 있을게요.','응. 기다린다고 해 놓고 계속 보내면 기다리는 게 아니지. 나도 할 일 하고 있을게.']]
+  },{
+   polite:['나중에 보자는 말 있잖아요.','저는 언제인지 알아야 마음이 놓여요.','이번엔 제가 먼저 날짜 물어봐도 돼요?','갖고 싶은 게 있냐고 하면 별로 없는데.','이상하게 같이 있을 시간은 자꾸 더 달라고 하고 싶어요.','……이번에는 남는 시간 말고, 먼저 비워 주면 안 돼요?'],
+   casual:['나중에 보자는 말 있잖아.','나는 언제인지 알아야 마음이 놓여.','이번엔 내가 먼저 날짜 물어봐도 돼?','갖고 싶은 게 있냐고 하면 별로 없는데.','이상하게 같이 있을 시간은 자꾸 더 달라고 하고 싶어.','……이번에는 남는 시간 말고, 먼저 비워 주면 안 돼?'],
+   choices:[["나도 만나고 싶어요. 같이 날짜 골라요.","나도 만나고 싶어. 같이 날짜 고르자."],["오늘 바로 정하긴 어려워요. 조금만 기다려 줘요.","오늘 바로 정하긴 어려워. 조금만 기다려 줘."]],
+   answers:[['……네. 지금 이렇게 대답해 준 것만으로도 한결 나아요.','……응. 지금 이렇게 대답해 준 것만으로도 한결 나아.'],['그럼 지금은 정하지 말아요. 제가 너무 조급했어요.','그럼 지금은 정하지 말자. 내가 너무 조급했어.']]
+  }
+ ],
+ '정태오':[
+  {
+   polite:['통화하실 수 있습니까?','언제쯤 시간이 나십니까.','일정이 궁금해서 묻는 건 아닙니다.','……그렇게 적고 보니 변명 같군요.','기다려야 할 시간이 얼마인지 알고 싶습니다.','답 한 줄 주실 때까지는 도무지 다른 일에 손이 안 갑니다.'],
+   casual:['통화할 수 있어?','언제쯤 시간 나?','일정이 궁금해서 묻는 건 아니야.','……써 놓고 보니 그것도 변명이네.','얼마나 더 기다리면 되는지 알고 싶어.','답 한 줄 올 때까지는 도무지 다른 일에 손이 안 가.'],
+   choices:[["통화하고 싶어요. 내가 가능한 시간부터 알려 줄게요.","통화하고 싶어. 내가 가능한 시간부터 알려 줄게."],["지금 당장 몇 시라고 대답하긴 어려워요. 여유가 생기면 연락할게요.","지금 당장 몇 시라고 대답하긴 어려워. 여유가 생기면 연락할게."]],
+   answers:[['답 주셨군요. 이제 다른 일에도 집중할 수 있겠습니다.','답 왔네. 이제 다른 일에도 집중할 수 있겠다.'],['알겠습니다. 제가 조급해서 재촉했습니다. 연락하실 때까지 기다리겠습니다.','알았어. 내가 조급해서 재촉했어. 먼저 연락할 때까지 기다릴게.']]
+  },{
+   polite:['다음에 만나면 여쭙고 싶은 게 있습니다.','제가 먼저 연락하지 않으면 제 생각이 나십니까?','문자로 여쭐 생각은 없었는데.','보낸 김에 솔직하게 말씀드리겠습니다.','요즘은 저만 기다리는 것 같아서 싫습니다.','다음에는 제가 먼저 연락할 때까지 기다리지 말아 주십시오.'],
+   casual:['다음에 만나면 묻고 싶은 게 있어.','내가 먼저 연락 안 해도 가끔 내 생각 나?','문자로 물을 생각은 없었는데.','보낸 김에 솔직히 말할게.','요즘은 나만 기다리는 것 같아서 싫어.','다음에는 내가 먼저 연락할 때까지 기다리지 말아 줘.'],
+   choices:[["연락 없는 날도 생각나요. 이번엔 내가 먼저 연락할게요.","연락 없는 날도 생각나. 이번엔 내가 먼저 연락할게."],["연락한 횟수로 내 마음을 재지는 말아 줘요.","연락한 횟수로 내 마음을 재지는 마."]],
+   answers:[['그 말이면 됐습니다. 괜히 어려운 질문부터 했군요.','그 말이면 됐어. 괜히 어려운 질문부터 했네.'],['제 말을 먼저 쏟아 놓고 답까지 재촉했군요. 이만하겠습니다.','내 말을 먼저 쏟아 놓고 답까지 재촉했네. 그만할게.']]
+  }
+ ],
+ '한시우':[
+  {
+   polite:['나 지금 전화 걸까 말까 하는데요','받을 수 있어요?','벨 울리고 안 받으면 그게 더 쫄릴 것 같아서ㅋㅋ','……근데 안 걸고 여기서 기다리는 게 더 쫄리네.','아, 진짜 보고 싶어요.','이번엔 먼저 한 번만 걸어 주면 안 돼요?'],
+   casual:['나 지금 전화 걸까 말까 하는데','받을 수 있어?','벨 울리고 안 받으면 그게 더 쫄릴 것 같아서ㅋㅋ','……근데 안 걸고 여기서 기다리는 게 더 쫄리네.','아, 진짜 보고 싶어.','이번엔 먼저 한 번만 걸어 주면 안 돼?'],
+   choices:[["나도 목소리 듣고 싶어요. 내가 걸까요?","나도 목소리 듣고 싶어. 내가 걸까?"],["지금 통화는 어려워요. 나중에 내가 걸게요.","지금 통화는 어려워. 나중에 내가 걸게."]],
+   answers:[['와, 답 왔다. 나 방금까지 괜히 방 안을 몇 바퀴나 돌았어요.','와, 답 왔다. 나 방금까지 괜히 방 안을 몇 바퀴나 돌았어.'],['앗, 내가 혼자 급발진했죠. 이따 봐요.','앗, 내가 혼자 급발진했지. 이따 봐.']]
+  },{
+   polite:['나한테 먼저 해 주면 좋은 거 하나 있어요.','다음에 보고 싶으면 그냥 보고 싶다고 해 줘요.','그럼 나 진짜 좋아할 건데.','내가 자꾸 먼저 말하니까','가끔은 대답만 듣고도 내가 좋아서 착각하는 건가 싶어요.','나 좋다고 먼저 말해 주면 안 돼요? 지금 좀 듣고 싶어서.'],
+   casual:['나한테 먼저 해 주면 좋은 거 하나 있어.','다음에 보고 싶으면 그냥 보고 싶다고 해 줘.','그럼 나 진짜 좋아할 건데.','내가 자꾸 먼저 말하니까','가끔은 대답만 듣고도 내가 좋아서 착각하는 건가 싶어.','나 좋다고 먼저 말해 주면 안 돼? 지금 좀 듣고 싶어서.'],
+   choices:[["그럼 내가 먼저 말할게요. 보고 싶어요.","그럼 내가 먼저 말할게. 보고 싶어."],["그 말은 내가 하고 싶을 때 먼저 하고 싶어요.","그 말은 내가 하고 싶을 때 먼저 하고 싶어."]],
+   answers:[['히히. 지금 그거 보니까 나 또 혼자 웃고 있어요.','히히. 지금 그거 보니까 나 또 혼자 웃고 있어.'],['아 맞다. 말해 달라고 해 놓고 옆에서 계속 찌르면 곤란하죠. 여기까지만 할게요.','아 맞다. 말해 달라고 해 놓고 옆에서 계속 찌르면 곤란하지. 여기까지만 할게.']]
+  }
+ ],
+ '차유리':[
+  {
+   polite:['나 지금 좀 유치한 거 물어봐도 돼요?','하루 중에 내 생각은 언제 해요?','난 별거 다 하다가 생각나거든요.','이걸 물어볼까 말까 하면서도 또 생각났고.','그러니까 오늘만큼은 나 혼자 이러는 거 아니라고 해 줘요.','그 답 하나 받으려고 자꾸 여기만 보게 되네요.'],
+   casual:['나 지금 좀 유치한 거 물어봐도 돼?','하루 중에 내 생각은 언제 해?','난 별거 다 하다가 생각나거든.','이걸 물어볼까 말까 하면서도 또 생각났고.','그러니까 오늘만큼은 나 혼자 이러는 거 아니라고 해 줘.','그 답 하나 받으려고 이러고 있다, 내가.'],
+   choices:[["이런 문자 오기 전에도 생각나요. 오늘도 그랬어요.","이런 문자 오기 전에도 생각나. 오늘도 그랬어."],["생각날 때마다 알려 줘야 하는 사이가 되긴 싫어요.","생각날 때마다 알려 줘야 하는 사이가 되긴 싫어."]],
+   answers:[['아, 이제야 딴생각 좀 하겠다. 방금 그 말 좋았어요.','아, 이제야 딴생각 좀 하겠다. 방금 그 말 좋았어.'],['그래요. 질문 하나 한다더니 내가 말을 너무 붙였네. 여기까지 할게요.','그래. 질문 하나 한다더니 내가 말을 너무 붙였네. 여기까지 할게.']]
+  },{
+   polite:['나한테 뭐 보여 주고 싶은 거 없어요?','오늘 본 거 중에 제일 사소한 거 하나만.','누구나 볼 수 있게 올리는 거 말고요.','나한테만 보여 주고 싶은 거.','……아, 쓰고 나니까 내가 뭘 원하는지 알겠네. 나만 아는 게 하나쯤 있었으면 좋겠어요.','다른 사람한텐 못 보여 주는 것도 나한텐 보여 줬으면 좋겠어요.'],
+   casual:['나한테 뭐 보여 주고 싶은 거 없어?','오늘 본 거 중에 제일 사소한 거 하나만.','누구나 볼 수 있게 올리는 거 말고.','나한테만 보여 주고 싶은 거.','……아, 쓰고 나니까 내가 뭘 원하는지 알겠네. 나만 아는 게 하나쯤 있었으면 좋겠어.','다른 사람한텐 못 보여 주는 것도 나한텐 보여 줬으면 좋겠어.'],
+   choices:[["좋아요. 다음에 눈에 들어오는 게 있으면 제일 먼저 보여 줄게요.","좋아. 다음에 눈에 들어오는 게 있으면 제일 먼저 보여 줄게."],["보여 줄 게 떠오르면 그때 내가 보내도 될까요?","보여 줄 게 떠오르면 그때 내가 보내도 될까?"]],
+   answers:[['그거 좋네요. 내 얘기도 다음에 하나 꺼내 놓을게요.','그거 좋네. 내 얘기도 다음에 하나 꺼내 놓을게.'],['보여 주고 싶을 때 보여 줘요. 보채서 받은 건 나도 별로예요.','보여 주고 싶을 때 보여 줘. 보채서 받은 건 나도 별로야.']]
+  }
+ ],
+ '오세린':[
+  {
+   polite:['내가 오늘은 먼저 부탁해도 돼요?','조금만 나랑 얘기해요.','바쁠 때 재촉하지 않는 게 예의인 줄은 알아요.','그런데 예의 차리고 얌전히 기다리기엔','지금은 당신이 너무 보고 싶네요.','지금 들으면 좋겠어요. 당신 목소리.'],
+   casual:['내가 오늘은 먼저 부탁해도 돼?','조금만 나랑 얘기해.','바쁠 때 재촉하지 않는 게 예의인 줄은 알아.','그런데 예의 차리고 얌전히 기다리기엔','지금은 네가 너무 보고 싶어.','지금 들으면 좋겠어. 네 목소리.'],
+   choices:[["나도 얘기하고 싶었어요. 조금 더 같이 있어요.","나도 얘기하고 싶었어. 조금 더 같이 있자."],["오늘은 내 시간을 보내고 싶어요. 내일 이야기해요.","오늘은 내 시간을 보내고 싶어. 내일 이야기하자."]],
+   answers:[['목소리도 듣고 싶지만, 지금은 이 말만 좀 더 읽고 있을게요.','목소리도 듣고 싶지만, 지금은 이 말만 좀 더 읽고 있을게.'],['그래요. 당신이 편할 때 다시 이야기해요. 나도 내 시간을 보내고 있을게요.','그래. 네가 편할 때 다시 이야기하자. 나도 내 시간을 보내고 있을게.']]
+  },{
+   polite:['하루 중에 나한테만 남겨 줄 수 있는 시간이 있어요?','길지 않아도 돼요.','십 분이면 좋겠네요.','그 시간에는 다른 사람 연락이 와도 나부터 봐 줘요.','이렇게까지 말하고 나면 내 욕심이 너무 잘 보이나요?','그래도 그 십 분만큼은 정말 나한테 줄래요?'],
+   casual:['하루 중에 나한테만 남겨 줄 수 있는 시간이 있어?','길지 않아도 돼.','십 분이면 좋겠어.','그 시간에는 다른 사람 연락이 와도 나부터 봐 줘.','이렇게까지 말하면 내가 무슨 욕심 내는지 다 보이지?','그래도 그 십 분만큼은 정말 나한테 줄래?'],
+   choices:[["둘이서만 얘기할 시간, 나도 갖고 싶어요.","둘이서만 얘기할 시간, 나도 갖고 싶어."],["매일 정해 두는 건 부담스러워요. 편할 때 연락해요.","매일 정해 두는 건 부담스러워. 편할 때 연락하자."]],
+   answers:[['그 말 듣고 싶었어요. 이제 좀 마음이 놓이네요.','그 말 듣고 싶었어. 이제 좀 마음이 놓이네.'],['내가 욕심냈네요. 지금 답을 정해 달라고 하진 않을게요.','내가 욕심냈네. 지금 답을 정해 달라고 하진 않을게.']]
+  }
+ ],
+ '유지안':[
+  {
+   polite:['나 지금 좀 삐쳤어요.','누구한테냐고 물어봐 주면 안 돼요?','아니, 기다리기 싫으니까 그냥 말할래요.','보고 싶으면 먼저 보고 싶다고 말할 수도 있잖아요.','그 말 나도 가끔은 내가 먼저 듣고 싶어요.','나 지금 그 말 들으려고 이러고 있어요.'],
+   casual:['나 지금 좀 삐쳤어.','누구한테냐고 물어봐 주면 안 돼?','아니, 기다리기 싫으니까 그냥 말할래.','보고 싶으면 먼저 보고 싶다고 말할 수도 있잖아.','그 말 나도 가끔은 내가 먼저 듣고 싶어.','나 지금 그 말 들으려고 이러고 있어.'],
+   choices:[["무슨 일인지 궁금해요. 나도 보고 싶었어요.","무슨 일인지 궁금해. 나도 보고 싶었어."],["속상한 건 듣고 싶어요. 무슨 일인지 맞혀 보라고 하진 말아 줘요.","속상한 건 듣고 싶어. 무슨 일인지 맞혀 보라고 하진 마."]],
+   answers:[['봤어요. 나도 보고 싶었어요. 그 말을 꺼내기가 그렇게 어렵더라.','봤어. 나도 보고 싶었어. 그 말을 꺼내기가 그렇게 어렵더라.'],['알았어요. 내가 삐쳤다고 지금 하던 거 놓고 답하라는 건 좀 그렇죠.','알았어. 내가 삐쳤다고 지금 하던 거 놓고 답하라는 건 좀 그렇지.']]
+  },{
+   polite:['오늘 나중에 시간 나요?','나 그 시간 좀 찜하면 안 돼요?','나중에 또 물으면 그사이에 누가 먼저 데려갈 것 같아서.','내가 이거 쓰면서도 승부욕 좀 그만 부리자고 했거든요.','근데 양보하고 싶은 마음이 영 안 생기네요.','오늘은 나 먼저 만나면 안 돼요?'],
+   casual:['오늘 나중에 시간 나?','나 그 시간 좀 찜하면 안 돼?','나중에 또 물으면 그사이에 누가 먼저 데려갈 것 같아서.','내가 이거 쓰면서도 승부욕 좀 그만 부리자고 했거든.','근데 양보하고 싶은 마음이 영 안 생기네.','오늘은 나 먼저 만나면 안 돼?'],
+   choices:[["나도 같이 보내고 싶어요. 시간 맞춰 봐요.","나도 같이 보내고 싶어. 시간 맞춰 보자."],["오늘 내 시간을 미리 정해 두진 말아요. 내가 먼저 얘기할게요.","오늘 내 시간을 미리 정해 두진 마. 내가 먼저 얘기할게."]],
+   answers:[['좋아요. 대답 들었으니까 이제 덜 조급해요.','좋아. 대답 들었으니까 이제 덜 조급해.'],['알았어요. 나 혼자 마음 급하다고 반칙까지 하면 안 되죠. 먼저 연락해 줘요.','알았어. 나 혼자 마음 급하다고 반칙까지 하면 안 되지. 먼저 연락해 줘.']]
+  }
+ ]
+};
+
+// Every entry in the thread is one conversation. Save the exact texts that arrived,
+// so a later change in speech register never rewrites an older bubble.
+function pressureTextRegister(p,side,day){
+ const a=memoryFor(p).address,mode=a[side+'Speech'];
+ return !(a.offerDay>day)&&(mode==='반말'||mode==='혼용'&&day%2===0)?1:0;
+}
+function unreadPhoneCount(thread){
+ return thread.reduce((count,m)=>count+(m.reply?0:m.pressureBurst?m.pressureBurst.lines.length:1),0);
+}
+function pressureTextPause(v,p,day,slot){
+ const z=v.social?.[p],a=v.activeEvent,plan=v.datePlans?.[day],trip=plan?.trip;
+ return !vIsDating(p)||!z?.contact||v.finished||!!breakupWarning(p)||
+  (p===JIHAN&&day<jihanBond().mutedUntil)||
+  ['cooling','ready'].includes(z.aftermath?.status)||
+  z.lastTogether===day||z.lastSeen===day||
+  (v.overnightPending?.p===p&&day-v.overnightPending.day<=1)||
+  a?.person===p||!!a?.groupPartners?.includes(p)||!!a?.tripScene?.people?.includes(p)||
+  (trip?.people?.includes(p)&&(trip.stage===2||slot>=plan.slot))||
+  (plan?.slot===slot&&(plan.p===p||!!plan.group?.includes(p)));
+}
+function pressureTextReason(p,day,thread,pressure){
+ if(pressure.distrust>=5||memoryFor(p).feelings.jealousy>=4)return 'uneasy';
+ if(thread.some(m=>!m.reply&&!m.pressureBurst&&m.day<day))return 'waiting';
+ const z=socialRecord(p),last=Math.max(z.lastSeen||0,z.lastTogether||0,coupleRecord(p).since||0);
+ return last&&day-last>=2?'missing':null;
+}
+function pressurePriorityMessage(m,day){
+ if(m.reply)return false;
+ if(m.breakupNotice||m.coupleRepair)return true;
+ if(m.npcOffer)return m.npcOffer.day>day;
+ return m.day>=day-1&&(m.outingQuestion||m.npcLifeNotice||m.birthday);
+}
+function tickPressureTexts(v,day,slot){
+ if(v.finished||![0,2,3].includes(slot))return 0;
+ const phone=phoneData();let sent=0;
+ for(const p of people){
+  if(v.romance[p]!=='dating'||!v.social?.[p]?.contact)continue;
+  const thread=phone.threads[p]||(phone.threads[p]=[]);
+  let m=thread.findLast(item=>item.pressureBurst),batch=m?.pressureBurst;
+  if(m?.day===day&&(m.reply||batch.stopped||batch.lines.length>=batch.limit))continue;
+  const pressure=relationshipPressure(p);
+  const paused=pressureTextPause(v,p,day,slot)||thread.some(item=>pressurePriorityMessage(item,day));
+  if(m?.day===day){
+   // A new exchange or an actual meeting ends the wait, even when a saved
+   // game is resumed later that same day. Keep the already delivered lines.
+   if(paused||pressure.obsession<12||thread.at(-1)!==m||
+      (thread.filter(other=>other!==m&&!other.reply).length<batch.pendingBefore||thread.some(other=>other!==m&&other.replyDay===day))){
+    batch.stopped=true;continue;
+   }
+  }else{
+   if(slot!==0||paused||pressure.obsession<12||m&&(!m.reply||day<(batch.nextDay??m.day+7)))continue;
+   if(thread.some(other=>other.day===day||other.replyDay===day))continue;
+   const reason=pressureTextReason(p,day,thread,pressure);
+   if(!reason)continue;
+   const preferred=p===JIHAN?0:reason==='uneasy'?1:0;
+   const variant=batch?.variant===preferred?(preferred+1)%pressureTextVoices[p].length:preferred;
+   batch={variant,reason,pendingBefore:thread.filter(other=>!other.reply).length,limit:pressure.obsession>=16?6:5,lines:[],nextDay:day+7};
+   m={day,contextKey:'pressure:'+day,pressureBurst:batch};thread.push(m);
+  }
+  const goal=slot===0?2:slot===2?4:batch.limit;
+  const lines=pressureTextVoices[p][batch.variant][pressureTextRegister(p,'npc',day)?'casual':'polite'];
+  while(batch.lines.length<goal){
+   batch.lines.push({day,slot,text:lines[batch.lines.length]});
+   sent++;
+  }
+  phone.last[p]=day;
+ }
+ return sent;
+}
+function replyPressureText(p,m,index){
+ const v=initSim(),batch=m.pressureBurst;
+ if(m.reply||!vIsDating(p)||!phoneData().threads[p]?.includes(m))return;
+ const script=pressureTextVoices[p][batch.variant];
+ m.reply=index+1;m.replyDay=v.day;
+ batch.playerLine=script.choices[index][pressureTextRegister(p,'player',v.day)];
+ batch.npcLine=script.answers[index][pressureTextRegister(p,'npc',v.day)];
+ const thread=phoneData().threads[p];
+ if(thread.at(-1)!==m){
+  // A reply to an older burst belongs after any intervening conversation.
+  batch.replySeparate=true;
+  thread.push({day:v.day,reply:1,pressureReplyTo:m.contextKey,playerLine:batch.playerLine,npcLine:batch.npcLine});
+ }
+ batch.nextDay=Math.max(batch.nextDay,v.day+(index===1?12:6));
+ if(index===0)feel(p,{security:1,obsession:-1});
+ if(index===1&&p===JIHAN)jihanBond().mutedUntil=Math.max(jihanBond().mutedUntil,v.day+7);
+ writeJournal(p+' · 연달아 온 문자에 답장');save();phoneBadge();renderPhone();renderSim();
+}
+function renderPressureText(p,m,group,bubble){
+ const b=m.pressureBurst,day=initSim().day,script=pressureTextVoices[p][b.variant];
+ let previousSlot=null;
+ for(const line of b.lines){
+  if(line.slot!==previousSlot)appendPhoneDate(group,dayLabels[line.slot]);
+  previousSlot=line.slot;
+  bubble(p,line.text,false,true);
+ }
+ if(m.reply){
+  if(b.playerLine&&!b.replySeparate){
+   if(m.replyDay!==m.day)appendPhoneDate(group,calendarDate(m.replyDay).label);
+   bubble(state.name,b.playerLine,true,true);bubble(p,b.npcLine,false,true);
+  }
+  return;
+ }
+ if(!vIsDating(p))return;
+ for(const [index,choices] of script.choices.entries()){
+  const button=document.createElement('button');button.type='button';button.className='secondary';
+  button.textContent=choices[pressureTextRegister(p,'player',day)];
+  button.onclick=()=>replyPressureText(p,m,index);group.append(button);
+ }
+}
+
+function jihanPhoneTick(day,d){const series=d.threads[JIHAN]?.findLast(m=>m.pressureBurst);if(series&&vIsDating(JIHAN)&&(!series.reply||day<(series.pressureBurst.nextDay??series.day+7)))return 0;const p=JIHAN,z=socialRecord(p),r=jihanBond(),dating=vIsDating(p),ex=exRecord(p);if(!z.contact||day<r.mutedUntil||(!dating&&!(r.scar&&ex&&initSim().romance[p]==='ended'&&aftermathRecord(p)?.status==='friend'&&ex.remaining>=3)))return 0;const t=d.threads[p]||(d.threads[p]=[]),pending=t.findLast(m=>m.jihanBond&&!m.reply),pressure=relationshipPressure(p);if(pending){if(dating&&r.scar&&pressure.distrust>=5&&day-pending.day>=1&&(!pending.followups||pending.followups.length<2)&&(!pending.followups?.length||pending.followups.at(-1).day<day)){pending.followups=(pending.followups||[]);pending.followups.push({day,line:pending.followups.length?'…누구랑 있는지는 왜 말을 안 해요?':'왜 답장이 없어요? 바쁜 거예요?'});feel(p,{obsession:1});return 1}return 0}if(t.some(m=>!m.reply)||day-r.lastPhone<(r.scar&&pressure.distrust>=5?2:7))return 0;if(!dating){if(r.exPing)return 0;r.exPing=true;t.push({day,jihanBond:true,script:['…아직도 가끔 생각나요.','다시 이야기할 수 있으면 좋겠네요.','나중에 이야기해요.','기다릴게요.','더 연락하지 말아 주세요.','…알겠어요.'],contextKey:'jihan:ex:'+day});}else{const pool=r.scar&&pressure.distrust>=4?jihanPhoneScar:jihanPhoneNormal;t.push({day,jihanBond:true,script:pool[r.phoneCount++%pool.length].slice(),contextKey:'jihan:bond:'+day})}r.lastPhone=day;d.last[p]=day;return 1}
 function jihanSceneReady(ev){if(!ev||ev.person!==JIHAN||!initSim().running||!vIsDating(JIHAN)||ev.jihanScene||ev.jobEvent||ev.group||ev.groupPartners||ev.triangle||ev.aftermath||ev.coupleIssue||ev.conflictStage||ev.breakup||ev.npcBreakup||ev.leftEncounter||ev.speechOffer||ev.contactFollowup||ev.surpriseVisit?.first?.leave)return false;const r=jihanBond(),day=initSim().day,pressure=relationshipPressure(JIHAN);return day>=r.mutedUntil&&(!r.lastScene||day-r.lastScene>=(r.scar&&pressure.distrust>=4?4:8))}
 const jihanSceneNormal=[['지한이 한 발 가까이 다가왔다. 옷깃에 묻은 먼지를 떼어 주고는 눈을 맞췄다.','오늘은 나한테 조금만 더 시간을 줘요. 손 잡아도 돼요?','손을 잡는다','지한이 손가락 사이로 손을 얽었다. 낮게 웃는 목소리가 가까웠다.','이렇게 있으니까 이제야 좀 내 시간 같네요.'],['지한이 당신의 귀갓길에 걸음을 맞췄다.','다른 약속도 좋지만 오늘은 제가 제일 기억에 남았으면 좋겠는데. 안아도 돼요?','가볍게 안는다','지한이 조심스럽게 허리에 팔을 둘렀다가 당신이 움직이자 놓아 주었다.','좋네요. 다음에는 제가 먼저 보고 싶다고 할게요.']];
 const jihanSceneScar=[['지한은 웃으면서도 당신의 얼굴을 오래 바라봤다.','오늘은 어디 있었어요? …나만 모르는 이야기가 또 있는 건 아니죠?','불안한 마음에 대해 이야기한다','','…믿고 싶은데, 아직 마음대로 안 되네요.'],['지한이 손을 내밀려다 멈췄다. 미소가 옅어졌다.','이렇게까지 붙잡는 제가 우스워요? 아직 저한테 마음이 있는지 자꾸 확인하고 싶어요.','솔직하게 마음을 이야기한다','','…그래요. 오늘은 그 말만 믿어 볼게요.']];
@@ -1241,12 +1484,12 @@ const phoneHistoryLimits={};
 function appendPhoneDate(group,date){
  const label=document.createElement('div');label.className='phone-message-day';label.textContent=date;group.append(label);
 }
-function renderPhone(){const v=initSim();movePendingHomeVisits(v);confirmPendingOutings(v.day);const d=phoneData(),contacts=$('phoneContacts'),thread=$('phoneThread');contacts.replaceChildren();thread.replaceChildren();const names=people.filter(p=>socialRecord(p).contact);if(!names.length){contacts.textContent='아직 교환한 연락처가 없어요.';return}if(!names.includes(phoneSelected))phoneSelected=names[0];for(const p of names){const b=document.createElement('button');b.className=p===phoneSelected?'':'secondary';b.setAttribute('aria-pressed',String(p===phoneSelected));b.textContent=p+((d.threads[p]||[]).some(m=>!m.reply)?' · 새 메시지':'');b.onclick=()=>{phoneSelected=p;phoneHistoryLimits[p]=3;renderPhone()};contacts.append(b)}const p=phoneSelected,h=document.createElement('h2');let currentMessage=null,messageGroup=null,lastDate=null,phonePlayerSpoke=false;const datingDay=datingDayLabel(v,p);h.textContent=datingDay?p+' · '+datingDay:p;thread.append(h);function bubble(who,line,me=false){const b=document.createElement('div');b.className='bubble'+(me?' me':'');const datePrefix=!me&&who.endsWith(' · '+p)?who.slice(0,-(' · '+p).length):null;if(datePrefix&&datePrefix!==lastDate){appendPhoneDate(messageGroup,datePrefix);lastDate=datePrefix;}const mode=currentMessage?(me?phoneSpeechMode(p,currentMessage,'player'):phoneSpeechMode(p,currentMessage,'npc',phonePlayerSpoke)):undefined;const side=me?'player':'npc',spoken=formatSpeech(p,line,side,mode,currentMessage?phoneLineDay(currentMessage,me||phonePlayerSpoke?'player':'npc'):undefined);
- const addressed=phoneAddress(p,currentMessage,spoken,side);
+function renderPhone(){const v=initSim();movePendingHomeVisits(v);confirmPendingOutings(v.day);const d=phoneData(),contacts=$('phoneContacts'),thread=$('phoneThread');contacts.replaceChildren();thread.replaceChildren();const names=people.filter(p=>socialRecord(p).contact);if(!names.length){contacts.textContent='아직 교환한 연락처가 없어요.';return}if(!names.includes(phoneSelected))phoneSelected=names[0];for(const p of names){const b=document.createElement('button');b.className=p===phoneSelected?'':'secondary';b.setAttribute('aria-pressed',String(p===phoneSelected));const unread=unreadPhoneCount(d.threads[p]||[]);b.textContent=p+(unread?' · 새 메시지'+(unread>1?' '+unread:''):'');b.onclick=()=>{phoneSelected=p;phoneHistoryLimits[p]=3;renderPhone()};contacts.append(b)}const p=phoneSelected,h=document.createElement('h2');let currentMessage=null,messageGroup=null,lastDate=null,phonePlayerSpoke=false;const datingDay=datingDayLabel(v,p);h.textContent=datingDay?p+' · '+datingDay:p;thread.append(h);function bubble(who,line,me=false,verbatim=false){const b=document.createElement('div');b.className='bubble'+(me?' me':'');const datePrefix=!me&&who.endsWith(' · '+p)?who.slice(0,-(' · '+p).length):null;if(datePrefix&&datePrefix!==lastDate){appendPhoneDate(messageGroup,datePrefix);lastDate=datePrefix;}const mode=currentMessage?(me?phoneSpeechMode(p,currentMessage,'player'):phoneSpeechMode(p,currentMessage,'npc',phonePlayerSpoke)):undefined;const side=me?'player':'npc',spoken=verbatim?line:formatSpeech(p,line,side,mode,currentMessage?phoneLineDay(currentMessage,me||phonePlayerSpoke?'player':'npc'):undefined);
+ const addressed=verbatim?spoken:phoneAddress(p,currentMessage,spoken,side);
  if(!me&&(!messageGroup.lastElementChild?.classList.contains('bubble')||messageGroup.lastElementChild.classList.contains('me'))){
   const name=document.createElement('strong');name.textContent=p;b.append(name);
  }
- if(me)phonePlayerSpoke=true;b.append(document.createTextNode(chatSpacing(addressed)));messageGroup.append(b)}speechControls(p,thread);friendControls(p,thread);sharedLifeControls(p,thread);tripControls(p,thread);dateControls(p,thread);coupleIssueControls(p,thread);aftermathControls(p,thread);relationshipControls(p,thread);multiDiscussionControls(p,thread);exControls(p,thread);exKeepsakeControls(p,thread);const messages=d.threads[p]||[];if(!messages.length){thread.append(document.createTextNode('아직 받은 메시지가 없어요.'));return}const messageList=document.createElement('div');messageList.className='phone-messages';thread.append(messageList);const limit=phoneHistoryLimits[p]||3;const cutoff=Math.max(0,messages.length-limit);const hidden=messages.slice(0,cutoff).filter(m=>m.reply);if(hidden.length){const more=document.createElement('button');more.className='secondary';more.style.cssText='width:100%;margin:8px 0';more.textContent='이전 메시지 더 보기 ('+hidden.length+'개 남음)';more.onclick=()=>{phoneHistoryLimits[p]=limit+3;renderPhone();const next=$('phoneThread').querySelector('[data-history-index="'+cutoff+'"]');if(next)next.scrollIntoView({block:'center'})};messageList.append(more)}for(const [index,m] of messages.entries()){if(index<cutoff&&m.reply)continue;currentMessage=m;phonePlayerSpoke=false;messageGroup=document.createElement('div');messageGroup.className='phone-message-group';messageGroup.dataset.historyIndex=index;messageList.append(messageGroup);const date=calendarDate(m.day).label;if(date!==lastDate){appendPhoneDate(messageGroup,date);lastDate=date;}if(m.jihanBond){const a=m.script;bubble(calendarDate(m.day).label+' · '+p,a[0]);if(a[1])bubble(p,a[1]);for(const f of m.followups||[])bubble(calendarDate(f.day).label+' · '+p,f.line);if(m.reply){bubble(state.name,m.jihanLabel,true);bubble(p,m.jihanReply);continue}for(const [label,k,reply,kind] of [[a[2],1,a[3],'warm'],[a[4],2,a[5],'boundary'],['지금은 조금 바빠요.',3,'…알겠어요.','avoid']]){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=k;m.jihanLabel=label;m.jihanReply=reply;jihanChange(kind,v.day);if(kind==='boundary'&&!vIsDating(p))jihanBond().mutedUntil=999;save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.npcLifeNotice){npcLifePhone(p,m,messageGroup,bubble);continue}if(m.outingQuestion){const q=m.outingQuestion.other;if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);if(m.reply){bubble(state.name,m.outingLabel,true);bubble(p,m.outingReply);continue}const opts=[['친구로 만난 거예요.','…그래요. 그 말 믿을게요.','deny'],['조금 마음이 쓰이는 사람이에요.','…솔직하게 말해 줘서 고마워요. 생각할 시간이 필요하네요.','admit'],['그 사람과 교제하고 있어요.','…지금 그게 무슨 말이에요?','reveal'],['지금은 이야기하고 싶지 않아요.','…알겠어요. 나중에 다시 이야기해요.','avoid']].filter(x=>x[2]!=='reveal'||vIsDating(q)&&secretUnknown(p,q));for(const [label,reply,kind] of opts){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=1;m.outingLabel=label;m.outingReply=reply;if(kind==='reveal'){revealOne(p,q);m.outingReply=romanceProfiles[p][7]}else if(kind==='deny')feel(p,{jealousy:-2});else {feel(p,{jealousy:2,hurt:1});noteCoupleIssue(p,v.day,'jealous',q)}save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.coupleRepair){renderRepairMessage(v,p,m,messageGroup,bubble);continue}if(m.breakupNotice){bubble(calendarDate(m.day).label+' · '+p,m.npcLine);if(!m.reply){const b=document.createElement('button');b.className='secondary';b.textContent='메시지 확인';b.onclick=()=>{m.reply=1;save();phoneBadge();renderPhone()};messageGroup.append(b)}continue}if(m.booking){if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);continue}if(m.npcOffer){const o=m.npcOffer,a=npcAutonomyVoices[p];bubble(p,m.npcLine+'\n'+calendarDate(o.day).label+(Number.isInteger(o.slot)?' '+dayLabels[o.slot]:'')+' · '+o.venue);if(m.reply){bubble(state.name,m.offerLabel||'지난 제안',true);if(m.offerReply)bubble(p,m.offerReply);if(m.reply===4&&m.offerLabel==='일정을 다시 확인한다'&&!m.retried&&!messages.some(x=>x!==m&&x.npcOffer&&!x.reply)){const retry=document.createElement('button');retry.className='secondary';retry.textContent='다른 날짜로 다시 약속 잡기';retry.onclick=()=>{if(m.retried)return;m.retried=true;retryNpcOffer(p,m,messages,true);save();phoneBadge();renderPhone();renderSim();syncSchedule()};messageGroup.append(retry)}continue}
+ if(me)phonePlayerSpoke=true;b.append(document.createTextNode(chatSpacing(addressed)));messageGroup.append(b)}speechControls(p,thread);friendControls(p,thread);sharedLifeControls(p,thread);tripControls(p,thread);dateControls(p,thread);coupleIssueControls(p,thread);aftermathControls(p,thread);relationshipControls(p,thread);multiDiscussionControls(p,thread);exControls(p,thread);exKeepsakeControls(p,thread);const messages=d.threads[p]||[];if(!messages.length){thread.append(document.createTextNode('아직 받은 메시지가 없어요.'));return}const messageList=document.createElement('div');messageList.className='phone-messages';thread.append(messageList);const limit=phoneHistoryLimits[p]||3;const cutoff=Math.max(0,messages.length-limit);const hidden=messages.slice(0,cutoff).filter(m=>m.reply);if(hidden.length){const more=document.createElement('button');more.className='secondary';more.style.cssText='width:100%;margin:8px 0';more.textContent='이전 메시지 더 보기 ('+hidden.length+'개 남음)';more.onclick=()=>{phoneHistoryLimits[p]=limit+3;renderPhone();const next=$('phoneThread').querySelector('[data-history-index="'+cutoff+'"]');if(next)next.scrollIntoView({block:'center'})};messageList.append(more)}for(const [index,m] of messages.entries()){if(index<cutoff&&m.reply)continue;currentMessage=m;phonePlayerSpoke=false;messageGroup=document.createElement('div');messageGroup.className='phone-message-group';messageGroup.dataset.historyIndex=index;messageList.append(messageGroup);const date=calendarDate(m.day).label;if(date!==lastDate){appendPhoneDate(messageGroup,date);lastDate=date;}if(m.pressureReplyTo){bubble(state.name,m.playerLine,true,true);bubble(p,m.npcLine,false,true);continue}if(m.pressureBurst){renderPressureText(p,m,messageGroup,bubble);continue}if(m.jihanBond){const a=m.script;bubble(calendarDate(m.day).label+' · '+p,a[0]);if(a[1])bubble(p,a[1]);for(const f of m.followups||[])bubble(calendarDate(f.day).label+' · '+p,f.line);if(m.reply){bubble(state.name,m.jihanLabel,true);bubble(p,m.jihanReply);continue}for(const [label,k,reply,kind] of [[a[2],1,a[3],'warm'],[a[4],2,a[5],'boundary'],['지금은 조금 바빠요.',3,'…알겠어요.','avoid']]){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=k;m.jihanLabel=label;m.jihanReply=reply;jihanChange(kind,v.day);if(kind==='boundary'&&!vIsDating(p))jihanBond().mutedUntil=999;save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.npcLifeNotice){npcLifePhone(p,m,messageGroup,bubble);continue}if(m.outingQuestion){const q=m.outingQuestion.other;if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);if(m.reply){bubble(state.name,m.outingLabel,true);bubble(p,m.outingReply);continue}const opts=[['친구로 만난 거예요.','…그래요. 그 말 믿을게요.','deny'],['조금 마음이 쓰이는 사람이에요.','…솔직하게 말해 줘서 고마워요. 생각할 시간이 필요하네요.','admit'],['그 사람과 교제하고 있어요.','…지금 그게 무슨 말이에요?','reveal'],['지금은 이야기하고 싶지 않아요.','…알겠어요. 나중에 다시 이야기해요.','avoid']].filter(x=>x[2]!=='reveal'||vIsDating(q)&&secretUnknown(p,q));for(const [label,reply,kind] of opts){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=1;m.outingLabel=label;m.outingReply=reply;if(kind==='reveal'){revealOne(p,q);m.outingReply=romanceProfiles[p][7]}else if(kind==='deny')feel(p,{jealousy:-2});else {feel(p,{jealousy:2,hurt:1});noteCoupleIssue(p,v.day,'jealous',q)}save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.coupleRepair){renderRepairMessage(v,p,m,messageGroup,bubble);continue}if(m.breakupNotice){bubble(calendarDate(m.day).label+' · '+p,m.npcLine);if(!m.reply){const b=document.createElement('button');b.className='secondary';b.textContent='메시지 확인';b.onclick=()=>{m.reply=1;save();phoneBadge();renderPhone()};messageGroup.append(b)}continue}if(m.booking){if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);continue}if(m.npcOffer){const o=m.npcOffer,a=npcAutonomyVoices[p];bubble(p,m.npcLine+'\n'+calendarDate(o.day).label+(Number.isInteger(o.slot)?' '+dayLabels[o.slot]:'')+' · '+o.venue);if(m.reply){bubble(state.name,m.offerLabel||'지난 제안',true);if(m.offerReply)bubble(p,m.offerReply);if(m.reply===4&&m.offerLabel==='일정을 다시 확인한다'&&!m.retried&&!messages.some(x=>x!==m&&x.npcOffer&&!x.reply)){const retry=document.createElement('button');retry.className='secondary';retry.textContent='다른 날짜로 다시 약속 잡기';retry.onclick=()=>{if(m.retried)return;m.retried=true;retryNpcOffer(p,m,messages,true);save();phoneBadge();renderPhone();renderSim();syncSchedule()};messageGroup.append(retry)}continue}
  const slots=o.day>v.day?dateBookingSlots(p,o.day):[];
  let offerTime=null;
  if(slots.length){
@@ -1941,7 +2184,8 @@ function renderNpcBreakup(ev){const v=initSim(),p=ev.person,o=ev.npcBreakup,a=br
 }
 $('progress').textContent=o.stage===1?'달라진 거리':'마지막 인사';if(o.stage===1){add('이야기',a[3]);add(p,a[4]);if(o.answer){add(state.name,o.answer,true);add(p,o.reply);choiceButton('일정 계속하기',finishEvent);return}for(const [label,i] of [['어떤 일이 힘들었는지 듣고 해결하고 싶어요.',0],['지금은 조금 각자 생각할 시간을 가져요.',1]])choiceButton(label,()=>{if(o.answer)return;o.answer=label;o.reply=i===0?coupleConflictVoices[p].lines[8]:aftermathVoices[p].l[7];const r=coupleRecord(p);if(r.warning){r.warning.stage=2;r.warning.next=v.day+3;}remember(p,'breakup:talk:'+v.day,label);writeJournal(p+' · 관계에 관한 진지한 대화');save();renderChoiceEvent();renderSim()});return}add('이야기',a[6]);add(p,a[7]);if(o.answer){add(state.name,o.answer,true);add(p,a[8]);add('이야기',a[9]);choiceButton('일정 계속하기',finishEvent);return}for(const label of ['다시 생각해 줄 수 없어요?','알겠어요. 그 결정을 존중할게요.','아무 말도 하지 못하고 고개를 숙인다'])choiceButton(label,()=>{if(o.answer)return;o.answer=label;const reason=o.reason;endDating(p,reason,false);const e=exRecord(p);if(e){e.initiator='npc';e.location=a[1];e.readyDay+=7;}remember(p,'breakup:npc:'+v.day,reason+' / '+a[1]);save();renderChoiceEvent();renderSim()})}
 
-function endDating(p,reason,notify=true){const v=initSim();if(v.romance[p]!=='dating')return;if(p===JIHAN&&breakupKind(reason)==='trust'&&!jihanBond().scar)jihanScar(v.day);saveExRelationship(p,reason);v.romance[p]='ended';v.confessions[p]='declined';const soc=socialRecord(p);delete soc.aftermath;for(const q of people)if(q!==p)delete romanceNetwork().pairs[pairKey(p,q)];for(const [d,b] of Object.entries(dateBook()))if(Number(d)>v.day&&(b.p===p||b.group?.includes(p)))delete dateBook()[d];if(v.overnightPending?.p===p)delete v.overnightPending;aftermathStart(p,v.day,reason,null,notify);romanceNetwork().history.push({day:v.day,p,kind:'end',reason});writeJournal(p+'와 헤어졌다.')}
+function endDating(p,reason,notify=true){const v=initSim();if(v.romance[p]!=='dating')return;if(p===JIHAN&&breakupKind(reason)==='trust'&&!jihanBond().scar)jihanScar(v.day);saveExRelationship(p,reason);v.romance[p]='ended';v.confessions[p]='declined';const soc=socialRecord(p);delete soc.aftermath;for(const q of people)if(q!==p)delete romanceNetwork().pairs[pairKey(p,q)];for(const [d,b] of Object.entries(dateBook()))if(Number(d)>v.day&&(b.p===p||b.group?.includes(p)))delete dateBook()[d];for(const m of v.phone?.threads?.[p]||[])if(m.pressureBurst&&!m.reply){m.reply=3;m.pressureBurst.stopped=true}
+ if(v.overnightPending?.p===p)delete v.overnightPending;aftermathStart(p,v.day,reason,null,notify);romanceNetwork().history.push({day:v.day,p,kind:'end',reason});writeJournal(p+'와 헤어졌다.')}
 function eligibleOffer(p,day){const v=initSim(),a=romanceProfiles[p],o=romanceNetwork().offers[p],past=aftermathRecord(p);if(v.romance[p]==='dating'||friendshipRecord(p).bond||v.confessions[p]==='declined'||past||!(romanceReady(p)||(v.affection[p]>=90&&v.personalEvents[p]&&dateHistory(p).length>=3&&socialRecord(p).interest>=7))||!socialRecord(p).contact||socialRecord(p).interest<3||Math.max(flirtRecord(p).interest,socialRecord(p).interest)<a[1]||touchContext(p,day).conflicted)return false;if(o&&o.status!=='held')return false;if(o?.status==='held')return day>=o.retryDay;return day>=Math.max(75,Math.round(a[0]*.65))&&(v.storyProgress?.[p]?.day||0)<=day-3}
 function confessionGate(){const v=initSim(),n=romanceNetwork();if(v.day<75||v.day>=365||[299,300].includes(v.day)||n.lastOffer===v.day)return false;const p=people.filter(q=>eligibleOffer(q,v.day)).sort((a,b)=>romanceProfiles[a][0]-romanceProfiles[b][0]||v.affection[b]-v.affection[a])[0];if(!p)return false;n.lastOffer=v.day;v.activeEvent={person:p,place:'park',day:v.day,description:p+'에게서 따로 만나 이야기하고 싶다는 연락이 왔다.',newConfession:true};v.weekEnd=null;save();renderChoiceEvent();return true}
 function holdOffer(p){romanceNetwork().offers[p]={status:'held',retryDay:initSim().day+7}}
@@ -2577,6 +2821,10 @@ function meetNeighborAfterActivity(activity,result){
   return true;
 }
 function advanceDay(){const v=initSim(),run=v.running;if(!run)return;repairPendingPlan(v);syncSchedule();while(run.slot<4){v.slot=run.slot;const d=dateBook()[v.day];
+ if(tickPressureTexts(v,v.day,run.slot)){
+  if(!run.pressureTextNotice){run.notes.push('휴대전화 · 새 문자가 도착했다.');run.pressureTextNotice=true}
+  save();phoneBadge();
+ }
  const booked=d?.slot===run.slot;
  const a=booked?'약속':run.plan[run.slot]==='약속'?planFor(v.day)[run.slot]:run.plan[run.slot];
  run.plan[run.slot]=a;

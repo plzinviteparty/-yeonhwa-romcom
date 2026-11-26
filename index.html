@@ -1349,7 +1349,7 @@ const ev=state?.sim?.activeEvent,target=singleSpeechTarget(ev);if(target&&!ev.sp
 const log=$('log'),side=me?'player':'npc';
  const name=target&&(me||who===target)&&addressAvailableInEvent(ev)?agreedAddress(target,side,ev.day??state.sim.day):'';
  const used=name&&log.querySelector('[data-dialogue-address="'+side+'"]');
- if(name&&!typed)text=withAddress(text,name,target,side,!used);
+ if(name&&!typed)text=withAddress(text,name,target,side,me||!used);
  text=chatSpacing(text);const el=document.createElement('div');el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;if(name&&text?.includes(name))el.dataset.dialogueAddress=side;el.append(title,body);log.append(el);log.scrollTop=log.scrollHeight}
 const introReplies=[
 [['서이준','“아, 죄송합니다. 바로 옮길게요.”',2],['서이준','“...그러네요. 죄송합니다.”',0],['서이준','“그런 농담은 별로 안 좋아합니다.”',-3]],

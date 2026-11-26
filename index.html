@@ -30,20 +30,17 @@
 #storyScene[data-person="차유리"],#standingDialog[data-person="차유리"]{--ink:#5a4875;--paper:#eeeaf4}
 #storyScene[data-person="오세린"],#standingDialog[data-person="오세린"]{--ink:#714f3d;--paper:#f6eee4}
 #storyScene[data-person="임하나"],#standingDialog[data-person="임하나"]{--ink:#3f5071;--paper:#eaf0f5}
-#storyScene.has-standing{display:grid;grid-template-columns:clamp(114px,27%,198px) minmax(0,1fr);grid-template-rows:auto;gap:0;border:1px solid #dddfd7;border-radius:15px;overflow:hidden;background:#fffdfa}
-#storyScene.has-standing #storyArt,#storyStanding{grid-area:1/1;min-width:0;margin:0}
-#storyScene.has-standing #storyArt{position:relative;overflow:hidden}
-#storyScene.has-standing #storyArt .scene-art{position:absolute;inset:0;margin:0;border-radius:0}
-#storyScene.has-standing #storyArt img{width:100%;height:100%;object-fit:cover}
+#storyScene.has-standing{display:grid;grid-template-columns:clamp(132px,31%,218px) minmax(0,1fr);grid-template-rows:auto;gap:0;border:1px solid #dddfd7;border-radius:15px;overflow:hidden;background:#fffdfa}
+#storyStanding{grid-area:1/1;min-width:0;margin:0;position:relative;background:var(--paper);border-inline-end:1px solid #37312914}
 #storyStanding[hidden]{display:none}
-#storyStanding{position:relative;background:radial-gradient(ellipse at 50% 35%,#fff9,transparent 65%),var(--paper);border-inline-end:1px solid #37312914;isolation:isolate}
-#storyStanding::before,#standingDialog .standing-display::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,#7165740b 1px,transparent 1px),linear-gradient(#7165740b 1px,transparent 1px);background-size:18px 18px}
-#storyScene.has-backdrop #storyStanding{background:linear-gradient(to top,#17241dbf,transparent 58%)}
-#storyScene.has-backdrop #storyStanding::before{display:none}
-#standingZoom{position:relative;width:100%;height:100%;margin:0;padding:8px 4px 9px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:0;border-radius:0;color:var(--ink);background:transparent}
-.standing-crop{position:relative;display:block;flex:none;height:clamp(174px,32vh,260px);aspect-ratio:160/464;overflow:hidden}
-.standing-crop img{position:absolute;top:0;left:0;width:500%;height:100%;max-width:none;display:block}
-#standingName{border-radius:20px;padding:3px 10px;background:#fffffff2;color:var(--ink);font-size:13px;font-weight:700;line-height:1.25}
+#storyScene.has-standing.has-backdrop{grid-template-rows:auto auto}
+#storyScene.has-standing #storyArt{grid-area:1/1/2/-1;min-width:0}
+#storyScene.has-standing .scene-art{margin:0;border-radius:0}
+#storyScene.has-standing #storyArt img{height:clamp(68px,10vh,104px);object-position:50% 55%}
+#storyScene.has-standing.has-backdrop #storyStanding,#storyScene.has-standing.has-backdrop #log{grid-row:2}
+#standingZoom{position:relative;display:block;width:100%;height:clamp(225px,37vh,316px);margin:0;padding:0;border:0;border-radius:0;overflow:hidden;background:var(--paper);color:var(--ink)}
+#standingPortrait{display:block;width:100%;height:100%;object-fit:cover;object-position:center 16%}
+#standingName{position:absolute;bottom:7px;left:7px;border-radius:14px;padding:4px 9px;background:#fffffff2;color:var(--ink);font-size:13px;font-weight:700;line-height:1.25;box-shadow:0 1px 6px #2c263720}
 .standing-expand{position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#fffd;color:var(--ink);font:16px/1 system-ui,sans-serif}
 #storyScene.has-standing #log{grid-area:1/2;align-self:stretch;min-width:0;height:0;min-height:100%;max-height:none;overflow:auto;overscroll-behavior-y:contain;padding:8px 10px;scrollbar-width:thin}
 #log .bubble{overflow-wrap:anywhere;word-break:normal}
@@ -55,19 +52,18 @@
 #story #suggest{margin-block:10px 4px;gap:7px}
 #story #suggest button{margin:0;min-height:44px;padding:9px 12px;color:#294e3f;background:#f0f4ef;border:1px solid #c9d7cb;text-wrap:pretty}
 #story button:focus-visible,#standingDialog button:focus-visible,#game>.tabs button:focus-visible{outline:3px solid #507e6a;outline-offset:-3px}
-#standingDialog{box-sizing:border-box;width:min(88vw,370px);max-height:90vh;max-height:90dvh;padding:0;overflow:auto;border-radius:20px;border:1px solid #ddd6d5;background:#fffdfa;color:#302f31}
-#standingDialog .standing-display{display:grid;place-items:center;position:relative;padding:16px 0;background:var(--paper,#eef1e8)}
-#standingDialog .standing-crop{height:min(54vh,450px);height:min(54dvh,450px)}
+#standingDialog{box-sizing:border-box;width:fit-content;max-width:min(92vw,440px);max-height:90vh;max-height:90dvh;padding:0;overflow:auto;border-radius:20px;border:1px solid #ddd6d5;background:#fffdfa;color:#302f31}
+#standingDialog .standing-display{display:grid;place-items:center;background:var(--paper,#eef1e8)}
+#standingDetail{display:block;width:auto;height:auto;max-width:100%;max-height:72vh;max-height:72dvh;object-fit:contain}
 #standingDialog .standing-controls{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
 #standingDialog h2{margin:0;font-size:18px;color:var(--ink)}
 #standingClose{width:auto;min-height:40px;margin:0}
 @media(max-width:520px){
- #storyScene.has-standing{grid-template-columns:clamp(76px,24%,106px) minmax(0,1fr)}
- .standing-crop{height:clamp(146px,24vh,195px)}
+ #storyScene.has-standing{grid-template-columns:clamp(86px,32%,142px) minmax(0,1fr)}
+ #standingZoom{height:clamp(175px,29vh,226px)}
  #storyScene.has-standing #log{padding:6px}
  #storyScene.has-standing #log .bubble{padding:7px 8px;font-size:14px;line-height:1.55}
  #storyScene.has-standing #log .bubble[data-voice="narration"]{font-size:13px}
- #standingZoom{padding:7px 1px}
  #standingName{font-size:12px;padding:3px 7px}
  #game>.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
@@ -80,10 +76,10 @@
 <div id="phone" class="panel"><h2>휴대전화</h2><p class="muted-note">연락처를 교환한 주민과 메시지를 주고받을 수 있어요. 답장은 일정을 소모하지 않습니다.</p><div id="phoneContacts"></div><div id="phoneThread"></div></div><div id="album" class="panel"><h2>추억 앨범</h2><p class="muted-note">여러 회차에서 발견한 이야기를 모아 다시 볼 수 있어요. 잠긴 기록은 내용을 공개하지 않습니다.</p><div class="row album-tabs"><button id="albumEvents" class="secondary active">이벤트 도감</button><button id="albumEndings" class="secondary">엔딩 도감</button></div><label for="albumFilter">캐릭터</label><select id="albumFilter"></select><p id="albumCount" role="status"></p><div id="albumList" class="album-grid"></div></div><div id="story" class="panel"><div id="storyScene">
 <div id="storyArt" hidden></div>
 <figure id="storyStanding" hidden><button id="standingZoom" type="button" aria-label="스탠딩 크게 보기" aria-haspopup="dialog">
-<span class="standing-crop" aria-hidden="true"><img id="standingAtlas" alt="" width="800" height="464" decoding="async"></span>
+<img id="standingPortrait" alt="" decoding="async">
 <span id="standingName"></span><span class="standing-expand" aria-hidden="true">⤢</span></button></figure>
 <div id="log" aria-live="polite" tabindex="0" aria-label="대화 기록"></div></div><div class="suggest row" id="suggest"></div><label for="message">대사 또는 행동</label><input id="message" placeholder="하고 싶은 말을 입력하세요"><button id="send" type="button">말하기</button><div class="row"><button class="secondary" id="next" class="hide" type="button">다음 장소로</button><button class="secondary" id="reset" type="button">처음부터</button></div><p class="status">선택지에 따라 관계와 사건이 달라집니다.</p></div></section><footer>저장 데이터는 이 브라우저에만 보관됩니다. API 비용 0원. · 캐릭터 설정 기준표: docs/character-bible.md</footer></div>
-<dialog id="standingDialog" aria-labelledby="standingTitle"><div class="standing-display"><span class="standing-crop"><img id="standingDetail" alt="전신 일러스트" width="800" height="464" decoding="async"></span></div>
+<dialog id="standingDialog" aria-labelledby="standingTitle"><div class="standing-display"><img id="standingDetail" alt="반신 일러스트" decoding="async"></div>
 <div class="standing-controls"><h2 id="standingTitle"></h2><button id="standingClose" class="secondary" type="button" autofocus>닫기</button></div></dialog>
 <dialog id="albumDialog" style="max-height:85vh;overflow:auto;width:min(92vw,620px);box-sizing:border-box;border:1px solid #d8dfd5;border-radius:16px"><h2 id="albumTitle"></h2><p class="muted-note">감상 전용 · 현재 일정과 관계에는 영향을 주지 않습니다.</p><div id="albumReplay"></div><button id="albumClose" class="secondary">닫기</button></dialog><dialog id="transferDialog" style="max-height:85vh;overflow:auto;width:min(92vw,650px);box-sizing:border-box"><h2>세이브 관리</h2><div id="slotList"></div><button id="slotNew">새 슬롯 저장</button><label style="display:block;margin:8px 0">세이브 파일(.sav, .json)을 슬롯으로 가져오기 <input id="slotFile" type="file"></label><p id="slotStatus" role="status"></p><hr><h3>다른 기기로 옮기기</h3><p>현재 진행을 파일로 저장해 다른 기기로 보내세요. 다른 기기에서 이 메뉴를 열고 받은 파일을 선택하면 이어서 플레이할 수 있어요.</p>
 <button id="transferDownload">세이브 파일 저장</button>
@@ -1678,17 +1674,13 @@ function renderCrossQuestion(ev){const v=initSim(),p=ev.person;$('progress').tex
 function renderCrossIntro(ev){const v=initSim();$('progress').textContent='교차 이야기 · 어색한 인사';add('한시우','……안녕하세요, 형.');add('서이준','네.');add('한시우','요즘 잘 지내시죠?');add('서이준','뭐, 그렇죠.');add('이야기','한시우가 어색하게 웃었다. 서이준은 냉장고에서 음료를 꺼냈다.');if(ev.answered){add(state.name,ev.selected,true);for(const [p,line] of ev.crossReplies)add(p,line);choiceButton('일정 계속하기',finishEvent);return}for(const [label,replies] of [['두 사람에게 반갑게 인사한다.',[['한시우','어, 왔어요? 뭐 사러 왔어요?'],['서이준','안녕하세요.']]],['두 분은 원래 아는 사이예요?',[['한시우','아, 예전에 몇 번 뵀어요.'],['서이준','네. 그 정도예요.']]],['모른 척하고 물건을 고른다.',[['이야기','두 사람은 별다른 말을 나누지 않고 각자 계산대로 향했다.']]]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.crossReplies=replies;v.ijunSiwooIntro={day:v.day,choice:label};remember('서이준','cross-store','한시우와 어색하게 인사하는 모습을 봄');remember('한시우','cross-store','서이준과 어색하게 인사하는 모습을 봄');writeJournal('교차 이야기 · 서이준과 한시우의 어색한 인사');save();renderChoiceEvent()})}
 function renderJaeheeGift(ev){const v=initSim();$('progress').textContent='공재희 · 흰색 곰인형';add('이야기','집게에 매달린 흰색 곰인형이 경품 출구로 떨어졌다. 재희가 인형을 꺼내 당신에게 내밀었다.');add('공재희','이거 가져요. 나 집에 인형 너무 많아서.');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,n] of [['고마워요. 잘 간직할게요.','웅ㅋㅋ 잃어버리지 마요.',3],['볼 때마다 재희 씨 생각나겠네요.','뭐야. ……그럼 더 잘 보이는 데 둬요.',4]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeBear={day:v.day,name:'흰색 곰인형'};remember('공재희','claw-bear','흰색 곰인형을 선물함');v.affection['공재희']=Math.min(999,v.affection['공재희']+n);if(n===4)socialRecord('공재희').interest++;writeJournal('공재희에게 흰색 곰인형을 받았다.');save();renderChoiceEvent();renderSim()})}
 function renderJaeheeIntro(ev){const v=initSim();$('progress').textContent='첫 만남 · 공재희';add('공재희','아싸ㅋㅋ 또 뽑았어.');add('공재희','왜요? 이거 갖고 싶어요?');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,score] of [['인형뽑기 진짜 잘하시네요.','그쵸? 나 이거 좀 잘해요ㅋㅋ',3],['저도 뽑는 법 좀 알려 주세요.','어디 봐요. 일단 저 인형부터 노려 봐요.',3],['저 정도면 저도 뽑을 수 있겠는데요?','오? 해 봐요. 궁금한데ㅋㅋ',1]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeIntro={day:v.day,choice:label,affection:score};v.met['공재희']=true;v.affection['공재희']=score;v.talkCount['공재희']=1;socialRecord('공재희').lastSeen=v.day;writeJournal('공재희 · 오락실에서 처음 만났다');save();renderChoiceEvent();renderSim()})}
-const standingCast=['공재희','유지안','차유리','오세린','임하나'];
-const standingAtlas='assets/cast-standing.webp';
-let standingUnavailable=false;
-function drawStandingCell(img,index){
- if(!img.src)img.src=standingAtlas;
- img.style.transform='translateX(-'+(20*index)+'%)';
-}
+const standingPortraitFiles={
+ '공재희':'jaehee','유지안':'jian','차유리':'yuri','오세린':'serin','임하나':'hana'
+};
+const unavailablePortraits=new Set();
 function setStoryStanding(person){
- const frame=$('storyStanding'),scene=$('storyScene');
- const index=standingUnavailable?-1:standingCast.indexOf(person);
- if(index<0){
+ const frame=$('storyStanding'),scene=$('storyScene'),file=standingPortraitFiles[person];
+ if(!file||unavailablePortraits.has(person)){
   frame.hidden=true;
   delete frame.dataset.person;
   delete scene.dataset.person;
@@ -1698,22 +1690,27 @@ function setStoryStanding(person){
  if(!frame.hidden&&frame.dataset.person===person)return;
  frame.dataset.person=scene.dataset.person=person;
  $('standingName').textContent=person;
- $('standingZoom').setAttribute('aria-label',person+' 스탠딩 크게 보기');
- drawStandingCell($('standingAtlas'),index);
+ $('standingZoom').setAttribute('aria-label',person+' 반신 일러스트 크게 보기');
+ const img=$('standingPortrait');
+ if(img.dataset.person!==person){
+  img.dataset.person=person;
+  img.src='assets/portraits/'+file+'.webp';
+ }
  frame.hidden=false;
  scene.classList.add('has-standing');
 }
-$('standingAtlas').addEventListener('error',()=>{
- standingUnavailable=true;
- setStoryStanding(null);
+$('standingPortrait').addEventListener('error',()=>{
+ const person=$('standingPortrait').dataset.person;
+ unavailablePortraits.add(person);
+ if($('storyStanding').dataset.person===person)setStoryStanding(null);
 });
 $('standingZoom').addEventListener('click',()=>{
- const person=$('storyStanding').dataset.person,index=standingCast.indexOf(person);
- if(index<0)return;
+ const person=$('storyStanding').dataset.person;
+ if(!standingPortraitFiles[person])return;
  const dialog=$('standingDialog');
  dialog.dataset.person=person;
  $('standingTitle').textContent=person;
- drawStandingCell($('standingDetail'),index);
+ $('standingDetail').src=$('standingPortrait').src;
  if(!dialog.open)dialog.showModal();
 });
 $('standingClose').addEventListener('click',()=>$('standingDialog').close());

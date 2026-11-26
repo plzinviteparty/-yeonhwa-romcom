@@ -1675,7 +1675,8 @@ function renderCrossIntro(ev){const v=initSim();$('progress').textContent='교�
 function renderJaeheeGift(ev){const v=initSim();$('progress').textContent='공재희 · 흰색 곰인형';add('이야기','집게에 매달린 흰색 곰인형이 경품 출구로 떨어졌다. 재희가 인형을 꺼내 당신에게 내밀었다.');add('공재희','이거 가져요. 나 집에 인형 너무 많아서.');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,n] of [['고마워요. 잘 간직할게요.','웅ㅋㅋ 잃어버리지 마요.',3],['볼 때마다 재희 씨 생각나겠네요.','뭐야. ……그럼 더 잘 보이는 데 둬요.',4]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeBear={day:v.day,name:'흰색 곰인형'};remember('공재희','claw-bear','흰색 곰인형을 선물함');v.affection['공재희']=Math.min(999,v.affection['공재희']+n);if(n===4)socialRecord('공재희').interest++;writeJournal('공재희에게 흰색 곰인형을 받았다.');save();renderChoiceEvent();renderSim()})}
 function renderJaeheeIntro(ev){const v=initSim();$('progress').textContent='첫 만남 · 공재희';add('공재희','아싸ㅋㅋ 또 뽑았어.');add('공재희','왜요? 이거 갖고 싶어요?');if(ev.answered){add(state.name,ev.selected,true);add('공재희',ev.response);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,score] of [['인형뽑기 진짜 잘하시네요.','그쵸? 나 이거 좀 잘해요ㅋㅋ',3],['저도 뽑는 법 좀 알려 주세요.','어디 봐요. 일단 저 인형부터 노려 봐요.',3],['저 정도면 저도 뽑을 수 있겠는데요?','오? 해 봐요. 궁금한데ㅋㅋ',1]])choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.response=reply;v.jaeheeIntro={day:v.day,choice:label,affection:score};v.met['공재희']=true;v.affection['공재희']=score;v.talkCount['공재희']=1;socialRecord('공재희').lastSeen=v.day;writeJournal('공재희 · 오락실에서 처음 만났다');save();renderChoiceEvent();renderSim()})}
 const standingPortraitFiles={
- '공재희':'jaehee','유지안':'jian','차유리':'yuri','오세린':'serin','임하나':'hana'
+ '공재희':'jaehee','유지안':'jian','차유리':'yuri','오세린':'serin','임하나':'hana',
+ '정태오':'taeo','백지한':'jihan','한시우':'siwoo','강도윤':'doyun','서이준':'ijun'
 };
 const unavailablePortraits=new Set();
 function setStoryStanding(person){

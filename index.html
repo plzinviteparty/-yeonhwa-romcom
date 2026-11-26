@@ -976,6 +976,57 @@ function socialRecord(p){const v=initSim();v.social=v.social||{};return v.social
 const invitationScripts={"공재희":["지금 시간 있어요? 좀 더 놀아요.","재희와 나란히 앉아 게임 이야기를 했다.","아 재밌다ㅋㅋ","벌써 가요? 좀만 더 있지."],"서이준":["지금 바빠요? 아니면 잠깐 걸을래요?","나란히 동네를 걷다가 조용한 곳에 멈췄다.","조용해서 좋네요. 둘이 걸어도 생각보다 안 시끄럽고.","…다음에도 같이 걸어요. 싫으면 말고요."],"강도윤":["시간 괜찮으시면 잠깐 같이 쉬어요. 커피는 제가 내릴게요.","강도윤과 마주 앉아 음료를 마셨다.","이렇게 앉아서 이야기하니까 좋네요.","시간이 벌써 이렇게 됐어요? 조금만 더 있다 가면 안 되나. ……농담 아니에요."],"한시우":["지금 시간 있어요? 저랑 잠깐 놀아요!","한시우와 장난을 주고받으며 시간을 보냈다.","히히. 같이 있으니까 시간 진짜 빨리 가네요.","오예! 다음에도 저랑 놀아 주기예요?"],"정태오":["시간 괜찮으시면 잠시 이야기를 나누고 싶습니다.","정태오와 잠시 앉아 일상 이야기를 나눴다.","이렇게 쉬는 것도 나쁘지 않군요.","다음에도 뵐 수 있으면 좋겠...... 좋겠습니다."],"백지한":["이대로 헤어지기엔 좀 아쉽지 않아요? 잠깐 같이 쉴래요?","백지한과 한적한 곳에서 이야기를 나눴다.","이렇게 편하게 이야기할 수 있는 사람이 흔하진 않거든요.","어라. 제가 먼저 아쉬워할 줄은 몰랐는데."],"임하나":["...... 있잖아요. 시간 괜찮으시면 조금 더 이야기할래요?","임하나와 나란히 앉아 소소한 이야기를 나눴다.","저도 이렇게 편하게 이야기하는 거 좋아해요.","...... 다음에도 먼저 말 걸어도 될까요?"],"차유리":["오늘 시간 괜찮아요? 조금 더 같이 있지 않을래요?","차유리와 주변 풍경을 구경하며 이야기를 나눴다.","같이 있으니까 별것 아닌 것도 재밌네요.","다음엔 어디 가고 싶어요? 같이 정해 볼까요?"],"오세린":["시간 괜찮으면 잠깐 차라도 같이 마실래요?","오세린과 차를 마시며 하루 이야기를 나눴다.","으음, 이렇게 여유롭게 쉬는 시간도 필요하죠.","오늘은 저도 마음이 한결 편해졌어요."],"유지안":["예쓰! 오늘 시간 좀 남는데 같이 놀다 갈래요?","유지안과 가벼운 이야기를 나누며 쉬었다.","와우, 이야기하다 보니까 시간 순삭이네요!","다음에도 같이 놀아요. 약속!"]};
 function renderInvitation(ev,p){if(platonicOnly(p))return false;const v=initSim(),s=socialRecord(p),a=invitationScripts[p];if(!a||ev.jobEvent||ev.weatherScene||!v.running||v.running.plan[v.running.slot]!=='자유외출')return false;if(!ev.inviteChecked){ev.inviteChecked=true;const learned=relationshipRecall(p,v.day);if(relationshipTier(p)>=2&&ev.response&&ev.delta>=0&&v.energy>=10&&(!s.lastInvite||v.day-s.lastInvite>=7)&&Math.random()<(p==='임하나'&&learned.agreement&&learned.kind===0?.75:relationshipTier(p)>=3?.55:.32)){ev.invite=true;s.lastInvite=v.day}save()}if(!ev.invite)return false;const learned=relationshipRecall(p,v.day);add(p,p==='임하나'&&learned.agreement&&learned.kind===0?relationshipRecallVoices[p][1]:a[0]);if(!ev.inviteAnswer){for(const [label,k] of [['좋아요. 같이 시간을 보내요.',1],['저도 둘이 있고 싶었어요.',2],['오늘은 어렵겠어요. 다음에 봐요.',3]])choiceButton(label,()=>{if(ev.inviteAnswer)return;ev.inviteAnswer=k;if(k!==3){v.energy=Math.max(0,v.energy-5);if(k===2)s.interest++;else s.friendship++;}save();renderChoiceEvent();renderSim()});return true}add(state.name,['','좋아요. 같이 시간을 보내요.','저도 둘이 있고 싶었어요.','오늘은 어렵겠어요. 다음에 봐요.'][ev.inviteAnswer],true);if(ev.inviteAnswer===3){add(p,personalSocialVoice[p][7]);return false}add('이야기',a[1]);add(p,a[2]);const opts=['저도 즐거웠어요.','다음에도 둘이 만나고 싶어요.','오늘은 이만 돌아갈게요.'];if(!ev.inviteEnd){opts.forEach((label,i)=>choiceButton(label,()=>{if(ev.inviteEnd)return;ev.inviteEnd=i+1;s.lastTogether=v.day;const before=v.affection[p]||0;v.affection[p]=Math.min(999,before+[3,4,1][i]);ev.inviteGain=v.affection[p]-before;if(i===1)s.interest++;writeJournal(p+' · 함께 보낸 시간');save();renderChoiceEvent();renderSim()}));return true}add(state.name,opts[ev.inviteEnd-1],true);add(p,ev.inviteEnd===2?a[3]:personalSocialVoice[p][ev.inviteEnd===1?8:9]);if(ev.inviteGain)add('시스템',p+' 호감도 +'+ev.inviteGain);return false}
 const farewellLines={"공재희":["벌써요?","잠깐만. 좀 더 있다 가면 안 돼요?","웅ㅋㅋ 좋다.","ㅇㅋ. 다음에 봐요."],"서이준":["…벌써 가요?","잠깐만요. 급한 일 있어요? 없으면 좀 더 있다 가요.","…내가 사람 붙잡고 있을 줄은 몰랐네.","그래요. 조심히 가요."],"강도윤":["어라, 오늘은 인사만 하고 가시는 거예요?","잠깐만요. 저랑 조금만 더 이야기하다 가시면 안 돼요?","하하. 괜히 아쉬워서 그랬어요. 오늘은 제가 좀 욕심을 냈네요.","그럼 다음에 봐요. 조심히 가시고요."],"한시우":["엥, 벌써 가요?","잠깐! 저 아직 할 얘기 있는데. 조금만 더 놀다 가면 안 돼요?","히히. 사실 그냥 더 보고 싶었어요.","오케이! 다음에 봐요."],"백지한":["오늘은 제가 좀 재미없었나 봐요?","잠깐, 이렇게 보내기엔 제가 좀 아쉬운데요. 시간 조금만 더 주실래요?","이거 참. 제가 붙잡는 쪽이 될 줄은 몰랐네요.","좋아요. 다음에는 제가 먼저 연락할게요."],"정태오":["이제 돌아가십니까?","…시간이 괜찮으시다면 잠시 더 함께하고 싶습니다.","감사합니다. 제가 먼저 부탁드리는 건 좀 어색하군요.","알겠습니다. 조심히 돌아가십시오."],"임하나":["아…… 오늘은 바쁘신가 봐요.","저기, 혹시 조금만 더 이야기해도 될까요?","다행이다…… 저만 아쉬운 줄 알았어요.","네. 다음에 또 봐요."],"차유리":["오늘은 여기까지예요?","시간 남으면 조금 더 이야기하고 가요. 바쁘면 다음에 보고요.","좋아요. 아까 하던 이야기 마저 해요.","좋아요. 각자 할 일 하고 또 봐요."],"오세린":["벌써 시간이 이렇게 됐네요.","괜찮으시면 잠시 더 함께할까요?","후후. 조금 더 이야기할 수 있어서 좋네요.","네. 남은 하루도 잘 보내세요."],"유지안":["와, 벌써 가는 거예요?","잠깐만요! 조금 더 같이 있고 싶은데, 시간 괜찮아요?","좋아요! 사실 말할까 말까 고민했거든요.","오케이! 다음에 또 만나요."]};
+const abruptDepartureVoices={
+ 백지한:['지한이 미소를 지은 채 짧게 숨을 들이켰다.','벌써요? 아까까진 재밌는 줄 알았는데. 제가 뭘 놓쳤어요? 시간 괜찮으면 조금만 더 있어요.','좋아요. 아까 얘기부터 마저 해요. 제가 너무 앞서갔네요.','그래요. 괜히 혼자 짐작하진 않을게요. 조심히 가요.'],
+ 강도윤:['도윤이 입을 열었다 닫고, 내리려던 손을 무릎에 얹었다.','잠깐만요. 제가 얘기를 너무 많이 했나 싶어서요. 괜찮으면 아까 하던 얘기 조금만 더 들려줄래요?','아, 다행이다. 이번엔 제가 들을게요. 아까 어디까지 했죠?','알겠어요. 오늘은 먼저 가 봐요. 다음에 보면 아까 얘기 마저 들어도 되죠?'],
+ 서이준:['이준이 보내 주려는 듯 고개를 끄덕였다가 뒤늦게 입을 열었다.','…잠깐만요. 제가 좀 건성으로 대답했어요? 아니면, 한마디만 더 하고 가요. 아까 그 얘기 궁금했어요.','…그럼 조금만 더 있어요. 아까 대답이 짧았어도 듣고 있었어요.','…알겠어요. 급한 거면 먼저 가요. 방금 말은 다음에 들어도 되니까.'],
+ 공재희:['재희가 웃으려다 눈을 한 번 깜빡였다.','어, 벌써 가요? 제가 방금 뭐 이상한 말 했어요? …아니면 조금만 더 얘기하고 가면 안 돼요?','아, 좋다. 아까 말 끊겼잖아요. 그거 마저 들려줘요.','알겠어요. 아까 그 얘기 나중에 생각나면 이어서 해 줘요.'],
+ 임하나:['하나가 소매 끝을 만지다가 조심스럽게 고개를 들었다.','저… 혹시 제가 대답을 너무 늦게 했어요? 아까 무슨 말 할지 고르고 있었거든요. 조금만 더 있어 줄래요?','…고마워요. 저도 지금 답할 수 있을 것 같아요. 아까 하던 얘기부터 해요.','네. 그냥 아까 대답을 못 하고 보내는 게 마음에 걸렸어요. 조심히 가요.']
+};
+let departureTalkEvent=null;
+function canReactToDeparture(ev){
+ const p=ev.person;
+ return !!abruptDepartureVoices[p]&&!ev.jobEvent&&(vIsDating(p)||relationshipTier(p)>=2);
+}
+function isAbruptDeparture(text){
+ return /^(?:(?:저|나)(?:는|도)?\s+)?(?:(?:그냥|먼저|이만|이제|슬슬|오늘은)\s+)+(?:가\s*(?:볼게(?:요)?|야겠(?:어요|어)|겠어요|요)|갈게(?:요)?|갈래(?:요)?|간다|갑니다|가야지|들어갈게(?:요)?|자리를 뜬다|일어난다)(?:[.!…~\s]|$)/.test(text);
+}
+function beginAbruptDeparture(ev,label,typed=false){
+ if(ev.abruptDeparture||!canReactToDeparture(ev))return false;
+ ev.abruptDeparture={label,typed};
+ ev.leftEncounter=true;
+ writeJournal(ev.person+' · 대화를 마치려 했다');
+ save();
+ renderChoiceEvent();
+ return true;
+}
+function renderAbruptDeparture(ev){
+ const p=ev.person,o=ev.abruptDeparture,[action,question,stay,leave]=abruptDepartureVoices[p];
+ if(!ev.weatherScene)voiceMoment(ev);
+ if(ev.selected){add(state.name,ev.selected,true);if(ev.response)add(p,ev.response)}
+ for(const [line,response] of ev.departureTalkHistory||[]){add(state.name,line,true,true);add(p,response)}
+ add(state.name,o.label,true,o.typed);
+ add('이야기',action);
+ add(p,question);
+ if(o.answer){
+  add(state.name,o.answer.label,true);
+  add(p,o.answer.stay?stay:leave);
+  choiceButton('일정 계속하기',finishEvent);
+  return;
+ }
+ const options=[['조금 더 얘기하다 갈게요.',true],['오늘은 먼저 가야 해요. 다음에 이어서 얘기해요.',false]];
+ for(const [label,staying] of options)choiceButton(label,()=>{
+  if(o.answer)return;
+  o.answer={label,stay:staying};
+  ev.answered=true;
+  ev.leftEncounter=!staying;
+  if(staying)feel(p,{security:2,longing:-2});
+  remember(p,'departure:'+initSim().day,label);
+  save();
+  renderChoiceEvent();
+  renderSim();
+ });
+}
 function farewellReaction(ev,p,label){const v=initSim(),s=socialRecord(p);if(ev.jobEvent||!p||v.affection[p]<25||!(/인사한다|인사만|말을 걸지 않고|조심히 들어가세요|오늘 즐거웠어요/.test(label)))return;const strong=v.affection[p]>=60&&s.interest>=5;const last=s.farewellDay||0;if(last&&v.day-last<3)return;const a=farewellLines[p];ev.farewell={line:strong?a[1]:a[0],strong};s.farewellDay=v.day;if(strong)s.farewellMisses=(s.farewellMisses||0)+1}
 function renderFarewell(ev,p){if(!ev.farewell)return false;const v=initSim(),s=socialRecord(p),a=farewellLines[p],f=ev.farewell;add(p,f.line);if(f.answer){add(state.name,f.answer.label,true);add(p,f.answer.reply);return false}if(!f.strong)return false;for(const [label,reply,stay] of [['조금 더 이야기하고 갈게요.',a[2],true],['오늘은 먼저 갈게요. 다음에 봐요.',a[3],false]])choiceButton(label,()=>{if(f.answer)return;f.answer={label,reply};if(stay){s.farewellMisses=0;s.interest++;v.affection[p]=Math.min(999,v.affection[p]+2)}save();renderChoiceEvent();renderSim()});return true}
 function renderCrossQuestion(ev){const v=initSim(),p=ev.person;$('progress').textContent='개인 이야기 · 지난번 편의점';add('이야기',p==='서이준'?'한시우의 이름이 나오자 이준이 잠시 말을 멈췄다. 지난번 편의점에서 보았던 표정이 떠올랐다.':'이준의 이름을 듣자 시우의 웃음이 조금 어색해졌다.');if(ev.crossDeferred){add(state.name,'다른 이야기를 한다.',true);choiceButton('일정 계속하기',finishEvent);return}choiceButton(p==='서이준'?'혹시 시우 씨랑 무슨 일 있었어요?':'혹시 이준 씨랑 무슨 일 있었어요?',()=>{if(ev.crossAsked||ev.crossDeferred)return;ev.crossAsked=true;save();renderChoiceEvent()});choiceButton('다른 이야기를 한다.',()=>{if(ev.crossAsked||ev.crossDeferred)return;ev.crossDeferred=true;v.crossDeferredDays=v.crossDeferredDays||{};v.crossDeferredDays[p]=v.day;save();renderChoiceEvent()})}
@@ -1012,7 +1063,7 @@ function renderStoryIllustration(id){
  root.hidden=!id;
  if(id)root.append(illustrationFigure(id));
 }
-function renderChoiceEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;
+function renderChoiceEvent(){departureTalkEvent=null;const v=initSim(),ev=v.activeEvent;if(!ev)return;
 if(ev.newConfession&&(!ev.offerState||ev.offerState.stage==='ask')&&!v.running&&dateBook()[v.day]?.trip){
  v.activeEvent=null;
  save();
@@ -1024,12 +1075,16 @@ const intro=ev.personalStory ? ev.personalStory.intro || personalStoryData[p]?.f
 if(!ev.contactFollowup&&!ev.coupleIssue&&intro?.trim())add('이야기',intro);
 if(ev.weatherScene)add(p,ev.weatherScene.line);switchTab('story');
 if(ev.jihanScene){renderJihanScene(ev);return}if(ev.surpriseVisit){renderSurpriseVisit(ev);return}if(ev.anniversary){renderAnniversary(ev);return}if(ev.tripScene){renderTrip(ev);return}if(ev.sharedLife){renderSharedLife(ev);return}if(ev.nicknameScene){renderNickname(ev);return}if(ev.crushMeeting){renderCrushMeeting(ev);return}if(ev.friendCrush){renderFriendCrush(ev);return}if(ev.friendScene){renderFriendScene(ev);return}if(ev.npcLifeSupport){renderNpcLifeSupport(ev);return}if(ev.contactFollowup){renderContactFollowup(ev);return}if(ev.professionStory){renderProfessionStory(ev);return}if(ev.volunteerEvent){renderVolunteer(ev);return}if(ev.professionEvent){renderProfession(ev);return}if(ev.developmentEvent){renderDevelopment(ev);return}if(ev.exMemory){renderExMemory(ev);return}if(ev.exBelonging){renderExBelonging(ev);return}if(ev.exAddress){renderExAddress(ev);return}if(ev.npcBreakup){renderNpcBreakup(ev);return}if(ev.exTalk){renderExTalk(ev);return}if(ev.multiDiscussion){renderMultiDiscussion(ev);return}if(ev.newConfession){renderNewConfession(ev);return}if(ev.breakup){renderBreakup(ev);return}if(ev.groupPartners){renderGroupDate(ev);return}if(ev.aftermath){renderAftermath(ev);return}if(ev.triangle&&!ev.dateEvent){if(renderTriangle(ev))return;choiceButton('일정 계속하기',finishEvent);return}if(ev.coupleIssue){renderCoupleIssue(ev);return}if(ev.coupleMorning){renderCoupleMorning(ev);return}if(ev.summerNight){renderSummerNight(ev);return}if(ev.speechOffer){renderSpeechOffer(ev);return}if(ev.flirtScene){renderFlirt(ev);return}if(ev.crossIntro){renderCrossIntro(ev);return}if(ev.jaeheeGift){renderJaeheeGift(ev);return}if(ev.jaeheeIntro){renderJaeheeIntro(ev);return}if(ev.conflictStage){renderConflict(ev);return}if(ev.christmasEvent){renderChristmas(ev);return}if(ev.attachment){renderAttachment(ev);return}if(ev.careerEvent){renderCareerEvent(ev);return}if(ev.birthdayParty){renderBirthdayParty(ev);return}if(ev.festival){renderFestival(ev);return}if(ev.reunion){if(renderReunion(ev))return;choiceButton('일정 계속하기',finishEvent);return}if(ev.dateEvent){renderDateEvent(ev);return}if(ev.personalStory){renderPersonalStory(ev);return}if(ev.group){const g=ev.group;$('progress').textContent='함께하는 만남 · '+g.people.join(' · ');for(const [who,line] of g.lines)add(who,line);if(ev.answered){add(state.name,ev.selected,true);for(const [who,line] of ev.groupReply)add(who,line);for(const [who,d] of Object.entries(ev.groupDelta))if(d)add('시스템',who+' 호감도 '+(d>0?'+':'')+d);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,deltas] of g.options)choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.groupReply=reply;ev.groupDelta={};g.people.forEach((who,i)=>{const before=v.affection[who]||0;v.affection[who]=Math.max(0,Math.min(999,before+deltas[i]));ev.groupDelta[who]=v.affection[who]-before;v.talkCount[who]=(v.talkCount[who]||0)+1});writeJournal(g.people.join('·')+' · '+label);renderChoiceEvent();renderSim();save()});return}
+if(ev.abruptDeparture){renderAbruptDeparture(ev);return}
 if(ev.answered){if(!ev.weatherScene&&!ev.jobEvent)voiceMoment(ev);add(state.name,ev.selected,true);if(p&&ev.response)add(p,ev.response);if(ev.delta)add('시스템',p+' 호감도 '+(ev.delta>0?'+':'')+ev.delta);if(p==='서이준'&&everydayAnswers[p][0].slice(0,2).includes(ev.selected)&&!ev.afterglowMeeting?.answer){
   add('이야기','잠시 아무도 말을 꺼내지 않았다. 이준도 그대로 곁에 머물렀다.');
   choiceButton('일정 계속하기',finishEvent);return;
-}if(ev.leftEncounter){choiceButton('일정 계속하기',finishEvent);return}if(p&&renderPartnerComfort(ev,p))return;if(p&&renderAfterglowMeeting(ev,p))return;if(p&&renderRelationshipTouch(ev,p))return;if(p&&renderCoupleHabit(ev,p))return;if(p&&renderPlayfulCouple(ev,p))return;if(p)coupleHabitRecall(ev,p);if(p&&renderSensoryRomance(ev,p))return;if(p&&renderSpontaneousInvite(ev,p))return;if(p&&renderSpontaneousVisit(ev,p))return;if(p&&ev.farewell){if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}if(p&&renderInvitation(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
+}if(ev.leftEncounter){choiceButton('일정 계속하기',finishEvent);return}if(p&&renderPartnerComfort(ev,p))return;if(p&&renderAfterglowMeeting(ev,p))return;if(p&&renderRelationshipTouch(ev,p))return;if(p&&renderCoupleHabit(ev,p))return;if(p&&renderPlayfulCouple(ev,p))return;if(p)coupleHabitRecall(ev,p);if(p&&renderSensoryRomance(ev,p))return;if(p&&renderSpontaneousInvite(ev,p))return;if(p&&renderSpontaneousVisit(ev,p))return;if(p&&ev.farewell){if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}if(p&&renderInvitation(ev,p))return;
+if(canReactToDeparture(ev)){departureTalkEvent=ev;choiceButton('오늘은 이만 가 볼게요.',()=>beginAbruptDeparture(ev,'오늘은 이만 가 볼게요.'))}
+choiceButton('일정 계속하기',finishEvent);return}
 if(!p){if(ev.careAnswer){add('이야기',ev.carePerson+'의 배려 덕분에 마음이 한결 편해졌다.')}else if(renderCare(ev))return;choiceButton('일정 계속하기',finishEvent);return}
 if(!ev.weatherScene&&!ev.jobEvent)voiceMoment(ev);
+if(canReactToDeparture(ev))departureTalkEvent=ev;
 const options=(ev.answered||ev.optionsVersion===47)&&ev.options?ev.options:(ev.optionsVersion=47,ev.socialAdded=false,ev.options=encounterOptions(ev));if(!ev.weatherScene&&!ev.jobEvent&&relationshipTier(p)>=2&&!ev.socialAdded){ev.socialAdded=true;ev.options=[...options.slice(0,-1),['앞으로도 편하게 지내는 친구가 되고 싶어요.','“'+personalSocialVoice[p][2]+'”',1,'friend'],['다음에는 둘이서 시간을 보내고 싶어요.',{'서이준':'“둘이요? …시간 맞춰 보죠.”','강도윤':'“좋죠. 저도 그러고 싶었어요.”','한시우':'“오, 저야 좋죠. 언제가 좋아요?”','정태오':'“좋습니다. 시간 맞춰 보겠습니다.”','백지한':'“그거 좋은데요? 기대할게요.”','임하나':'“저랑요? …좋아요.”','차유리':'“좋아요! 어디 갈지 생각해 봐요.”','오세린':'“좋아요. 여유 있을 때 만나요.”','유지안':'“좋죠! 둘이서 놀러 가요.”','공재희':'“웅ㅋㅋ 둘이 놀면 더 재밌겠죠?”'}[p],2,'interest'],options[options.length-1]]}
 let visibleOptions=ev.options;
 const hasOpening=ev.options.at(-1)?.[3]==='leave';
@@ -1042,11 +1097,11 @@ if(hasOpening){
     visibleOptions=ev.options.slice(0,directCount);
   }
 }
-for(const [label,response,delta,direction] of visibleOptions)choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.leftEncounter=direction==='leave';v.knownFacts=v.knownFacts||{};if(p==='강도윤'&&label==='강아지 이름이 궁금해요.')v.knownFacts.moka=true;v.topicHistory=v.topicHistory||{};const topicKey=p+':'+ev.place;v.topicHistory[topicKey]=[...new Set([...(v.topicHistory[topicKey]||[]),label])];ev.response=response===null?encounterGreeting(p,ev.place):response;farewellReaction(ev,p,label);if(response!=='')v.talkCount[p]=(v.talkCount[p]||0)+1;const key='choice:'+v.day+':'+p+':'+label;let change=v.topicRewards[key]?0:delta;v.topicRewards[key]=true;const before=v.affection[p]||0;v.affection[p]=Math.max(0,Math.min(999,before+change));change=v.affection[p]-before;ev.delta=change;if(direction?.startsWith('hint:')){v.giftHints=v.giftHints||{};const hints=v.giftHints[p]||(v.giftHints[p]=[]);const item=direction.slice(5);if(!hints.includes(item))hints.push(item)}else if(direction&&delta>0){const s=socialRecord(p);if(direction==='friend')s.friendship++;else s.interest++;}ev.expression=change<0?'uncomfortable':change>0?'smile':'neutral';writeJournal(p+' · '+label);renderChoiceEvent();renderSim();save()});
+for(const [label,response,delta,direction] of visibleOptions)choiceButton(label,()=>{if(ev.answered)return;if((direction==='leave'||label==='말을 걸지 않고 지나간다')&&beginAbruptDeparture(ev,label))return;ev.answered=true;ev.selected=label;ev.leftEncounter=direction==='leave';v.knownFacts=v.knownFacts||{};if(p==='강도윤'&&label==='강아지 이름이 궁금해요.')v.knownFacts.moka=true;v.topicHistory=v.topicHistory||{};const topicKey=p+':'+ev.place;v.topicHistory[topicKey]=[...new Set([...(v.topicHistory[topicKey]||[]),label])];ev.response=response===null?encounterGreeting(p,ev.place):response;farewellReaction(ev,p,label);if(response!=='')v.talkCount[p]=(v.talkCount[p]||0)+1;const key='choice:'+v.day+':'+p+':'+label;let change=v.topicRewards[key]?0:delta;v.topicRewards[key]=true;const before=v.affection[p]||0;v.affection[p]=Math.max(0,Math.min(999,before+change));change=v.affection[p]-before;ev.delta=change;if(direction?.startsWith('hint:')){v.giftHints=v.giftHints||{};const hints=v.giftHints[p]||(v.giftHints[p]=[]);const item=direction.slice(5);if(!hints.includes(item))hints.push(item)}else if(direction&&delta>0){const s=socialRecord(p);if(direction==='friend')s.friendship++;else s.interest++;}ev.expression=change<0?'uncomfortable':change>0?'smile':'neutral';writeJournal(p+' · '+label);renderChoiceEvent();renderSim();save()});
 if(hasOpening&&!ev.moreTopics){
   choiceButton('다른 이야기를 꺼낸다',()=>{ev.moreTopics=true;renderChoiceEvent()});
   const [label]=ev.options.at(-1);
-  choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.leftEncounter=true;ev.selected=label;ev.response='';ev.delta=0;writeJournal(p+' · '+label);save();renderChoiceEvent();renderSim()});
+  choiceButton(label,()=>{if(ev.answered)return;if(beginAbruptDeparture(ev,label))return;ev.answered=true;ev.leftEncounter=true;ev.selected=label;ev.response='';ev.delta=0;writeJournal(p+' · '+label);save();renderChoiceEvent();renderSim()});
 }
 }
 function visitPlace(place){const v=initSim();if(!v.running||!v.running.outing||v.activeEvent){alert('자유외출 일정이 진행 중일 때 방문할 수 있어요.');return}v.running.outing=false;if(place==='arcade'&&v.slot>0&&!v.jaeheeIntro&&v.day>1){v.running.notes.push(dayLabels[v.slot]+' · 자유외출');v.activeEvent={place:'arcade',person:'공재희',description:'인형뽑기 기계 앞에 분홍색과 검은색 옷을 입은 여자가 서 있다. 발치에는 이미 인형 세 개가 놓여 있다.',jaeheeIntro:true,answered:false};save();renderChoiceEvent();return}const person=meetAt(place,['morning','noon','afternoon','evening'][v.slot]);v.running.notes.push(dayLabels[v.slot]+' · 자유외출');showEvent(place,arrivalText(place,person),person)}
@@ -1927,10 +1982,15 @@ function reply(t){
  t=String(t||'').trim();if(!t)return;
  const current=initSim(),active=current.activeEvent;
  if(active){
+  if(active.abruptDeparture)return;
+  if(departureTalkEvent===active&&isAbruptDeparture(t)&&beginAbruptDeparture(active,t,true))return;
   add(state.name,t,true,true);
   const p=active.person,words=t.replace(/\s/g,''),key='event:'+current.day+':'+p;
   if(!p){add('이야기','혼잣말이 조용한 동네에 흩어진다.');return}
   const response=talkResponse(p,t);
+  if(departureTalkEvent===active){
+   active.departureTalkHistory=[...(active.departureTalkHistory||[]),[t,response]].slice(-5);
+  }
   add(p,response);
   if(!current.topicRewards[key]){current.topicRewards[key]=true;current.affection[p]=Math.min(999,(current.affection[p]||0)+2);add('시스템',p+' 호감도 +2')}
   writeJournal(p+'와 대화: '+t);renderSim();return;

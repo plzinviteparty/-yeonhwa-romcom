@@ -67,7 +67,7 @@
  #standingName{font-size:12px;padding:3px 7px}
  #game>.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.182-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.183-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -238,7 +238,10 @@ function renderSharedHomeEvening(ev,p){
  const alternatives=['rest','goodnight'].map(key=>({label:endings[key][0],onPick(){if(!ev.coupleChapter&&!o.evening&&!o.intimacy?.kiss)o.evening=key}}));
  return renderHomeKissChoices(ev,p,o,'player',alternatives,'sharedHome');
 }
-function renderSharedLife(ev){const v=initSim(),p=ev.person,o=ev.sharedLife,a=sharedLifeVoices[p],k=o.kind,dating=vIsDating(p);$('progress').textContent=sharedLifeKinds[k];add('이야기',k==='shopping'?'나란히 장바구니를 들고 진열대를 둘러봤다.':k==='cooking'?'앞치마를 두르고 함께 저녁을 준비했다.':'저녁에 초인종이 울렸다. 현관에서 인사를 나누고 '+nameWith(p)+' 나란히 소파에 앉았다.');if(k==='home')householdVisit(ev,p);add(p,a[{shopping:0,cooking:1,home:2}[k]]);if(o.answer){add(k==='home'?'이야기':state.name,o.answer,k!=='home');add(p,o.reply);if(k==='home'){if(renderSharedHomeEvening(ev,p))return;if(o.evening==='overnight'){choiceButton('일정 계속하기',finishEvent);return}}if(renderPartnerComfort(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);choiceButton('일정 계속하기',finishEvent);return}const opts=k==='shopping'?['서로 먹고 싶은 것을 하나씩 고른다','필요한 것만 사서 돌아간다']:k==='cooking'?['함께 맛을 보며 완성한다','각자 잘하는 일을 나누어 맡는다']:['각자 좋아하는 것을 하며 함께 쉰다',dating?'가까이 앉아도 괜찮을지 물어본다':'서로 좋아하는 취미를 소개한다'];for(const label of opts)choiceButton(label,()=>{if(o.answer)return;o.answer=label;o.reply=relationshipVoice(p,dating?'steady':'friend')||npcVoice[p][0];if(k==='shopping'){const r=household();r.stock.grain++;r.stock.veg++;r.stock.fruit++}if(k==='cooking'){v.skills.생활력++;v.energy=Math.min(100,v.energy+10)}healthRecord().fatigue=Math.max(0,healthRecord().fatigue-5);socialRecord(p).lastTogether=v.day;socialRecord(p).lastSeen=v.day;v.affection[p]=Math.min(999,v.affection[p]+2);if(dating)feel(p,{security:2});else{socialRecord(p).friendship+=2;friendshipRecord(p).outings.push({day:v.day,venue:sharedLifeKinds[k],choice:label})}remember(p,'sharedLife:'+k+':'+v.day,label);writeJournal(p+' · '+sharedLifeKinds[k]);save();renderChoiceEvent();renderSim()})}
+function renderSharedLife(ev){const v=initSim(),p=ev.person,o=ev.sharedLife,a=sharedLifeVoices[p],k=o.kind,dating=vIsDating(p);$('progress').textContent=sharedLifeKinds[k];add('이야기',k==='shopping'?'나란히 장바구니를 들고 진열대를 둘러봤다.':k==='cooking'?'앞치마를 두르고 함께 저녁을 준비했다.':'저녁에 초인종이 울렸다. 현관에서 인사를 나누고 '+nameWith(p)+' 나란히 소파에 앉았다.');if(k==='home')householdVisit(ev,p);add(p,a[{shopping:0,cooking:1,home:2}[k]]);if(o.answer){add(k==='home'?'이야기':state.name,o.answer,k!=='home');add(p,o.reply);
+ if(relationshipVoices[p].slice(2,4).includes(o.reply)){
+  add(p,friendStoryLine(takeFriendTopic(o,p),p,ev.day??v.day));
+ }if(k==='home'){if(renderSharedHomeEvening(ev,p))return;if(o.evening==='overnight'){choiceButton('일정 계속하기',finishEvent);return}}if(renderPartnerComfort(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);choiceButton('일정 계속하기',finishEvent);return}const opts=k==='shopping'?['서로 먹고 싶은 것을 하나씩 고른다','필요한 것만 사서 돌아간다']:k==='cooking'?['함께 맛을 보며 완성한다','각자 잘하는 일을 나누어 맡는다']:['각자 좋아하는 것을 하며 함께 쉰다',dating?'가까이 앉아도 괜찮을지 물어본다':'서로 좋아하는 취미를 소개한다'];for(const label of opts)choiceButton(label,()=>{if(o.answer)return;o.answer=label;o.reply=relationshipVoice(p,dating?'steady':'friend')||npcVoice[p][0];if(k==='shopping'){const r=household();r.stock.grain++;r.stock.veg++;r.stock.fruit++}if(k==='cooking'){v.skills.생활력++;v.energy=Math.min(100,v.energy+10)}healthRecord().fatigue=Math.max(0,healthRecord().fatigue-5);socialRecord(p).lastTogether=v.day;socialRecord(p).lastSeen=v.day;v.affection[p]=Math.min(999,v.affection[p]+2);if(dating)feel(p,{security:2});else{socialRecord(p).friendship+=2;friendshipRecord(p).outings.push({day:v.day,venue:sharedLifeKinds[k],choice:label})}remember(p,'sharedLife:'+k+':'+v.day,label);writeJournal(p+' · '+sharedLifeKinds[k]);save();renderChoiceEvent();renderSim()})}
 
 const specialMemoryVoices={"서이준":["…백 일이네요. 달력에 표시해 뒀어요.","조용한 바닷가라면 좋겠어요. 사람 많은 곳은 조금 피하고요.","…이렇게 멀리 와도 옆에 있는 건 똑같네요.","…아침 바다도 보고 갈까요?"],"강도윤":["하하, 백 일 동안 좋은 기억이 정말 많았네요.","작은 카페가 있는 바닷가로 가 볼까요?","오늘은 제가 손님이고 싶어요. 당신이랑 같이.","하하, 아침은 제가 준비할게요. 먹고 싶은 거 있어요?"],"한시우":["오예! 벌써 백 일이에요? 와, 진짜 기쁘다.","바다 가요! 오늘은 실컷 놀고 맛있는 것도 먹어요.","와, 여기 진짜 좋다. 같이 사진 찍어요!","오예, 아침 산책까지 하고 돌아가요!"],"정태오":["함께한 지 백 일이 되었습니다. 기억하고 있었습니다.","안전하게 다녀올 수 있는 곳으로 일정을 잡아 보겠습니다.","이렇게 여유로운 시간을 함께 보내니 좋습니다.","아침 식사부터 챙기고 출발합시다."],"백지한":["벌써 백 일이네요. 아직도 못 들어 본 얘기가 많아서 좋아요.","바다가 보이는 숙소를 찾아봤어요. 어떠세요?","이 풍경은 혼자 보는 것보다 둘이 보는 게 좋겠네요.","조금 더 앉아 있다가 가요. 서두를 필요 없잖아요."],"임하나":["저… 백 일인 거 기억하고 있었어요.","저도 이번에는 제 시간을 내서 여행 가고 싶어요.","…이런 하루를 오래 기억하고 싶어요.","아침에 눈을 뜨니까 정말 여행 온 게 실감 나요."],"차유리":["오, 벌써 백 일! 오늘 사진 한 장 남겨요.","바닷가 색감 진짜 예쁠 것 같은데요?","저 빛 좀 봐요. 사진 말고 눈으로도 기억해야겠다.","아침 풍경은 또 다른 색이네요. 잘 왔다."],"오세린":["아아, 함께한 백 일이 참 소중했어요.","으음, 조용한 곳에서 함께 쉬어 볼까요?","바람 소리만 들으니 마음이 편안하네요.","따뜻한 차 한 잔 하고 돌아가요."],"유지안":["와우! 우리 백 일이다! 오늘은 맛있는 거 먹어요!","예쓰! 바다 보러 가요!","와, 바람 진짜 좋다. 오늘 사진 많이 남겨요!","아침 공기 최고! 조금만 더 걸어요!"],"공재희":["헐ㅋㅋ 우리 벌써 백 일임? 나 기억하고 있었음.","바다 ㄱㄱ. 방송은 쉬고 갈래요.","웅ㅋㅋ 사진 찍자. 우리 둘만 보게.","아침인데 벌써 가기 싫음ㅋㅋ"]};
 function specialRecord(){const v=initSim();return v.specialMemory||(v.specialMemory={anniversaries:{},trips:[],gifts:[]})}
@@ -967,6 +970,123 @@ const everydayAnswers = {
     ['할 일 후딱 끝내고 놀러 나왔죠.', '할 일 후딱 끝내고 놀러 나왔지.', '헐 부럽다. 나도 아까 그렇게 할걸ㅋㅋ', '헐 부럽다. 나도 아까 그렇게 할걸ㅋㅋ'],
     ['왜요ㅋㅋ 뭐 하고 놀게요?', '왜ㅋㅋ 뭐 하고 놀게?', '아직 안 정했는데요? 일단 같이 놀 사람부터 구하는 중.', '아직 안 정했는데? 일단 같이 놀 사람부터 구하는 중.']]
 };
+const friendTalkTopics={
+ "서이준":[
+  {lines:["어제 퇴근하다가 고양이를 따라 한 정거장이나 더 걸었어요. 알고 보니 걔도 절 따라오고 있더라고요.","어제 퇴근하다가 고양이를 따라 한 정거장이나 더 걸었어. 알고 보니 걔도 날 따라오고 있더라."],answers:[
+   ["누가 먼저 멈췄어요?","누가 먼저 멈췄어?","제가요. 걔도 앉아서 쳐다보길래 결국 나란히 앉아 버스 한 대를 보냈어요.","나. 걔도 앉아서 쳐다보길래 결국 나란히 앉아 버스 한 대를 보냈어."],
+   ["친구 하나 생겼네요.","친구 하나 생겼네.","그런가 봐요. 오늘도 그 길로 들어가 볼까 해요.","그런가 봐. 오늘도 그 길로 들어가 볼까 해."]
+  ]},
+  {lines:["책상 서랍에서 옛날에 그린 미로를 찾았어요. 퇴근하고 한참 풀었는데 출구가 없더라고요.","책상 서랍에서 옛날에 그린 미로를 찾았어. 퇴근하고 한참 풀었는데 출구가 없더라."],answers:[
+   ["만든 사람도 길을 잃었어요?","만든 사람도 길을 잃었어?","네. 벽 하나 지우니까 겨우 나오던데요. 옛날의 제가 요즘의 저보다 좀 매정했나 봐요.","응. 벽 하나 지우니까 겨우 나오더라. 옛날의 내가 요즘의 나보다 좀 매정했나 봐."],
+   ["출구 하나 새로 그려 줘요.","출구 하나 새로 그려 줘.","그래서 맨 구석에 작은 문 하나 그려 놨어요. 나중에 또 찾으면 이번엔 열어 보려고요.","그래서 맨 구석에 작은 문 하나 그려 놨어. 나중에 또 찾으면 이번엔 열어 보려고."]
+  ]}
+ ],
+ "강도윤":[
+  {lines:["모카가 요즘 산책만 나가면 꽃집 앞에 딱 앉아요. 오늘에서야 이유를 알았어요. 유리문에 자기 얼굴이 비치더라고요.","모카가 요즘 산책만 나가면 꽃집 앞에 딱 앉아. 오늘에서야 이유를 알았어. 유리문에 자기 얼굴이 비치더라."],answers:[
+   ["친구인 줄 알았나 봐요.","친구인 줄 알았나 봐.","제가 유리문 옆에서 손을 흔들었더니 저랑 문 안의 저를 번갈아 보더라고요. 눈이 얼마나 동그래졌는지.","내가 유리문 옆에서 손을 흔들었더니 나랑 문 안의 나를 번갈아 보더라. 눈이 얼마나 동그래졌는지."],
+   ["그래서 그냥 기다려 줬어요?","그래서 그냥 기다려 줬어?","네. 저도 쪼그려 앉아서 같이 거울 봤어요. 꽃집 사장님이 문 여실 때까지만요.","응. 나도 쪼그려 앉아서 같이 거울 봤어. 꽃집 사장님이 문 여실 때까지만."]
+  ]},
+  {lines:["쉬는 날에 제 몫으로 프렌치토스트를 한 장 구웠어요. 손님한테 줄 때랑 달리 설탕이 자꾸 더 들어가더라고요.","쉬는 날에 내 몫으로 프렌치토스트를 한 장 구웠어. 손님한테 줄 때랑 달리 설탕이 자꾸 더 들어가더라."],answers:[
+   ["도윤 씨 입맛엔 그게 맞았어요?","먹어 보니까 딱 좋았어?","가장자리에 설탕이 녹아서 사탕처럼 굳었거든요. 거기가 제일 맛있었어요.","가장자리에 설탕이 녹아서 사탕처럼 굳었거든. 거기가 제일 맛있었어."],
+   ["다음엔 제 몫도 한 장이요.","다음엔 내 몫도 한 장.","그럼 두 장 구울게요. 시럽은 따로 내놓고 각자 마음 가는 만큼 부어요.","그럼 두 장 구울게. 시럽은 따로 내놓고 각자 마음 가는 만큼 붓자."]
+  ]}
+ ],
+ "한시우":[
+  {lines:["팀원들 눈 가리고 과자 맞히기 했거든요. 저만 자신 있게 사과 맛이라고 했는데 그거 냄새가 제 핸드크림이었어요.","팀원들 눈 가리고 과자 맞히기 했거든. 나만 자신 있게 사과 맛이라고 했는데 그거 냄새가 내 핸드크림이었어."],answers:[
+   ["그래서 과자는 무슨 맛이었어요?","그래서 과자는 무슨 맛이었어?","양파요. 사과랑 양파를 헷갈린 사람으로 남았어요. 억울해서 내일 재대결해요.","양파. 사과랑 양파를 헷갈린 사람으로 남았어. 억울해서 내일 재대결해."],
+   ["그래도 후각 하나는 정확하네요.","그래도 후각 하나는 정확하네.","오, 그거예요! 단톡방엔 제 후각은 이겼다고 써야겠어요.","오, 그거다! 나 후각은 이겼다고 단톡방에 적어야지."]
+  ]},
+  {lines:["어제 게임에서 초보한테 길 알려 준다고 앞장섰는데, 십 분 만에 그 사람이 저 데리고 나왔어요.","어제 게임에서 초보한테 길 알려 준다고 앞장섰는데, 십 분 만에 그 사람이 나 데리고 나왔어."],answers:[
+   ["길 안내받고 뭐라고 했어요?","길 안내받고 뭐라고 했어?","선생님, 다음 판도 부탁드립니다! 그랬더니 진짜 파티 초대 왔어요.","선생님, 다음 판도 부탁드립니다! 그랬더니 진짜 파티 초대 왔어."],
+   ["초보한테도 배울 게 있네요.","초보한테도 배울 게 있네.","인정. 지도에 표시하는 법도 그분한테 배웠어요. 저보다 설명 잘하던데요?","인정. 지도에 표시하는 법도 그분한테 배웠어. 나보다 설명 잘하던데?"]
+  ]}
+ ],
+ "정태오":[
+  {lines:["조카가 제 도시락에 쪽지를 넣어 줬습니다. 밥 먹고 키 크라고 적혀 있더군요.","조카가 내 도시락에 쪽지를 넣어 줬어. 밥 먹고 키 크라고 적혀 있더라."],answers:[
+   ["더 크면 조카가 올려다보기 힘들겠어요.","더 크면 조카가 올려다보기 힘들겠어.","저도 그렇게 말했습니다. 그랬더니 자기가 더 빨리 클 테니 걱정 말랍니다.","나도 그렇게 말했어. 그랬더니 자기가 더 빨리 클 테니 걱정 말래."],
+   ["쪽지는 간직했어요?","쪽지는 간직했어?","지갑에 있습니다. 점심을 거르려다가도 그걸 보면 먹게 됩니다.","지갑에 있어. 점심을 거르려다가도 그걸 보면 먹게 돼."]
+  ]},
+  {lines:["자전거 벨 소리가 좋아서 하나 샀습니다. 사 놓고 나니 정작 자전거가 없더군요.","자전거 벨 소리가 좋아서 하나 샀어. 사 놓고 나니 정작 자전거가 없더라."],answers:[
+   ["그럼 어디에 달았어요?","그럼 어디에 달았어?","아직 책상 위에 있습니다. 조카가 오면 주문 받는 놀이에 씁니다. 제가 손님입니다.","아직 책상 위에 있어. 조카가 오면 주문 받는 놀이에 써. 내가 손님이야."],
+   ["그렇게 좋은 소리였어요?","그렇게 좋은 소리였어?","한 번 울리면 끝소리가 아주 오래갑니다. 제가 그런 걸 좋아하는 줄 처음 알았습니다.","한 번 울리면 끝소리가 아주 오래가. 내가 그런 걸 좋아하는 줄 처음 알았어."]
+  ]}
+ ],
+ "백지한":[
+  {lines:["집 보러 다닐 때 제가 제일 먼저 보는 곳이 어디게요? 저는 현관에서 신발 벗을 때 앉을 자리부터 찾아요.","집 보러 다닐 때 내가 제일 먼저 보는 곳이 어디게? 나는 현관에서 신발 벗을 때 앉을 자리부터 찾아."],answers:[
+   ["집을 많이 봐서 생긴 습관이에요?","집을 많이 봐서 생긴 습관이야?","구두 끈 풀다가 손님 앞에서 한 발로 한참 뛰어 본 적이 있거든요. 그 뒤로는 꼭 봐요.","구두 끈 풀다가 손님 앞에서 한 발로 한참 뛰어 본 적이 있거든. 그 뒤로는 꼭 봐."],
+   ["작은 의자 하나 있으면 좋겠네요.","작은 의자 하나 있으면 좋겠네.","그래서 제 현관에는 놨어요. 정작 의자 위에 우편물이 쌓여서 저는 서서 벗고요.","그래서 내 현관에는 놨어. 정작 의자 위에 우편물이 쌓여서 나는 서서 벗고."]
+  ]},
+  {lines:["어릴 때 집 도면을 그린 공책을 찾았어요. 방마다 미끄럼틀을 놨더라고요. 계단은 하나도 없고.","어릴 때 집 도면을 그린 공책을 찾았어. 방마다 미끄럼틀을 놨더라. 계단은 하나도 없고."],answers:[
+   ["그럼 위층엔 어떻게 올라가요?","그럼 위층엔 어떻게 올라가?","어린 저는 그걸 전혀 걱정 안 했나 봐요. 손님한테 보여 주면 바로 계약이 깨지겠죠.","어린 나는 그걸 전혀 걱정 안 했나 봐. 손님한테 보여 주면 바로 계약이 깨지겠지."],
+   ["딱 하나만 남긴다면 어디에 둘래요?","딱 하나만 남긴다면 어디에 둘래?","침실에서 주방 가는 길이요. 늦잠 자도 아침은 먹을 수 있게요.","침실에서 주방 가는 길. 늦잠 자도 아침은 먹을 수 있게."]
+  ]}
+ ],
+ "임하나":[
+  {lines:["과외하는 애가 저한테 시험지를 한 장 줬어요. 선생님도 풀어 보라는데 마지막 문제가 자기 생일이 언제냐는 거예요.","과외하는 애가 나한테 시험지를 한 장 줬어. 선생님도 풀어 보라는데 마지막 문제가 자기 생일이 언제냐는 거야."],answers:[
+   ["마지막 문제는 맞혔어요?","마지막 문제는 맞혔어?","네. 달력에 적어 뒀거든요. 제가 바로 쓰니까 문제 낸 애가 더 좋아했어요.","응. 달력에 적어 뒀거든. 내가 바로 쓰니까 문제 낸 애가 더 좋아했어."],
+   ["하나 씨도 시험 보니까 떨렸겠어요.","시험 보는 쪽이 되니까 떨렸겠다.","처음엔 웃었는데 빨간 펜 들고 옆에 서 있으니까 괜히 글씨를 다시 보게 되더라고요.","처음엔 웃었는데 빨간 펜 들고 옆에 서 있으니까 괜히 글씨를 다시 보게 되더라."]
+  ]},
+  {lines:["작은 화분에 파를 심었는데 아침마다 눈에 띄게 자라요. 이제 먹어도 되는데 정들어서 자르질 못하고 있어요.","작은 화분에 파를 심었는데 아침마다 눈에 띄게 자라. 이제 먹어도 되는데 정들어서 자르질 못하고 있어."],answers:[
+   ["이름도 지어 줬어요?","이름도 지어 줬어?","…대파 선생님이요. 그런 이름을 붙였으니 라면에 못 넣죠.","…대파 선생님. 그런 이름을 붙였으니 라면에 못 넣지."],
+   ["하나만 남겨서 계속 키우면 어때요?","하나만 남겨서 계속 키우면 어때?","그럴까요? 제일 꼿꼿한 애로 남겨야겠어요. 나머지는 주말에 파전 해 먹고요.","그럴까? 제일 꼿꼿한 애로 남겨야겠어. 나머지는 주말에 파전 해 먹고."]
+  ]}
+ ],
+ "차유리":[
+  {lines:["오래된 사진을 인화했는데 제일 마음에 드는 게 실수로 찍힌 바닥 사진이에요. 빨간 운동화 두 짝이 딱 마주 보고 있거든요.","오래된 사진을 인화했는데 제일 마음에 드는 게 실수로 찍힌 바닥 사진이야. 빨간 운동화 두 짝이 딱 마주 보고 있거든."],answers:[
+   ["누구 운동화였어요?","누구 운동화였어?","하나는 제 거고 하나는 길 가던 사람이요. 같은 신발인 게 반가워서 둘 다 딱 멈췄나 봐요.","하나는 내 거고 하나는 길 가던 사람 거. 같은 신발인 게 반가워서 둘 다 딱 멈췄나 봐."],
+   ["그 사진은 어디 걸어 둘 거예요?","그 사진은 어디 걸어 둘 거야?","현관에 둘 거예요. 나갈 때마다 누가 발끝으로 인사하는 것 같잖아요.","현관에. 나갈 때마다 누가 발끝으로 인사하는 것 같잖아."]
+  ]},
+  {lines:["그림 그리다가 번진 잉크를 가리려고 지붕 하나를 그렸어요. 그게 마음에 들어서 지금은 아예 골목을 하나 만들었어요.","그림 그리다가 번진 잉크를 가리려고 지붕 하나를 그렸어. 그게 마음에 들어서 지금은 아예 골목을 하나 만들었어."],answers:[
+   ["원래는 뭘 그리려던 거예요?","원래는 뭘 그리려던 거야?","찻잔이요. 결국 제일 큰 지붕에 손잡이가 달렸는데 그건 그냥 두려고요.","찻잔. 결국 제일 큰 지붕에 손잡이가 달렸는데 그건 그냥 두려고."],
+   ["그 골목엔 누가 살아요?","그 골목엔 누가 살아?","지금은 우체부 한 명이요. 편지는 가득한데 받을 사람이 없어서 내일 이웃도 그려 줘야 해요.","지금은 우체부 한 명. 편지는 가득한데 받을 사람이 없어서 내일 이웃도 그려 줘야 해."]
+  ]}
+ ],
+ "오세린":[
+  {lines:["병원에 오는 강아지 한 마리가 진료실 문 앞에서는 꼼짝도 안 하거든요. 그런데 오늘은 제 슬리퍼 하나를 물고 먼저 들어갔어요.","병원에 오는 강아지 한 마리가 진료실 문 앞에서는 꼼짝도 안 하거든. 그런데 오늘은 내 슬리퍼 하나를 물고 먼저 들어갔어."],answers:[
+   ["슬리퍼는 돌려받았어요?","슬리퍼는 돌려받았어?","진료가 다 끝나니까 제 발 앞에 내려놓더군요. 그때까지 저만 한쪽 발로 서 있었어요.","진료가 다 끝나니까 내 발 앞에 내려놓더라. 그때까지 나만 한쪽 발로 서 있었어."],
+   ["다음번에도 그 슬리퍼 신어야겠어요.","다음번에도 그 슬리퍼 신어야겠다.","그렇죠? 씻어서 말려 놨어요. 작은 용기를 낸 날은 그 아이도 기억하면 좋겠어요.","그렇지? 씻어서 말려 놨어. 작은 용기를 낸 날은 그 아이도 기억하면 좋겠어."]
+  ]},
+  {lines:["차를 다 마시고 난 작은 통을 하나도 못 버렸어요. 오늘 세어 보니 열두 개나 돼요.","차를 다 마시고 난 작은 통을 하나도 못 버렸어. 오늘 세어 보니 열두 개나 돼."],answers:[
+   ["지금은 뭘 넣어 뒀어요?","지금은 뭘 넣어 뒀어?","단추하고 머리핀이요. 정작 차를 찾으려고 열면 꼭 엉뚱한 게 나와요.","단추하고 머리핀. 정작 차를 찾으려고 열면 꼭 엉뚱한 게 나와."],
+   ["어떤 통이 제일 예뻐요?","어떤 통이 제일 예뻐?","뚜껑에 작은 배가 그려진 통이요. 그건 비워 두었어요. 열 때마다 아직 차 향이 나거든요.","뚜껑에 작은 배가 그려진 통. 그건 비워 두었어. 열 때마다 아직 차 향이 나거든."]
+  ]}
+ ],
+ "유지안":[
+  {lines:["세탁방에서 건조기 끝나는 소리를 기다리다가 생전 처음 보는 분이랑 동시에 일어났어요. 세탁기 셋이 똑같은 노래를 부르더라고요!","세탁방에서 건조기 끝나는 소리를 기다리다가 생전 처음 보는 분이랑 동시에 일어났어. 세탁기 셋이 똑같은 노래를 부르더라고!"],answers:[
+   ["누구 빨래가 먼저 끝났어요?","누구 빨래가 먼저 끝났어?","우리 둘 거 다 아니었어요! 다시 나란히 앉아 있다가 주인 오니까 둘이 박수까지 쳤어요.","우리 둘 거 다 아니었어! 다시 나란히 앉아 있다가 주인 오니까 둘이 박수까지 쳤어."],
+   ["기다리는 시간이 조금 덜 지루했겠어요.","기다리는 시간이 조금 덜 지루했겠다.","맞아요. 다음에 만나면 인사하기로 했어요. 서로 이름은 모르는데 이불 무늬는 알아요.","맞아. 다음에 만나면 인사하기로 했어. 서로 이름은 모르는데 이불 무늬는 알아."]
+  ]},
+  {lines:["혼자 영화 보러 갔는데 관객이 저 하나였어요. 괜히 근사하게 가운데 자리에 앉았다가 중간에 제일 구석으로 옮겼어요.","혼자 영화 보러 갔는데 관객이 나 하나였어. 괜히 근사하게 가운데 자리에 앉았다가 중간에 제일 구석으로 옮겼어."],answers:[
+   ["왜 구석으로 갔어요?","왜 구석으로 갔어?","무서운 장면이 나오는데 뒤에 좌석이 잔뜩 있는 게 싫더라고요. 등 뒤에 벽이 딱 있으니까 살겠던데요.","무서운 장면이 나오는데 뒤에 좌석이 잔뜩 있는 게 싫더라. 등 뒤에 벽이 딱 있으니까 살겠던데."],
+   ["혼자면 엔딩 곡도 다 듣고 왔겠어요.","혼자면 엔딩 곡도 다 듣고 왔겠네.","그럼요! 불 켜질 때까지 앉아서 끝까지 들었어요. 그건 혼자라서 좋았어요.","그럼! 불 켜질 때까지 앉아서 끝까지 들었어. 그건 혼자라서 좋았어."]
+  ]}
+ ],
+ "공재희":[
+  {lines:["어제 문구점에 전시된 커다란 흰 곰인형 옆에 얼굴 대고 셀카 찍었거든요. 폰이 계속 곰 얼굴에만 초점을 잡는 거 있죠?","어제 문구점에 전시된 커다란 흰 곰인형 옆에 얼굴 대고 셀카 찍었거든. 폰이 계속 곰 얼굴에만 초점을 잡는 거 있지?"],answers:[
+   ["그래서 누가 센터예요?","그래서 누가 센터야?","곰이요ㅋㅋ 내가 옆에서 손까지 흔들었는데 꿈쩍도 안 해요. 오늘부터 걔가 메인이에요.","곰ㅋㅋ 내가 옆에서 손까지 흔들었는데 꿈쩍도 안 해. 오늘부터 걔가 메인이야."],
+   ["둘 다 잘 나온 거 보여 줘요.","둘 다 잘 나온 거 보여 줘.","이거요. 초점 포기하고 곰 뒤에서 브이 했는데 귀 옆으로 손가락만 나왔어요. 은근 귀엽죠?","이거. 초점 포기하고 곰 뒤에서 브이 했는데 귀 옆으로 손가락만 나왔어. 은근 귀엽지?"]
+  ]},
+  {lines:["방송 시작하기 전에 인사 멘트 연습해 뒀는데 마이크 켜자마자 대차게 딸꾹질했어요. 채팅창이 아주 신났죠ㅋㅋ","방송 시작하기 전에 인사 멘트 연습해 뒀는데 마이크 켜자마자 대차게 딸꾹질했어. 채팅창이 아주 신났지ㅋㅋ"],answers:[
+   ["어떻게 멈췄어요?","어떻게 멈췄어?","누가 채팅으로 부장님 들어왔다고 그래서 깜짝 놀랐거든요? 나 부장님도 없는데 그게 먹혔어요.","누가 채팅으로 부장님 들어왔다고 그래서 깜짝 놀랐거든? 나 부장님도 없는데 그게 먹혔어."],
+   ["그래도 엄청 웃겼겠는데요.","그래도 엄청 웃겼겠다.","누가 그 부분만 뚝 잘라서 보내 줬어요. 자존심 좀 상하는데 나도 세 번 돌려 봄ㅋㅋ","누가 그 부분만 뚝 잘라서 보내 줬어. 자존심 좀 상하는데 나도 세 번 돌려 봄ㅋㅋ"]
+  ]}
+ ],
+};
+function takeFriendTopic(owner,p){
+ const topics=friendTalkTopics[p];
+ if(!topics[owner.friendTalkIndex]){
+  const r=socialRecord(p);
+  owner.friendTalkIndex=r.nextFriendTalk||0;
+  r.nextFriendTalk=(owner.friendTalkIndex+1)%topics.length;
+  save();
+ }
+ return topics[owner.friendTalkIndex];
+}
+function hasFriendTopicOpening(ev){
+ const base=relationshipVoices[ev.person];
+ return !!ev.voiceMoment&&base?.slice(2,4).some(line=>ev.voiceMoment===line||ev.voiceMoment.endsWith(', '+line));
+}
+function friendStoryLine(topic,p,day){return topic.lines[speechRegisterIndex(p,'npc',day)]}
 const closerAnswers = [
   ['어떤 얘긴데요? 듣고 싶어요.', '어떤 얘긴데? 듣고 싶어.', '막상 말하려니까 좀 쑥스럽네요.', '막상 말하려니까 좀 쑥스럽네.'],
   ['저도 얼굴 보고 싶었어요.', '나도 얼굴 보고 싶었어.', '그 말 들으니까 먼저 말하길 잘했네요.', '그 말 들으니까 먼저 말하길 잘했네.'],
@@ -981,6 +1101,11 @@ function openingAnswers(ev) {
   const speech=speechProfile(p);
   const casual=speech.player==='반말'||(speech.player==='혼용'&&initSim().day%2===0);
   const stage=Math.floor(index/2);
+  if(stage===1){
+   const day=ev.day??initSim().day,topic=takeFriendTopic(ev,p);
+   const player=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
+   return topic.answers.map(row=>[row[player],row[2+npc],2]);
+  }
   let rows=stage===0 ? everydayAnswers[p] : [closerAnswers[stage-1]];
   if(stage===2&&p==='오세린')rows=[['좋아요. 오늘은 무슨 차를 마실까요?', '좋아. 오늘은 무슨 차 마실까?', '오늘은 향이 가벼운 차가 좋겠어요.', '오늘은 향이 가벼운 차가 좋겠어.']];
   if(stage===2&&p==='백지한')rows=[['저녁에 뭐 할지 벌써 정했어요?', '저녁에 뭐 할지 벌써 정했어?', '아직요. 같이 정하는 재미도 있잖아요.', '아직. 같이 정하는 재미도 있잖아.']];
@@ -1014,7 +1139,7 @@ function choiceButton(label,fn){const b=document.createElement('button');b.type=
 function isBeforeScheduleEvent(ev){
  return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
 }
-function finishEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;setStoryStanding(null);checkLifeAchievements();recordRomanceAfterglow(ev);albumCapture(ev);if((ev.tripScene||ev.coupleChapter?.night?.ending==='stay'||ev.homeEvening?.choice==='stay'||ev.homeEvening?.intimacy?.ending==='stay'||ev.sharedLife?.intimacy?.ending==='stay'||ev.overnight?.intimacy?.ending==='stay'||ev.sharedLife?.evening==='overnight'||ev.overnight?.answer===1)&&v.running){
+function finishEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;setStoryStanding(null);checkLifeAchievements();recordRomanceAfterglow(ev);albumCapture(ev);if((ev.tripScene||ev.alleyDate?.walking||ev.coupleChapter?.night?.ending==='stay'||ev.homeEvening?.choice==='stay'||ev.homeEvening?.intimacy?.ending==='stay'||ev.sharedLife?.intimacy?.ending==='stay'||ev.overnight?.intimacy?.ending==='stay'||ev.sharedLife?.evening==='overnight'||ev.overnight?.answer===1)&&v.running){
  v.activeEvent=null;
  v.running.slot=4;
  advanceDay();
@@ -1831,7 +1956,7 @@ function beginAbruptDeparture(ev,label,typed=false){
  return true;
 }
 function renderAbruptDeparture(ev){
- const p=ev.person,o=ev.abruptDeparture,[action,question,stay,leave]=abruptDepartureVoices[p];
+ const p=ev.person,o=ev.abruptDeparture,[action,question,,leave]=abruptDepartureVoices[p];
  if(!ev.weatherScene)voiceMoment(ev);
  if(ev.selected){add(state.name,ev.selected,true);if(ev.response)add(p,ev.response)}
  for(const [line,response] of ev.departureTalkHistory||[]){add(state.name,line,true,true);add(p,response)}
@@ -1840,7 +1965,22 @@ function renderAbruptDeparture(ev){
  add(p,question);
  if(o.answer){
   add(state.name,o.answer.label,true);
-  add(p,o.answer.stay?stay:leave);
+  if(o.answer.stay){
+   const day=ev.day??initSim().day,resume=hasFriendTopicOpening(ev)&&!ev.selected;
+   const topic=takeFriendTopic(resume?ev:o,p),player=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
+   add('이야기','돌아서던 발을 멈추고 다시 곁에 섰다.');
+   if(!resume)add(p,friendStoryLine(topic,p,day));
+   if(o.talkAnswer==null){
+    topic.answers.forEach((row,i)=>choiceButton(row[player],()=>{
+     if(initSim().activeEvent!==ev||o.talkAnswer!=null)return;
+     o.talkAnswer=i;save();renderChoiceEvent();renderSim();
+    }));
+    choiceButton('이야기를 듣고 인사를 나눈다',finishEvent);
+    return;
+   }
+   const row=topic.answers[o.talkAnswer];
+   add(state.name,row[player],true);add(p,row[2+npc]);
+  }else add(p,leave);
   choiceButton('일정 계속하기',finishEvent);
   return;
  }
@@ -1909,6 +2049,7 @@ const sceneIllustrations={
  autumnLodge:{file:'assets/autumn-lodge.webp',alt:'단풍이 보이는 숙소 창가와 따뜻한 조명 아래 찻잔 두 개'}
 };
 function storyIllustration(ev,day,slot){
+ if(ev.alleyDate)return null;
  const trip=ev.tripScene;
  if(trip)return trip.season===2&&trip.stage===1&&(trip.steps?.length>=2||trip.answer)?'autumnLodge':null;
  if(seasonInfo(day).index===2&&slot===3&&(ev.place==='river'||ev.venue==='연화천 산책'))return 'autumnRiver';
@@ -1957,7 +2098,7 @@ choiceButton('일정 계속하기',finishEvent);return}
 if(!p){if(ev.careAnswer){add('이야기',ev.carePerson+'의 배려 덕분에 마음이 한결 편해졌다.')}else if(renderCare(ev))return;choiceButton('일정 계속하기',finishEvent);return}
 if(!ev.weatherScene&&!ev.jobEvent)voiceMoment(ev);
 if(canReactToDeparture(ev))departureTalkEvent=ev;
-const options=(ev.answered||ev.optionsVersion===47)&&ev.options?ev.options:(ev.optionsVersion=47,ev.socialAdded=false,ev.options=encounterOptions(ev));if(!ev.weatherScene&&!ev.jobEvent&&relationshipTier(p)>=2&&!ev.socialAdded){ev.socialAdded=true;ev.options=[...options.slice(0,-1),['앞으로도 편하게 지내는 친구가 되고 싶어요.','“'+personalSocialVoice[p][2]+'”',1,'friend'],['다음에는 둘이서 시간을 보내고 싶어요.',{'서이준':'“둘이요? …시간 맞춰 보죠.”','강도윤':'“좋죠. 저도 그러고 싶었어요.”','한시우':'“오, 저야 좋죠. 언제가 좋아요?”','정태오':'“좋습니다. 시간 맞춰 보겠습니다.”','백지한':'“그거 좋은데요? 기대할게요.”','임하나':'“저랑요? …좋아요.”','차유리':'“좋아요! 어디 갈지 생각해 봐요.”','오세린':'“좋아요. 여유 있을 때 만나요.”','유지안':'“좋죠! 둘이서 놀러 가요.”','공재희':'“웅ㅋㅋ 둘이 놀면 더 재밌겠죠?”'}[p],2,'interest'],options[options.length-1]]}
+const options=(ev.answered||ev.optionsVersion===48)&&ev.options?ev.options:(ev.optionsVersion=48,ev.socialAdded=false,ev.options=encounterOptions(ev));if(!ev.weatherScene&&!ev.jobEvent&&relationshipTier(p)>=2&&!ev.socialAdded){ev.socialAdded=true;ev.options=[...options.slice(0,-1),['앞으로도 편하게 지내는 친구가 되고 싶어요.','“'+personalSocialVoice[p][2]+'”',1,'friend'],['다음에는 둘이서 시간을 보내고 싶어요.',{'서이준':'“둘이요? …시간 맞춰 보죠.”','강도윤':'“좋죠. 저도 그러고 싶었어요.”','한시우':'“오, 저야 좋죠. 언제가 좋아요?”','정태오':'“좋습니다. 시간 맞춰 보겠습니다.”','백지한':'“그거 좋은데요? 기대할게요.”','임하나':'“저랑요? …좋아요.”','차유리':'“좋아요! 어디 갈지 생각해 봐요.”','오세린':'“좋아요. 여유 있을 때 만나요.”','유지안':'“좋죠! 둘이서 놀러 가요.”','공재희':'“웅ㅋㅋ 둘이 놀면 더 재밌겠죠?”'}[p],2,'interest'],options[options.length-1]]}
 let visibleOptions=ev.options;
 const hasOpening=ev.options.at(-1)?.[3]==='leave';
 if(hasOpening){
@@ -5410,7 +5551,187 @@ function renderHomeDate(ev){const v=initSim(),p=ev.person,f=flirtRecord(p);if(ev
 
 function dateVenue(p,venue){if(venue==='홈데이트')return venue;return [dateLines[p][0],...extraDatePlaces[p]].includes(venue)?venue:dateLines[p][0]}
 const venueDialogues={"공재희|노래방": ["재희가 소파에 앉자마자 리모컨을 집어 들었다.", "첫 곡 뭐 불러요? 제가 고르면 시작부터 고음인데.", "그럼 재희 씨부터 불러요.", "아, 제 목부터 풀라고요? 좋아요. 딱 한 소절만 봐줘요ㅋㅋ", "둘이 아는 노래부터 골라요.", "좋아요. 후렴은 같이 불러요. 혼자 두기 없기!", "마지막 한 곡을 남겨 두고 재희가 마이크를 건넸다.", "마지막 곡은 뭐 할까요? 이번엔 제가 코러스 넣을래요.", "아까 같이 부른 곡 한 번 더 해요.", "좋아요. 아까 놓친 부분도 이번엔 맞춰 봐요."], "공재희|영화관": ["상영 시간표 앞에서 재희가 포스터 두 장을 번갈아 봤다.", "이거 둘 다 예고편 봤는데요. 하나는 진짜 무서울 것 같아요.", "무서운 걸로 봐요.", "좋아요. 저 놀라도 옆에서 웃기 없어요ㅋㅋ", "오늘은 가볍게 웃을 수 있는 게 좋아요.", "그럼 이걸로 해요. 끝나고 제일 웃긴 장면 하나씩 고르기.", "상영관을 나오자 재희가 빈 팝콘 통을 내려다봤다.", "영화에 집중했는데 이거 언제 다 먹었지?", "저도 모르겠어요. 다음엔 큰 걸로 사요.", "좋아요. 다음엔 맛도 반반으로 골라요."],"서이준|서점":["서이준이 책등을 훑다가 한 권을 꺼냈다.","서로 읽을 책을 골라 보는 건 어떻습니까?","이준 씨가 읽을 책을 골라 볼게요.","제 취향을 어떻게 보셨을지 궁금하군요.","각자 읽고 싶은 책을 찾아요.","그것도 좋겠습니다.","서이준이 계산을 마친 책을 가방에 넣었다.","다 읽으면 감상을 들려드리겠습니다.","저도 읽고 이야기해 드릴게요.","그럼 다음에 이야기할 거리가 생기겠군요."],"서이준|고양이 산책":["골목 처마 아래 고양이가 웅크리고 있었다.","어, 오늘은 안 도망가네요.","이준 씨를 알아보는 것 같아요.","제가 이맘때 밥 주러 오거든요. 발소리를 외웠나 봐요.","놀라지 않게 여기서 볼까요?","그래요. 여기 있으면 먼저 올지도 몰라요.","고양이가 서이준의 신발 옆에 다가와 앉았다.","……제 신발 옆에 앉은 건 오늘이 처음이에요.","이준 씨가 잘 돌봐 줘서겠죠.","…그런가. 내일도 여기서 기다려 봐야겠네요."],"강도윤|시장 구경":["시장 골목에서 호떡 굽는 냄새가 났다.","호떡 하나 사서 나눠 먹을까요?","좋아요. 반씩 나눠 먹어요.","뜨거우니까 잠깐만요. 제가 반으로 나눌게요.","조금 더 둘러보고 먹을래요.","좋죠. 저쪽에도 맛있는 게 많거든요.","강도윤이 시장의 작은 찻집 앞에서 걸음을 멈췄다.","이런 작은 가게도 참 좋네요. 주인 취향이 그대로 보여서요.","도윤 씨만의 가게도 보고 싶어요.","하하. 그렇게 말씀하시면 정말 욕심이 생기는데요."],"강도윤|연화천 산책":["강변을 따라 걷다가 빈 벤치를 발견했다.","잠깐 앉았다 갈까요?","좋아요. 도윤 씨도 좀 쉬어요.","오늘은 제가 쉬어도 되는 날인가 봐요. 하하.","조금 더 걷고 싶어요.","그럼 저도 보폭 맞출게요.","강 건너로 불빛이 하나둘 켜졌다.","이렇게 아무것도 안 해도 시간이 잘 가네요.","저는 이런 시간도 좋아요.","……저도요. 요즘 들어 더 그런 것 같아요."],"한시우|보드게임 카페":["테이블에 카드와 말이 펼쳐졌다.","이번엔 저도 처음 하는 게임으로 골라요!","좋아요. 실력으로 승부해요.","오예! 봐주기 없는 거예요!","규칙 쉬운 걸로 골라요.","오케이. 설명부터 같이 읽죠!","한시우가 점수판을 들여다보다 웃음을 터뜨렸다.","이거 생각보다 머리 많이 쓰는데요?","다음에 다시 승부해요.","약속! 다음에는 전략 짜 올 거예요."],"한시우|영화관":["상영 시간표 앞에 섰다.","액션이랑 코미디 중에 뭐 볼래요?","액션 영화요.","오, 시원하게 터지는 걸로 가죠!","코미디가 좋아요.","좋아요! 웃다가 팝콘 쏟지 말기!","상영관에서 나와 영화 이야기를 나눴다.","저 마지막 장면은 예상 못 했어요.","같이 보니까 더 재밌었어요.","히히, 그럼 다음 영화도 같이 봐요!"],"정태오|수영장":["수영을 마치고 휴게실에 앉았다.","무리하지는 않으셨습니까?","괜찮아요. 덕분에 즐거웠어요.","다행입니다. 수분도 충분히 보충하십시오.","조금 피곤하네요.","그럼 여기서 충분히 쉬고 가시죠.","정태오가 물병을 건넸다.","운동은 꾸준히 하는 편이 좋습니다.","다음에도 같이 수영해요.","좋습니다. 일정을 맞춰 보겠습니다."],"정태오|시장 구경":["시장 골목에 따뜻한 어묵 국물 냄새가 퍼졌다.","간단히 요기하고 가시겠습니까?","어묵 먹고 싶어요.","좋습니다. 제가 주문하겠습니다.","조금 더 둘러볼게요.","알겠습니다. 천천히 보시죠.","정태오가 장바구니를 들어 주었다.","필요한 물건은 다 사셨습니까?","네. 같이 와서 편했어요.","그렇다면 다행입니다."],"백지한|건축 산책":["오래된 건물의 외벽을 올려다보았다.","저 건물 창문 배치가 꽤 재미있죠?","어떤 점이 재미있는 거예요?","빛이 들어오는 방향을 보세요. 내부 동선도 짐작할 수 있거든요.","저는 외벽 색이 마음에 들어요.","그 색을 고른 이유도 궁금해지네요.","백지한이 건물의 작은 장식까지 가리켜 보였다.","이런 걸 보면 아직도 설계하던 때가 생각나요.","지한 씨가 설계한 건물도 보고 싶어요.","그건 좀 쑥스러운데. 언젠가 보여 드릴게요."],"백지한|레스토랑":["메뉴판을 사이에 두고 마주 앉았다.","오늘은 뭘 드시고 싶어요?","서로 다른 메뉴를 골라 나눠 먹어요.","좋죠. 취향도 알아보고 일석이조네요.","각자 먹고 싶은 걸 주문해요.","그럼 오늘의 선택을 존중하겠습니다.","식사를 마치고 백지한이 물잔을 내려놓았다.","오늘 식당은 마음에 들었어요?","다음엔 제가 식당을 골라 볼게요.","오, 그럼 기대하고 있을게요."],"임하나|서점":["임하나가 소설 코너 앞에서 걸음을 멈췄다.","혹시 요즘 재미있게 읽은 책 있어요?","하나 씨에게 추천해 주고 싶은 책이 있어요.","정말요? 제목 적어 둘게요.","오늘 같이 찾아볼까요?","네. 그러면 좋겠어요.","임하나가 책 한 권을 품에 안았다.","오랜만에 제 책을 사는 것 같아요.","읽고 나서 이야기해 줘요.","……네. 꼭 그럴게요."],"임하나|디저트 카페":["진열장에 작은 케이크들이 놓여 있었다.","서로 다른 걸 골라서 나눠 먹을까요?","좋아요. 하나 씨는 뭐가 좋아요?","저는 딸기요. 같이 먹으면 더 맛있겠죠?","각자 좋아하는 걸 먹어요.","네. 그럼 저는 딸기로 할게요.","임하나가 빈 접시를 보며 작게 웃었다.","오늘은 시간 걱정 없이 먹어서 좋았어요.","가끔은 이렇게 쉬어도 돼요.","……그렇게 해 볼게요."],"차유리|소품 공방":["작업대에 여러 색의 재료가 놓여 있었다.","서로 어울리는 색을 골라 볼까요?","좋아요. 유리 씨 색부터 골라 볼게요.","오, 제 이미지가 어떤지 궁금한데요?","각자 마음에 드는 색으로 만들어요.","좋죠. 완성하면 비교해 봐요.","두 사람이 완성한 소품을 나란히 놓았다.","같은 재료인데 완전히 다르네요.","그래서 더 재밌어요.","맞아요. 각자 취향이 보여서 좋네요."],"차유리|사진 산책":["골목에 오후 햇빛이 길게 들어왔다.","여기서 사진 한 장 남길까요?","좋아요. 같이 찍어요.","그럼 타이머 맞출게요.","풍경만 찍고 싶어요.","좋아요. 구도부터 잡아 봐요.","차유리가 카메라 화면을 확인했다.","이 사진은 색감이 마음에 드네요.","나중에 사진 보내 주세요.","보정해서 보내 줄게요."],"오세린|식물원":["온실 안에 초록빛 잎이 가득했다.","마음에 드는 식물을 하나 골라 볼래요?","저 작은 꽃이 좋아요.","어머, 가까이서 보면 더 예쁘네요.","잎이 큰 식물이 좋아요.","싱그럽죠. 저도 저런 잎을 좋아해요.","온실을 나와 벤치에 앉았다.","여기 오면 마음이 느긋해지는 것 같아요.","다음에도 함께 쉬러 와요.","네. 그런 약속이라면 언제든 좋죠."],"오세린|디저트 카페":["진열장에 작은 케이크들이 놓여 있었다.","서로 다른 걸 골라서 나눠 먹을까요?","좋아요. 세린 씨는 뭐 드실래요?","으음, 저는 치즈케이크가 좋겠어요.","오늘은 차만 마실래요.","네. 따뜻한 차도 좋죠.","오세린이 찻잔을 내려놓았다.","이렇게 여유롭게 이야기하니 좋네요.","저도 마음이 편해져요.","어머, 오늘 잘 나왔네요."],"유지안|노래방":["노래 목록을 펼쳤다.","첫 곡은 뭐로 할까요?","신나는 곡으로 같이 불러요.","예쓰! 마이크 하나씩 잡아요!","지안 씨가 먼저 불러 주세요.","오케이! 분위기부터 띄워 볼게요.","마지막 곡이 끝나고 화면에 점수가 떴다.","와, 시간 진짜 빨리 간다!","다음엔 듀엣곡도 준비해 와요.","좋죠! 연습해 올게요!"],"유지안|연화천 산책":["강변 산책로에 바람이 불었다.","오늘은 뛰지 말고 걸어 볼까요?","좋아요. 이야기하면서 걸어요.","와우, 오늘은 수다 모드네요!","조금 뛰어도 괜찮아요.","그럼 저 다리까지만 가볍게 뛰어요!","강변의 가로등이 켜졌다.","이렇게 천천히 걷는 것도 좋네요.","다음에도 같이 걸어요.","예쓰! 다음에는 다른 길도 가 봐요!"]};
-function renderExtraDate(ev){const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p],steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',npcVoice[p][2]];const lines=[x[0],x[6],'헤어질 시간이 되어 인사를 나눴다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',npcVoice[p][2],3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,delta] of opts[n])choiceButton(label,()=>{if(steps.length!==n)return;steps.push({label,reply});v.affection[p]=Math.min(999,v.affection[p]+delta);if(delta>=3)socialRecord(p).interest++;if(steps.length===3){ev.answered=true;farewellReaction(ev,p,label);recordDate(ev,venue)}save();renderChoiceEvent();renderSim()})}
+const alleyDateVoices={
+ '서이준':{
+  walk:['…네. 저도 좀 더 걷고 싶었어요.', '…응. 나도 좀 더 걷고 싶었어.'],
+  arrival:'이준이 주머니에서 손을 꺼냈다. 내 손등에 손가락이 스쳤다가 떨어졌다. 한 번 더 스쳤을 때 내가 새끼손가락을 걸자, 이준이 그제야 걸음을 멈췄다.',
+  invite:['…저 지금 입 맞추고 싶은데. 어때요?','…나 지금 입 맞추고 싶은데. 어때?'],
+  kiss:'이준은 꼭 잡고 있던 새끼손가락부터 살며시 놓았다. 그 손이 내 뺨에 닿았다. 짧게 입을 맞추고 이준이 눈을 떴을 때, 내가 한 뼘 남은 거리를 다시 좁혔다. 두 번째엔 이준도 금방 손을 거두지 않았다.',
+  part:['잘 가요. 저는 여기 조금 있다 갈게요. …그냥, 오늘 좋았어서.','잘 가. 난 여기 조금 있다 갈게. …그냥, 오늘 좋았어서.'],
+  home:['…가고 싶어요. 여기서 잘 가라고 하기가 좀 그랬거든요.','…가고 싶어. 여기서 잘 가라고 하기가 좀 그랬거든.']
+ },
+ '강도윤':{
+  walk:['같이 가요. 여기서 헤어지긴 아쉽잖아요.', '같이 가자. 여기서 헤어지긴 아쉽잖아.'],
+  arrival:'도윤과 어깨를 나란히 하고 걷는데 좁은 담장길에서 자꾸 팔이 닿았다. 내가 슬쩍 팔짱을 끼자 도윤이 웃었다. 어두워도 가까운 쪽 뺨에 보조개가 패는 게 보였다.',
+  invite:['여기서 잠깐만 나 봐 줄래요? 헤어지기 전에 입 맞추고 싶어요.','여기서 잠깐만 나 봐 줄래? 헤어지기 전에 입 맞추고 싶어.'],
+  kiss:'도윤이 고개를 숙였다. 내가 보조개에 엄지를 대자 손끝 아래로 웃음이 서서히 풀렸다. 가볍게 닿았던 입술이 조금 더 깊이 포개졌다. 떨어져서도 도윤은 내가 손을 거둘 때까지 그 뺨을 손바닥에 기대고 있었다.',
+  part:['잘 들어가요. 오늘은 돌아가는 길까지 데이트 같네요.','잘 들어가. 오늘은 돌아가는 길까지 데이트 같네.'],
+  home:['같이 가요. 나도 오늘은 조금 더 둘이 있고 싶었어요.','같이 가자. 나도 오늘은 조금 더 둘이 있고 싶었어.']
+ },
+ '한시우':{
+  walk:['갈래요. 천천히 가요, 우리.', '갈래. 천천히 가자, 우리.'],
+  arrival:'앞서 걷던 시우가 뒤돌아서 뒷걸음질을 쳤다. 나랑 눈을 맞추고 걷겠다더니, 내가 한 걸음에 바짝 따라붙자 정작 시우가 눈을 피했다.',
+  invite:['아, 이렇게 가까이 올 줄은 몰랐는데. 저 지금 뽀뽀해도 돼요?','아, 이렇게 가까이 올 줄은 몰랐는데. 나 지금 뽀뽀해도 돼?'],
+  kiss:'먼저 다가간 건 나였다. 시우가 웃어서 한 번은 입술이 엇갈렸다. 내가 옷깃을 잡고 다시 다가가자 이번엔 시우가 내 뺨을 감쌌다. 눈을 뜨니 웃음기가 걷힌 시우의 얼굴이 코앞에 있었다. 시우가 마지막 거리를 좁혔다.',
+  part:['나 오늘 집 가서도 혼자 웃을 것 같아요. 잘 가요!','나 오늘 집 가서도 혼자 웃을 것 같아. 잘 가!'],
+  home:['진짜요? 갈래요. 아, 너무 빨리 대답했나.','진짜? 갈래. 아, 너무 빨리 대답했나.']
+ },
+ '정태오':{
+  walk:['같이 걷겠습니다. 서두를 일도 없습니다.', '같이 걷자. 서두를 일도 없어.'],
+  arrival:'태오가 갈림길 앞에서 걸음을 늦췄다. 늘 먼저 건네던 귀가 인사가 오늘은 나오지 않았다. 시선이 잠깐 내 입술에 머물렀고, 태오는 들킨 뒤에도 굳이 눈을 피하지 않았다.',
+  invite:['여기서 인사하기가 아쉽습니다. 입 맞춰도 되겠습니까?','여기서 인사하기 아쉬워. 입 맞춰도 돼?'],
+  kiss:'내가 한 발 가까이 서자 태오가 내 키에 맞춰 천천히 고개를 숙였다. 따뜻한 입술이 닿고, 등에 가만히 얹힌 손바닥이 나를 받쳐 줬다. 내가 옷깃을 놓자 한동안 꼭 다물려 있던 그의 입술 사이로 긴 숨이 새어 나왔다.',
+  part:['조심히 들어가십시오. 저도 오늘 즐거웠습니다.','조심히 들어가. 나도 오늘 즐거웠어.'],
+  home:['같이 가겠습니다. 실은 저도 먼저 묻고 싶었습니다.','같이 갈게. 실은 나도 먼저 묻고 싶었어.']
+ },
+ '백지한':{
+  walk:['좋죠. 나도 그 말을 기다렸는데.', '좋지. 나도 그 말 기다렸는데.'],
+  arrival:'큰길에선 내내 말이 많던 지한이 골목에 들어서자 조용했다. 내가 고개를 돌리자 바로 눈이 마주쳤다. 언제부터 보고 있었는지, 그제야 한쪽 입꼬리가 올라갔다.',
+  invite:['잘 가라는 말은 조금 이따 할까요? 지금은 입 맞추고 싶은데.','잘 가라는 말은 조금 이따 할까? 지금은 입 맞추고 싶은데.'],
+  kiss:'지한은 닿을 듯 말 듯한 거리에서 딱 멈췄다. 내가 셔츠 깃을 당기자 그제야 허리를 감싸 안고 깊이 입을 맞췄다. 담장 저편으로 발소리가 지나가고 다시 조용해졌다. 입술을 뗐을 때, 조금 전까지 얄밉게 웃던 지한도 숨이 고르지 않았다.',
+  part:['잘 가요. 다음엔 내가 먼저 보고 싶다고 할게요.','잘 가. 다음엔 내가 먼저 보고 싶다고 할게.'],
+  home:['그 말 기다렸어요. 손 줘요, 같이 가게.','그 말 기다렸어. 손 줘, 같이 가게.']
+ },
+ '임하나':{
+  walk:['네. 저도 오늘은 조금 더 같이 있고 싶었어요.', '응. 나도 오늘은 조금 더 같이 있고 싶었어.'],
+  arrival:'하나가 먼저 내 소매를 잡았다. 돌아보자 놓으려다 말고 천을 꼭 쥐었다. 골목 위층에서 달그락거리던 설거지 소리가 멎자, 작은 목소리가 유난히 또렷하게 들렸다.',
+  invite:['저, 오늘은 제가 먼저 입 맞춰 봐도 돼요? 아까부터 그러고 싶었어요.','나, 오늘은 내가 먼저 입 맞춰 봐도 돼? 아까부터 그러고 싶었어.'],
+  kiss:'하나가 내 소매를 쥔 채 입을 맞췄다. 처음에는 입술 끝만 살짝 스쳤다. 내가 가만히 기다리자 하나가 다시 한 발을 좁혔다. 이번에는 내 숨이 먼저 찰 만큼 오래도록. 소매를 놓은 뒤에도 손가락이 여전히 조금 떨렸다.',
+  part:['오늘 같이 걸어서 좋았어요. 잘 자요.','오늘 같이 걸어서 좋았어. 잘 자.'],
+  home:['네, 갈래요. 더 같이 있고 싶은데 뭐라고 말해야 하나 했어요.','응, 갈래. 더 같이 있고 싶은데 뭐라고 말해야 하나 했어.']
+ },
+ '차유리':{
+  walk:['좋아요. 나란히 걸으면서 얼굴 좀 더 볼래요.', '좋아. 나란히 걸으면서 얼굴 좀 더 볼래.'],
+  arrival:'유리가 담장에 비친 우리 그림자를 가리켰다. 저기서는 벌써 이마가 닿았다며 웃더니, 내 옆에서 한 걸음 돌아와 마주 섰다.',
+  invite:['그림자한테 선수를 뺏겼네요. 우리도 입 맞춰 볼까요?','그림자한테 선수를 뺏겼네. 우리도 입 맞춰 볼까?'],
+  kiss:'유리의 손끝이 내 뺨을 스쳤다. 유리는 먼저 이마를 맞대고 잠시 그대로 있다가, 내 고개가 기우는 쪽으로 따라와 입을 맞췄다. 떨어질 때조차 서두르지 않아서, 눈을 뜨고 나서야 내가 언제부터 유리의 손등을 감싸 쥐고 있었는지 알아챘다.',
+  part:['내일 이 길 지나면 오늘 생각나겠어요. 잘 들어가요.','내일 이 길 지나면 오늘 생각나겠어. 잘 들어가.'],
+  home:['좋아요. 둘이서만 조금 더 있고 싶어요.','좋아. 둘이서만 조금 더 있고 싶어.']
+ },
+ '오세린':{
+  walk:['좋아요. 나란히 좀 걸어요, 우리.', '좋아. 나란히 좀 걷자, 우리.'],
+  arrival:'눈앞의 골목이 두 갈래로 나뉘었다. 세린은 어느 쪽으로도 발을 떼지 않고 내 손을 쥐었다. 하고 싶은 말이 있냐고 물으니 내 쪽으로 몸을 돌렸다.',
+  invite:['있어요. 나 지금 입 맞추고 싶어요. 같이 조금 더 있을래요?','있어. 나 지금 입 맞추고 싶어. 같이 조금 더 있을래?'],
+  kiss:'세린의 손이 허리에 닿고 나서야 내가 숨을 참고 있었다는 걸 알았다. 가까워진 입술에 내가 먼저 닿자 세린이 부드럽게 받아 줬다. 잠깐 숨을 고른 뒤엔 세린이 내 뺨을 감싸고 한 번 더 입을 맞췄다. 눈을 떴을 때도 그 손이 따뜻했다.',
+  part:['오늘 얼굴 봐서 좋았어요. 편안한 밤 보내요.','오늘 얼굴 봐서 좋았어. 편안한 밤 보내.'],
+  home:['갈래요. 나도 오늘은 조금 욕심내고 싶어요.','갈래. 나도 오늘은 조금 욕심내고 싶어.']
+ },
+ '공재희':{
+  walk:['웅! 나란히 걸으면 되죠?', '웅! 나란히 걸으면 되지?'],
+  arrival:'재희가 골목 모퉁이에서 제 뺨을 톡톡 두드렸다. 뭐가 묻었냐고 물으니 얄밉게 웃었다. 그러고는 이번엔 내 뺨을 손끝으로 가리켰다.',
+  invite:['뺨에 할 줄 알았죠? 나 사실 입술에 뽀뽀하고 싶은데, 해도 돼요?','뺨에 할 줄 알았지? 나 사실 입술에 뽀뽀하고 싶은데, 해도 돼?'],
+  kiss:'내가 재희의 뺨을 감싸자 장난스럽던 눈이 동그래졌다. 입술을 맞댄 뒤엔 먼저 눈을 감은 쪽도 재희였다. 한 번으로 끝인가 싶어 떨어지는데 재희가 내 손가락을 붙잡고 두 번째 입맞춤을 훔쳤다. 떨어진 뒤에도 재희는 내 손을 꼭 잡고 있었다.',
+  part:['오늘 나 때문에 한 번은 웃었죠? 그럼 성공이에요. 잘 자요!','오늘 나 때문에 한 번은 웃었지? 그럼 됐다. 잘 자!'],
+  home:['웅, 갈래요. 나 지금 대답 연습이라도 한 사람 같죠?','웅, 갈래. 나 지금 대답 연습이라도 한 사람 같지?']
+ },
+ '유지안':{
+  walk:['갈래요. 나도 같이 걷고 싶었어요.', '갈래. 나도 같이 걷고 싶었어.'],
+  arrival:'지안이 내 손을 잡고 휘적휘적 걷다가 딱 멈췄다. 나도 덩달아 멈춰 섰다. 손은 그대로 잡고서 지안이 나를 돌아봤다. 아까 큰 소리로 웃던 얼굴에 문득 수줍은 기색이 비쳤다.',
+  invite:['나 지금 하고 싶은 게 있어요. 여기서 입 맞춰도 돼요?','나 지금 하고 싶은 게 있어. 여기서 입 맞춰도 돼?'],
+  kiss:'대답하자마자 지안이 환하게 웃었다. 한 팔로 내 허리를 당겨 안더니, 막상 입술이 닿기 직전에는 조심스레 멈췄다. 내가 먼저 입을 맞췄다. 지안이 나를 마주 안은 팔에 힘을 줬고, 떨어져서도 우리는 한동안 이마를 맞댄 채 서 있었다.',
+  part:['오늘 골목 한 바퀴 더 돌고 들어갈까 봐요. 기분이 너무 좋아요. 잘 가요!','오늘 골목 한 바퀴 더 돌고 들어갈까 봐. 기분이 너무 좋아. 잘 가!'],
+  home:['좋아요! 아, 목소리 좀 줄일게요. 우리 얼른 가요.','좋아! 아, 목소리 좀 줄일게. 우리 얼른 가자.']
+ }
+};
+
+
+function alleyKissReady(p,day){
+ if(!vIsDating(p)||relationshipBoundaryLine(p,day))return false;
+ const mood=touchContext(p,day);
+ return !mood.tired&&!mood.conflicted;
+}
+function canWalkHome(ev,p){
+ const v=initSim(),run=v.running;
+ if(!ev.dateEvent||v.activeEvent!==ev||!run||v.day!==ev.day||!alleyKissReady(p,ev.day))return false;
+ const slot=ev.slot??run.slot;
+ if(slot!==run.slot||slot<1||slot>3)return false;
+ for(let i=slot+1;i<=3;i++){
+  if(run.plan[i]!=='휴식'||fixedActivity(ev.day,i)||!npcMeetingTime(p,ev.day,i))return false;
+ }
+ return true;
+}
+function offerAlleyWalk(ev,p,choices){
+ if(!canWalkHome(ev,p))return;
+ const casual=speechRegisterIndex(p,'player',ev.day),slot=ev.slot??initSim().running.slot;
+ const label=slot===3?(casual?'집 앞까지 같이 걸을래?':'집 앞까지 같이 걸을래요?'):
+  (casual?'저녁까지 같이 있다가 집 앞까지 걸을래?':'저녁까지 같이 있다가 집 앞까지 걸을래요?');
+ choices.push([label,alleyDateVoices[p].walk[speechRegisterIndex(p,'npc',ev.day)],2,'alley']);
+}
+function renderAlleyDate(ev,p){
+ const v=initSim(),o=ev.alleyDate,day=ev.day,lines=alleyDateVoices[p];
+ const live=()=>v.activeEvent===ev&&ev.alleyDate===o&&v.day===day;
+ const refresh=()=>{save();renderChoiceEvent();renderSim()};
+ const finish=()=>{if(live())finishEvent()};
+ if(!o.walking){
+  // A public encounter may have changed how the date feels after the walk was offered.
+  if(!canWalkHome(ev,p)){
+   add('이야기','조금 더 걸으려다 큰길에서 인사를 나눴다. 오늘은 각자 돌아가기로 했다.');
+   choiceButton('일정 계속하기',finish);return;
+  }
+  o.walking=true;
+  v.running.slot=v.slot=3;
+  if(o.fromSlot<3)v.running.notes.push(nameWith(p)+' 저녁까지 데이트를 이어 갔다.');
+  save();
+ }
+ const pc=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
+ const near='눈을 맞추고 입을 맞춘다';
+ const gentle=pc?'오늘은 손만 잡고 걸을래.':'오늘은 손만 잡고 걸을래요.';
+ const part=pc?'오늘은 여기서 인사할까?':'오늘은 여기서 인사할까요?';
+ const homeLine=pc?'우리 집으로 갈래?':'우리 집으로 갈래요?';
+ const home=addressTurn(p,day)%4===3?spokenCall(p,'player',day,homeLine):homeLine;
+ $('where').textContent='연화동 골목길';$('progress').textContent='데이트 · 집에 가는 길';
+ $('clock').textContent='DAY '+day+' · 저녁 · '+weatherFor(day).icon+' '+weatherFor(day).name;
+ if(o.fromSlot<3)add('이야기','저녁을 같이 먹고 나왔을 때는 간판마다 불이 켜져 있었다. 둘이 나란히 동네 쪽으로 걸었다.');
+ add('이야기','큰길을 벗어나자 차 소리가 잦아들었다. 골목 안쪽은 어두웠고, 한참 뒤에야 담장 위로 가로등 불빛이 비쳤다.');
+ add('이야기',lines.arrival);
+ add(p,lines.invite[npc]);
+ if(!o.kiss){
+  choiceButton(near,()=>{
+   if(!live()||o.kiss)return;
+   o.kiss='yes';
+   flirtRecord(p).touches.push({day,type:'입맞춤',scene:'골목길'});
+   remember(p,'date:alleyKiss:'+day,'집에 가는 길, 어두운 골목에서 입을 맞췄다.');
+   refresh();
+  });
+  choiceButton(gentle,()=>{if(live()&&!o.kiss){o.kiss='no';refresh()}});
+  return;
+ }
+ if(o.kiss==='no'){
+  add(state.name,gentle,true);
+  add('이야기','우리는 손을 잡고 다시 큰길로 나왔다. 갈림길에 닿아서야 맞잡은 손을 놓았다.');
+  add(p,lines.part[npc]);choiceButton('일정 계속하기',finish);return;
+ }
+ add('이야기',lines.kiss);
+ const canStay=()=>live()&&overnightReady(p,day,true);
+ if(!o.destination){
+  if(canStay())choiceButton(home,()=>{
+   if(!live()||o.destination)return;
+   if(!canStay()){refresh();return}
+   o.destination='home';o.night={kiss:'confirmed'};refresh();
+  });
+  choiceButton(part,()=>{if(live()&&!o.destination){o.destination='part';refresh()}});
+  return;
+ }
+ if(o.destination==='part'){
+  add(state.name,part,true);add(p,lines.part[npc]);choiceButton('일정 계속하기',finish);return;
+ }
+ add(state.name,home,true);add(p,lines.home[npc]);
+ $('where').textContent='우리 집';$('progress').textContent='데이트 · 집에 돌아와서';
+ add('이야기','현관에 나란히 신발을 벗어 두었다. 물 두 잔을 들고 돌아오니 소파 한쪽이 나를 위해 비어 있었다. 잔을 내려놓고 그 옆에 앉았다.');
+ renderIntimateEvening(ev,p,o.night,{
+  host:'player',canStay,onStay:()=>recordOvernightStay(p,day),onFinish:finish,refresh
+ });
+}
+
+function renderExtraDate(ev){const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p],steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',npcVoice[p][2]];const lines=[x[0],x[6],'슬슬 집에 돌아갈 시간이었다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',npcVoice[p][2],3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
+ if(n===2)offerAlleyWalk(ev,p,opts[n]);
+ for(const [label,reply,delta,route] of opts[n])choiceButton(label,()=>{
+  if(v.activeEvent!==ev||ev.answered||steps.length!==n)return;
+  if(route==='alley'){
+   if(!canWalkHome(ev,p)){renderChoiceEvent();return}
+   ev.alleyDate={fromSlot:v.running.slot};
+  }
+  steps.push({label,reply});v.affection[p]=Math.min(999,v.affection[p]+delta);if(delta>=3)socialRecord(p).interest++;if(steps.length===3){ev.answered=true;farewellReaction(ev,p,label);recordDate(ev,venue)}save();renderChoiceEvent();renderSim()})}
 const dateSouvenirs={"서이준":[["영화관","영화 티켓","…버리지 마요. 다음에 무슨 영화 봤는지 기억 안 날 수도 있으니까."],["고양이 산책","고양이 사진","이 녀석 오늘은 제법 얌전하네요. 사진 보내 드릴게요."]],"강도윤":[["디저트 투어","디저트 가게 엽서","오늘 먹은 것 중에 제일 좋았던 거 뒤에 적어 둘까요?"],["시장 구경","작은 시장 열쇠고리","하하, 모카 닮았네요. 하나씩 가져요."]],"한시우":[["오락실","게임 점수표","와, 이건 보관해야 돼요. 다음에 기록 깨러 오게!"],["보드게임 카페","보드게임 기록 카드","이거 증거예요. 다음에 리벤지 갑니다."]],"백지한":[["전시회","전시 엽서","이 작품 좋아하셨죠? 하나 가져가요."],["레스토랑","레스토랑 기념 카드","오늘 날짜 적어 둘까요? 저는 기억할 자신 있는데."]],"임하나":[["아쿠아리움","해파리 열쇠고리","저도 같은 걸로 골라도 될까요?"],["서점","서로 고른 책갈피","책 읽다가 오늘 생각나면 좋겠어요."]],"차유리":[["소품 공방","직접 만든 소품","색이 조금 삐뚤어도 이게 더 귀엽죠?"],["사진 산책","골목 즉석사진","이 사진은 인화해 두고 싶네요."]],"오세린":[["식물원","식물원 엽서","오늘 본 꽃이 여기에도 있네요. 가져가실래요?"],["아쿠아리움","수조 앞 기념사진","오늘처럼 천천히 보낸 날도 기억해 두면 좋겠어요."]],"정태오":[["근교 나들이","풍경 엽서","오늘 걸었던 길이 담겨 있습니다. 기념으로 어떻습니까?"],["시장 구경","시장 기념 배지","작지만 오늘을 기억하기에는 충분하겠군요."]],"유지안":[["놀이공원","놀이공원 즉석사진","와, 표정 봐요! 이건 무조건 간직해야 돼요."],["노래방","노래방 점수 사진","우리 점수 봐요! 다음엔 만점 도전!"]],"공재희":[["오락실","작은 인형 키링","이거 하나씩 달면 귀엽겠다 ㅋㅋ"],["영화관","영화 포토티켓","헐 사진 잘 나왔다. 이거 버리면 안 됨 ㅋㅋ"]]};
 function souvenirList(){const v=initSim();return v.dateSouvenirs||(v.dateSouvenirs=[])}
 function renderDateSouvenir(ev,p){const v=initSim(),venue=ev.venue||dateLines[p][0],a=dateSouvenirs[p]?.find(x=>x[0]===venue);if(!a)return false;const items=souvenirList();if(!ev.souvenirOffer&&items.some(x=>x.person===p&&x.venue===venue))return false;if(!ev.souvenirOffer){ev.souvenirOffer={name:a[1],line:a[2]};save()}const o=ev.souvenirOffer;add('이야기','오늘을 기억할 작은 기념품이 눈에 들어왔다.');add(p,o.line);if(o.answer){add(state.name,o.answer==='keep'?'기념으로 간직할게요.':'오늘은 추억만 간직할게요.',true);return false}for(const [label,answer] of [['기념으로 간직할게요.','keep'],['오늘은 추억만 간직할게요.','skip']])choiceButton(label,()=>{if(o.answer)return;o.answer=answer;if(answer==='keep'){items.push({person:p,venue,name:o.name,day:v.day,line:o.line,choices:(ev.dateSteps||[]).map(x=>({label:x.label,reply:x.reply}))});writeJournal(p+' · 기념품 '+o.name)}save();renderChoiceEvent();renderSim()});return true}
@@ -5528,7 +5849,16 @@ function voiceMoment(ev){const p=ev.person;if(!p||!relationshipVoices[p]||ev.job
   delete ev.voiceMoment;
   return;
 }
-if(!ev.voiceMoment){const stage=relationshipVoiceStage(p);if(!['normal','friend','flirt','early','steady'].includes(stage))return;ev.voiceMoment=relationshipVoice(p,stage)}if(ev.voiceMoment)add(p,meetingCall(p,ev,'npc',ev.voiceMoment))}
+if(!ev.voiceMoment){const stage=relationshipVoiceStage(p);if(!['normal','friend','flirt','early','steady'].includes(stage))return;ev.voiceMoment=relationshipVoice(p,stage)}if(!ev.voiceMoment)return;
+ let line=ev.voiceMoment;
+ if(hasFriendTopicOpening(ev)){
+  const topic=takeFriendTopic(ev,p),detail=friendStoryLine(topic,p,ev.day??initSim().day);
+  if(closerAnswers[0].slice(0,2).includes(ev.selected)){
+   // An earlier save may already have asked what the story was.
+   if(closerAnswers[0].slice(2).includes(ev.response)){ev.response=detail;save()}
+  }else line=detail;
+ }
+ add(p,meetingCall(p,ev,'npc',line))}
 function nicknameReady(p){const v=initSim(),a=memoryFor(p).address;return vIsDating(p)&&v.day-coupleRecord(p).since>=10&&!coupleIssueRecord(p).active&&!a.nicknameOffered&&!a.npcToPlayer}
 function nicknameGate(){const v=initSim();if(v.day>=365||[299,300].includes(v.day))return false;const p=lovers().find(nicknameReady);if(!p)return false;v.activeEvent={person:p,place:'home',day:v.day,description:'연인이 둘만의 호칭에 관한 이야기를 꺼냈다.',nicknameScene:{}};v.weekEnd=null;save();renderChoiceEvent();return true}
 function renderNickname(ev){const p=ev.person,o=ev.nicknameScene,a=memoryFor(p).address;$('progress').textContent='둘만의 호칭';add(p,relationshipVoices[p][10]);if(o.answer){add(state.name,o.answer,true);add(p,o.reply);choiceButton('일정 계속하기',finishEvent);return}const input=document.createElement('input');input.placeholder='원하는 애칭 (선택)';$('suggest').append(input);for(const [label,k] of [['이름으로 불러 줘요.',1],['내가 정한 애칭으로 불러 줘요.',2],['지금 호칭이 좋아요.',3]])choiceButton(label,()=>{if(o.answer)return;const chosen=k===2?input.value.trim().slice(0,20):k===1?state.name:'';if(k===2&&!chosen)return;a.nicknameOffered=initSim().day;if(chosen)a.npcToPlayer=chosen;o.answer=label;o.reply=chosen?spokenCall(p,'npc',initSim().day,relationshipVoice(p,'early')):npcVoice[p][0];remember(p,'nickname:agreement',chosen||'기존 호칭 유지');save();renderChoiceEvent();renderSim()})}
@@ -5633,7 +5963,15 @@ for(let i=0;i<=Math.min(stage,4);i++){
   }else{add(...scenes[i]);if(i===1)add(p,h[1]);if(i===3)add(p,h[5]);}if(steps[i]){add(state.name,dateLabel(i,steps[i].label),true);add(p,steps[i].reply)}if(i===2&&steps[i]&&!firstDessert){if(renderDateDepth(ev,p))return;}if(i===3&&steps[i]&&p==='서이준'&&steps[i].label==='조금 더 걸어요.')add('이야기','이준과 극장 밖의 거리를 조금 더 걸었다. 한참 이야기를 나눈 뒤 역 쪽으로 발길을 돌렸다.');}if(ev.answered||stage>=5){if(firstDessert){
   if(renderDateTriangle(ev,p)||renderDateSouvenir(ev,p)||renderSouvenirReaction(ev,p))return;
   choiceButton('일정 계속하기',finishEvent);return;
-}if(renderDateTriangle(ev,p))return;if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,delta] of opts[stage])choiceButton(dateLabel(stage,label),()=>{if(ev.answered||steps.length!==stage)return;steps.push({label,reply:reply==='좋아요.'||reply==='저도 즐거웠어요.'||reply==='저도 오늘을 기다렸어요.'?npcVoice[p][1]:reply==='저도 다음 약속을 기다릴게요.'?npcVoice[p][2]:reply});state.identity.traits[delta>=3?'솔직함':'신중함']++;v.affection[p]=Math.min(999,(v.affection[p]||0)+delta);if(delta>=3)socialRecord(p).interest++;if(steps.length===5){ev.answered=true;farewellReaction(ev,p,label);recordDate(ev,a[0])}save();renderChoiceEvent();renderSim()})}
+}if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
+ if(stage===4&&!firstDessert)offerAlleyWalk(ev,p,opts[stage]);
+ for(const [label,reply,delta,route] of opts[stage])choiceButton(dateLabel(stage,label),()=>{
+  if(v.activeEvent!==ev||ev.answered||steps.length!==stage)return;
+  if(route==='alley'){
+   if(!canWalkHome(ev,p)){renderChoiceEvent();return}
+   ev.alleyDate={fromSlot:v.running.slot};
+  }
+  steps.push({label,reply:reply==='좋아요.'||reply==='저도 즐거웠어요.'||reply==='저도 오늘을 기다렸어요.'?npcVoice[p][1]:reply==='저도 다음 약속을 기다릴게요.'?npcVoice[p][2]:reply});state.identity.traits[delta>=3?'솔직함':'신중함']++;v.affection[p]=Math.min(999,(v.affection[p]||0)+delta);if(delta>=3)socialRecord(p).interest++;if(steps.length===5){ev.answered=true;farewellReaction(ev,p,label);recordDate(ev,a[0])}save();renderChoiceEvent();renderSim()})}
 function festivalAvailable(){const v=initSim();return v.day>=224&&v.day<=226&&!v.festivalDone&&!v.finished}
 const festivalLines={"공재희":["저기 경품 봐요!","내년에도 같이 오면 좋겠다."],'서이준':['사람이 많군요. 조금 조용한 곳을 알고 있습니다.','…불꽃보다 이쪽을 더 자주 보게 되는군요.'],'강도윤':['오늘은 가게 걱정 말고 같이 놀아요.','내년에도 이렇게 같이 볼 수 있으면 좋겠네요.'],'한시우':['저기 경품 봤어요? 하나 따 드릴게요!','오늘 진짜 재밌었어요. 아직 집에 가기 싫은데.'],'정태오':['사람이 많으니 천천히 이동하시죠.','오늘은 근무가 아니라 함께 온 겁니다. 조금 더 가까이 계셔도 됩니다.'],'백지한':['오늘 제 데이트 코스는 어떠세요?','불꽃놀이 보러 왔는데 자꾸 다른 데 눈이 가네요.'],'임하나':['...... 있잖아요. 저 이런 축제 정말 오랜만이에요.','오늘 같이 와 주셔서 정말 고마워요.'],'차유리':['저기 플리마켓부터 구경할까요?','오늘 사진은 오래 간직하고 싶어요.'],'오세린':['후후. 맛있는 것도 먹고 천천히 구경해요.','이렇게 나란히 있는 시간이 참 좋네요.'],'유지안':['오늘 공연도 있어요! 같이 보러 가요.','무대에서 보는 불빛도 좋지만, 이렇게 같이 보는 것도 좋네요.']};
 function startFestival(){const v=initSim();if(!festivalAvailable()||v.running||v.activeEvent)return;v.activeEvent={place:'park',description:'연화제의 마지막 밤. 연화천을 따라 야시장과 플리마켓이 펼쳐져 있다.',festival:true,day:v.day,steps:[],answered:false};save();renderChoiceEvent()}
@@ -5916,7 +6254,21 @@ const coupleHabitScenes={"서이준":[["각자의 침묵","이준이 말을 꺼�
 function coupleHabitRecord(p){const c=coupleRecord(p);return c.habits||(c.habits={seen:{},history:[],last:0,recall:{}})}
 function coupleHabitStage(p,day){if(!vIsDating(p))return -1;const c=coupleRecord(p),r=coupleHabitRecord(p),t=touchContext(p,day),age=day-c.since;const dates=dateHistory(p).filter(x=>x.day>=c.since&&x.day<day);if(t.conflicted||t.tired||breakupWarning(p)||t.security<4||r.last&&day-r.last<14)return -1;if(age>=30&&dates.length>=2&&!r.seen[0])return 0;if(age>=75&&dates.length>=4&&!r.seen[1])return 1;return -1}
 function renderCoupleHabit(ev,p){if(!romanceBonusAllowed(ev,'coupleHabit'))return false;const v=initSim(),a=coupleHabitScenes[p];if(!a)return false;if(!ev.coupleHabit){if(!v.running||!vIsDating(p)||!ev.answered&&!ev.sharedLife?.answer||ev.partnerComfort||ev.spontaneousVisit||ev.sensoryRomance||ev.heartMoment||ev.loverAffection||ev.afterglowMeeting||ev.coupleDate||ev.relationshipTouch||ev.playfulCouple)return false;const stage=coupleHabitStage(p,v.day);if(stage<0)return false;ev.coupleHabit={stage,since:coupleRecord(p).since};save()}const o=ev.coupleHabit,b=a[o.stage];add('이야기',b[1]);add(p,b[2]);if(o.answer){add(state.name,o.answer.label,true);add(p,o.answer.reply);return false}for(const [label,reply,agreed] of [[b[3],b[4],true],[b[5],b[6],false]])choiceButton(label,()=>{if(o.answer||!vIsDating(p)||coupleRecord(p).since!==o.since)return;const r=coupleHabitRecord(p);o.answer={label,reply,agreed};r.seen[o.stage]=v.day;r.last=v.day;r.history.push({day:v.day,stage:o.stage,agreed,label});feel(p,{security:agreed?2:1});remember(p,'coupleHabit:'+o.since+':'+o.stage,label+' / '+reply);writeJournal(p+' · '+b[0]);save();renderChoiceEvent();renderSim()});return true}
-function coupleHabitRecall(ev,p){const v=initSim();if(!v.running||!vIsDating(p)||!ev.answered&&!ev.sharedLife?.answer||ev.partnerComfort||ev.coupleHabit||ev.relationshipTouch||ev.playfulCouple||ev.heartMoment||ev.loverAffection||ev.afterglowMeeting||ev.coupleDate||touchContext(p,v.day).conflicted||touchContext(p,v.day).tired)return;if(ev.habitRecall){add(p,ev.habitRecall.line);return}const r=coupleHabitRecord(p),e=r.history.filter(x=>x.agreed&&v.day-x.day>=7&&(!r.recall[x.stage]||v.day-r.recall[x.stage]>=21)).sort((a,b)=>(r.recall[a.stage]||0)-(r.recall[b.stage]||0))[0];if(!e)return;const line=coupleHabitScenes[p][e.stage][7];ev.habitRecall={stage:e.stage,line};r.recall[e.stage]=v.day;save();add(p,line)}
+const habitNews={
+ "서이준":{"1":["며칠 전 메모해 둔 게 있어요. 우체통 위에 고양이가 앉아 있는데 편지 넣는 사람마다 걔한테 먼저 인사를 하더라고요. 동네 우체국장 같았어요.","며칠 전 메모해 둔 게 있어. 우체통 위에 고양이가 앉아 있는데 편지 넣는 사람마다 걔한테 먼저 인사를 하더라. 동네 우체국장 같았어."]},
+ "강도윤":{"0":["오늘은 제가 먹고 싶은 걸 골랐어요. 잘 익은 복숭아가 든 통조림이요. 어릴 때는 한 조각씩 아껴 먹었거든요.","오늘은 내가 먹고 싶은 걸 골랐어. 잘 익은 복숭아가 든 통조림. 어릴 때는 한 조각씩 아껴 먹었거든."],"1":["이 사진 좀 봐요. 연화천 다리 난간 그림자가 물 위에서는 꼭 피아노 건반 같아요. 같이 봤으면 싶어서 찍어 왔어요.","이 사진 좀 봐. 연화천 다리 난간 그림자가 물 위에서는 꼭 피아노 건반 같아. 같이 봤으면 싶어서 찍어 왔어."]},
+ "한시우":{"0":["오늘 팀 단체 사진 찍는데 감독님 폰이 자꾸 옆 팀만 얼굴로 인식하는 거예요. 결국 감독님까지 옆 팀에 끼어서 같이 찍었어요. 단체 맞긴 맞죠?","오늘 팀 단체 사진 찍는데 감독님 폰이 자꾸 옆 팀만 얼굴로 인식하는 거야. 결국 감독님까지 옆 팀에 끼어서 같이 찍었어. 단체 맞긴 맞지?"]},
+ "백지한":{"1":["전에 잊기 아까운 말은 꺼내 보자고 했죠. 그 말이 좋았어요. 저도 가끔은 먼저 떠올려 주는 사람이고 싶거든요.","전에 잊기 아까운 말은 꺼내 보자고 했지. 그 말이 좋았어. 나도 가끔은 먼저 떠올려 주는 사람이고 싶거든."]},
+ "임하나":{"0":["오늘은 제가 먼저 골라 봤어요. 돌아갈 때 골목 안 작은 빵집에 들르고 싶어요. 진열장 맨 위에 밤식빵이 있었거든요.","오늘은 내가 먼저 골라 봤어. 돌아갈 때 골목 안 작은 빵집에 들르고 싶어. 진열장 맨 위에 밤식빵이 있었거든."],"1":["오늘 과외 끝나고 학생이 자기 힘으로 다 푼 연습장을 보여 줬어요. 전에 틀렸던 문제 옆에 작은 별을 그려 놨더라고요. 그 별 보는데 참 좋았어요.","오늘 과외 끝나고 학생이 자기 힘으로 다 푼 연습장을 보여 줬어. 전에 틀렸던 문제 옆에 작은 별을 그려 놨더라. 그 별 보는데 참 좋았어."]},
+ "차유리":{"0":["이 색 좀 봐요. 과일 가게에서 복숭아 두 개를 사 왔는데 맞닿았던 자리만 희게 남았어요. 누가 둘이 붙어 있던 자리를 그려 놓은 것 같죠?","이 색 좀 봐. 과일 가게에서 복숭아 두 개를 사 왔는데 맞닿았던 자리만 희게 남았어. 누가 둘이 붙어 있던 자리를 그려 놓은 것 같지?"]},
+ "유지안":{"0":["우리 목록에 넣고 싶은 곳 찾았어요! 골목 안쪽에 중고 음반 가게가 있는데, 헤드폰 끼고 각자 한 곡씩 들어 볼 수 있대요.","우리 목록에 넣고 싶은 곳 찾았어! 골목 안쪽에 중고 음반 가게가 있는데, 헤드폰 끼고 각자 한 곡씩 들어 볼 수 있대."]},
+ "공재희":{"0":["이거 봐요ㅋㅋ 어제 뽑기 기계 구경하다 찍었는데 펭귄 인형 하나가 유리벽에 부리 딱 붙이고 있어요. 나랑 눈 마주친 거 같죠?","이거 봐ㅋㅋ 어제 뽑기 기계 구경하다 찍었는데 펭귄 인형 하나가 유리벽에 부리 딱 붙이고 있어. 나랑 눈 마주친 거 같지?"]}
+};
+function habitRecallLine(p,day,recall){
+ const lines=habitNews[p]?.[recall.stage];
+ return lines?lines[speechRegisterIndex(p,'npc',day)]:recall.line;
+}
+function coupleHabitRecall(ev,p){const v=initSim();if(!v.running||!vIsDating(p)||!ev.answered&&!ev.sharedLife?.answer||ev.partnerComfort||ev.coupleHabit||ev.relationshipTouch||ev.playfulCouple||ev.heartMoment||ev.loverAffection||ev.afterglowMeeting||ev.coupleDate||touchContext(p,v.day).conflicted||touchContext(p,v.day).tired)return;if(ev.habitRecall){add(p,habitRecallLine(p,ev.day??v.day,ev.habitRecall));return}const r=coupleHabitRecord(p),e=r.history.filter(x=>x.agreed&&v.day-x.day>=7&&(!r.recall[x.stage]||v.day-r.recall[x.stage]>=21)).sort((a,b)=>(r.recall[a.stage]||0)-(r.recall[b.stage]||0))[0];if(!e)return;const line=coupleHabitScenes[p][e.stage][7];ev.habitRecall={stage:e.stage,line};r.recall[e.stage]=v.day;save();add(p,habitRecallLine(p,ev.day??v.day,ev.habitRecall))}
 
 function renderRelationshipTouch(ev,p){if(!romanceBonusAllowed(ev,'relationshipTouch'))return false;const v=initSim(),a=relationshipTouchScenes[p];if(!a)return false;if(!ev.relationshipTouch){if(!v.running||!vIsDating(p)||!ev.answered&&!ev.sharedLife?.answer||ev.partnerComfort||ev.spontaneousVisit||ev.sensoryRomance||ev.heartMoment||ev.loverAffection||ev.afterglowMeeting||ev.coupleDate||ev.playfulCouple)return false;const stage=relationshipTouchStage(p,v.day);if(stage<0)return false;ev.relationshipTouch={stage,since:coupleRecord(p).since};save()}const o=ev.relationshipTouch,b=a[o.stage];add('이야기',b[1]);add(p,b[2]);if(o.answer){add(state.name,o.answer.label,true);if(o.answer.accepted)add('이야기',b[3]);add(p,o.answer.reply);return false}for(const [label,accepted] of [['좋아요.',true],['오늘은 조금 떨어져 있어요.',false]])choiceButton(label,()=>{if(o.answer||!vIsDating(p)||coupleRecord(p).since!==o.since)return;const r=relationshipTouchRecord(p),reply=accepted?b[4]:relationshipTouchDeclines[p];o.answer={label,accepted,reply};r.seen[o.stage]=v.day;r.last=v.day;r.history.push({day:v.day,stage:o.stage,accepted});if(accepted){const type=o.stage===2?({'강도윤':'허리 감싸기','백지한':'허리 감싸기','한시우':'어깨 감싸안기','정태오':'어깨 감싸안기','차유리':'포옹','오세린':'포옹','유지안':'포옹'}[p]||'어깨 기대기'):o.stage===1&&['차유리','유지안'].includes(p)?'팔짱':'손잡기';flirtRecord(p).touches.push({day:v.day,type,scene:'relationshipTouch'});v.affection[p]=Math.min(999,v.affection[p]+2)}feel(p,{security:1});remember(p,'relationshipTouch:'+o.stage,label+' / '+reply);writeJournal(p+' · '+b[0]);save();renderChoiceEvent();renderSim()});return true}
 const relationshipTouchDeclines={'서이준':'…그래요. 편하게 있어요.','강도윤':'좋아요. 오늘은 말하면서 걸어요.','한시우':'오케이! 편한 게 제일이죠.','정태오':'알겠습니다. 편하게 계십시오.','백지한':'좋아요. 편한 거리로 있죠.','임하나':'네! 괜찮아요.','차유리':'오케이! 편하게 있어요.','오세린':'네. 편한 게 좋지요.','유지안':'좋아요! 그냥 같이 있어요.','공재희':'웅ㅋㅋ 알겠어요.'};
@@ -5986,7 +6338,8 @@ function albumUnlock(category,id,p,title,lines,day=initSim().day){if(!Array.isAr
 function albumLog(){return Array.from($('log').querySelectorAll('.bubble')).map(el=>[el.querySelector('strong')?.textContent||'이야기',el.querySelector('span')?.textContent||'']).filter(x=>x[1]&&x[0]!=='시스템')}
 function albumCapture(ev){if(!ev)return;const v=initSim(),p=ev.person,day=ev.day||v.day,log=albumLog();const capture=(id,who,title,lines=log)=>albumUnlock('event',id,who,title,lines,day);if(ev.coupleChapter?.choice!=null)capture(p+'|couple:chapter:'+ev.coupleChapter.index,p,coupleChapters[p][ev.coupleChapter.index].title);
  const homeBeat=ev.homeEvening?.intimacy||ev.sharedLife?.intimacy||ev.overnight?.intimacy;
- const night=ev.coupleChapter?.night||ev.tripScene?.night||homeBeat;
+ const night=ev.coupleChapter?.night||ev.tripScene?.night||ev.alleyDate?.night||homeBeat;
+ if(ev.alleyDate?.kiss==='yes')capture(p+'|date:alleyKiss',p,'집에 가는 길, 골목에서',log);
  if(night?.invitation?.loveNight)capture(p+'|couple:loveNight',p,'둘이 사랑을 나눈 밤',log);
  if(homeBeat?.ending){
   const kind=homeBeat.ending==='stay'?'stay':homeBeat.kiss==='confirmed'?'kiss':homeBeat.kiss;
@@ -6017,7 +6370,7 @@ if(ev.dateEvent&&p){
  if(ev.homeScene&&ev.answered)capture(p+'|home:'+ev.homeScene,p,'홈데이트 '+ev.homeScene,log);
 }}
 function albumMigrate(){const v=initSim(),a=albumData();for(const p of people){const m=memoryFor(p);for(const h of m.preferences.seasonHistory||[]){if(!albumSeasonNames[h.id]||!h.reply||a['event:'+p+'|'+h.id])continue;albumUnlock('event',p+'|'+h.id,p,albumSeasonNames[h.id],[[p,h.reply]],h.day||v.day)}for(const h of m.history||[]){const match=/^story:(-?\d+)$/.exec(h.id||'');if(match&&h.detail&&!a['event:'+p+'|story:'+match[1]])albumUnlock('event',p+'|story:'+match[1],p,String(h.detail),[['이야기','이전 진행에서 감상한 이야기 · '+h.detail]],h.day||v.day)}}}
-function albumCatalogue(){const list=Object.keys(lifeEndingText).map(k=>({key:'ending:life:'+k,person:'',category:'ending'}));for(const p of people){list.push({key:'event:'+p+'|couple:loveNight',person:p,category:'event'});coupleChapters[p].forEach((_,i)=>list.push({key:'event:'+p+'|couple:chapter:'+i,person:p,category:'event'}));list.push({key:'ending:couple:chapter:'+p,person:p,category:'ending'})}for(const k of Object.keys(careerEndingText))list.push({key:'ending:career:'+k,person:'',category:'ending'});for(const [k,p] of Object.entries(developmentProjects))p.stages.forEach((_,i)=>list.push({key:'event:development:'+k+':'+i,person:'',category:'event'}));for(const name of Object.keys(professionRoutes)){for(let i=0;i<2;i++)list.push({key:'event:profession:story:'+name+':'+i,person:'',category:'event'});list.push({key:'ending:profession:'+name,person:'',category:'ending'},{key:'event:profession:prepare:'+name,person:'',category:'event'})}for(const [name,p] of professionCombos)list.push({key:'ending:profession:'+name+'|'+p,person:p,category:'ending'});for(let i=1;i<=3;i++)list.push({key:'event:volunteer:'+i,person:'',category:'event'});for(const [id] of lifeAchievementList)list.push({key:'event:achievement:'+id,person:'',category:'event'});for(const p of people){list.push({key:'ending:friend:'+p,person:p,category:'ending'});for(const k of ['outing','talk','bond','awaken','crush'])list.push({key:'event:'+p+'|friend:'+k,person:p,category:'event'});(npcLifeEvents[p]||[]).forEach((a,i)=>{if(a[5])list.push({key:'event:'+p+'|npcLife:'+i,person:p,category:'event'})});list.push({key:'ending:'+p,person:p,category:'ending'});for(let i=0;i<(personalStoryData[p]||[]).length;i++)list.push({key:'event:'+p+'|story:'+i,person:p,category:'event'});for(const id of Object.keys(albumSeasonNames))list.push({key:'event:'+p+'|'+id,person:p,category:'event'});for(let season=0;season<4;season++)for(let stage=1;stage<=2;stage++)list.push({key:'event:'+p+'|trip:'+season+':'+stage,person:p,category:'event'});for(const id of ['coupleHabit:0','coupleHabit:1','relationshipTouch:0','relationshipTouch:1','relationshipTouch:2','playfulCouple','partnerComfort','surpriseVisit','afterglow','spontaneousVisit','sensoryRomance','loverAffection:0','loverAffection:1','heartMoment:0','heartMoment:1','dateDepth','anniversary','shared:shopping','shared:cooking','shared:home','nickname','crushMeeting','contact','attachment','playerTouch','confession','couple:early','couple:steady','couple:morning','couple:conflict','couple:repair','couple:triangle','aftermath:friend','multi:discussion','ex:talk','ex:reunited','ex:breakup','ex:encounter','ex:warning','ex:npcBreakup','ex:memory','ex:belonging','ex:address'])list.push({key:'event:'+p+'|'+id,person:p,category:'event'});for(const id of Object.keys(albumFlirtNames))list.push({key:'event:'+p+'|flirt:'+id,person:p,category:'event'});for(let i=1;i<=5;i++)list.push({key:'event:'+p+'|home:'+i,person:p,category:'event'})}list.push({key:'ending:solo',person:'',category:'ending'});for(const [id,p] of [['crossIntro','서이준·한시우'],['bear','공재희'],['jaeheeIntro','공재희'],['birthday',''],['solo|festival',''],['solo|christmasEve','']])list.push({key:'event:'+id,person:p,category:'event'});return list}
+function albumCatalogue(){const list=Object.keys(lifeEndingText).map(k=>({key:'ending:life:'+k,person:'',category:'ending'}));for(const p of people){list.push({key:'event:'+p+'|date:alleyKiss',person:p,category:'event'},{key:'event:'+p+'|couple:loveNight',person:p,category:'event'});coupleChapters[p].forEach((_,i)=>list.push({key:'event:'+p+'|couple:chapter:'+i,person:p,category:'event'}));list.push({key:'ending:couple:chapter:'+p,person:p,category:'ending'})}for(const k of Object.keys(careerEndingText))list.push({key:'ending:career:'+k,person:'',category:'ending'});for(const [k,p] of Object.entries(developmentProjects))p.stages.forEach((_,i)=>list.push({key:'event:development:'+k+':'+i,person:'',category:'event'}));for(const name of Object.keys(professionRoutes)){for(let i=0;i<2;i++)list.push({key:'event:profession:story:'+name+':'+i,person:'',category:'event'});list.push({key:'ending:profession:'+name,person:'',category:'ending'},{key:'event:profession:prepare:'+name,person:'',category:'event'})}for(const [name,p] of professionCombos)list.push({key:'ending:profession:'+name+'|'+p,person:p,category:'ending'});for(let i=1;i<=3;i++)list.push({key:'event:volunteer:'+i,person:'',category:'event'});for(const [id] of lifeAchievementList)list.push({key:'event:achievement:'+id,person:'',category:'event'});for(const p of people){list.push({key:'ending:friend:'+p,person:p,category:'ending'});for(const k of ['outing','talk','bond','awaken','crush'])list.push({key:'event:'+p+'|friend:'+k,person:p,category:'event'});(npcLifeEvents[p]||[]).forEach((a,i)=>{if(a[5])list.push({key:'event:'+p+'|npcLife:'+i,person:p,category:'event'})});list.push({key:'ending:'+p,person:p,category:'ending'});for(let i=0;i<(personalStoryData[p]||[]).length;i++)list.push({key:'event:'+p+'|story:'+i,person:p,category:'event'});for(const id of Object.keys(albumSeasonNames))list.push({key:'event:'+p+'|'+id,person:p,category:'event'});for(let season=0;season<4;season++)for(let stage=1;stage<=2;stage++)list.push({key:'event:'+p+'|trip:'+season+':'+stage,person:p,category:'event'});for(const id of ['coupleHabit:0','coupleHabit:1','relationshipTouch:0','relationshipTouch:1','relationshipTouch:2','playfulCouple','partnerComfort','surpriseVisit','afterglow','spontaneousVisit','sensoryRomance','loverAffection:0','loverAffection:1','heartMoment:0','heartMoment:1','dateDepth','anniversary','shared:shopping','shared:cooking','shared:home','nickname','crushMeeting','contact','attachment','playerTouch','confession','couple:early','couple:steady','couple:morning','couple:conflict','couple:repair','couple:triangle','aftermath:friend','multi:discussion','ex:talk','ex:reunited','ex:breakup','ex:encounter','ex:warning','ex:npcBreakup','ex:memory','ex:belonging','ex:address'])list.push({key:'event:'+p+'|'+id,person:p,category:'event'});for(const id of Object.keys(albumFlirtNames))list.push({key:'event:'+p+'|flirt:'+id,person:p,category:'event'});for(let i=1;i<=5;i++)list.push({key:'event:'+p+'|home:'+i,person:p,category:'event'})}list.push({key:'ending:solo',person:'',category:'ending'});for(const [id,p] of [['crossIntro','서이준·한시우'],['bear','공재희'],['jaeheeIntro','공재희'],['birthday',''],['solo|festival',''],['solo|christmasEve','']])list.push({key:'event:'+id,person:p,category:'event'});return list}
 function renderAlbum(){const a=albumData(),catalog=albumCatalogue(),known=new Set(catalog.map(x=>x.key));for(const [key,r] of Object.entries(a))if(!known.has(key))catalog.push({key,person:r.person,category:r.category});const root=$('albumList');root.replaceChildren();$('albumEvents').classList.toggle('active',albumMode==='event');$('albumEndings').classList.toggle('active',albumMode==='ending');$('albumFilter').value=albumPerson;const rows=catalog.filter(x=>x.category===albumMode&&(albumPerson==='all'||(albumPerson==='solo'?!x.person:x.person.split('·').includes(albumPerson))));const unlocked=rows.filter(x=>a[x.key]);$('albumCount').textContent=(albumMode==='ending'?'엔딩 ':'이벤트 ')+unlocked.length+' / '+rows.length+' 수집 · 이 기기의 모든 회차';for(const x of [...unlocked,...rows.filter(x=>!a[x.key])]){const rec=a[x.key],b=document.createElement('button');b.type='button';b.className='album-card'+(rec?'':' locked');const icon=document.createElement('span');icon.className='album-icon';icon.textContent=rec?(albumMode==='ending'?'✦':'❀'):'🔒';const name=document.createElement('strong');name.textContent=rec?rec.title:'???';const meta=document.createElement('small');meta.textContent=rec?((rec.person||'나의 이야기')+' · '+rec.pages.length+'개 기록'):'아직 발견하지 못한 이야기';b.append(icon,name,meta);if(rec)b.onclick=()=>openAlbumEntry(rec,x.key);else b.disabled=true;root.append(b)}}
 function friendAlbumLines(key,p,page){
  const match=/^event:([^|]+)\|friend:(outing|talk|bond|awaken)$/.exec(key||'');

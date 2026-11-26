@@ -1308,12 +1308,22 @@ function agreedAddress(p,side,day){
 }
 function withAddress(line,name,p,side,insert=true){
  if(!name||typeof line!=='string')return line;
- const defaults=side==='player'?[p,p.slice(1)]:[state.name];
- for(const base of defaults.filter(Boolean)){
-  const original=base+' 씨';
-  if(original!==name)line=line.replaceAll(original,name);
+ const defaults=(side==='player'?[p,p.slice(1)]:[state.name,state.name?.slice(1)]).filter(Boolean);
+ const stem=defaults.find(base=>vocative(base)===name)||name;
+ const final=(stem.charCodeAt(stem.length-1)-0xac00)%28;
+ const hasFinal=/[가-힣]$/.test(stem)&&final!==0;
+ const particles={은:hasFinal?'은':'는',는:hasFinal?'은':'는',이:hasFinal?'이':'가',가:hasFinal?'이':'가',을:hasFinal?'을':'를',를:hasFinal?'을':'를',과:hasFinal?'과':'와',와:hasFinal?'과':'와',으로:hasFinal&&final!==8?'으로':'로',로:hasFinal&&final!==8?'으로':'로'};
+ let replaced=false;
+ for(const base of defaults){
+  const original=(base+' 씨').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  line=line.replace(new RegExp(original+'(에게서|한테서|에게|한테|부터|까지|처럼|보다|하고|이랑|랑|으로|로|은|는|이|가|을|를|과|와|의|도|만|께)?','g'),(_,particle)=>{
+   replaced=true;
+   if(!particle)return name;
+   if(particle==='이랑'||particle==='랑')return stem+(hasFinal?'이랑':'랑');
+   return stem+(particles[particle]||particle);
+  });
  }
- if(!insert||line.includes(name))return line;
+ if(!insert||replaced||line.includes(name))return line;
  const opening=line.match(/^[“"‘'….,\s]*/)[0],body=line.slice(opening.length);
  // Action labels use plain declarative endings such as '받아들인다'.
  // Require a spoken ending before inserting a vocative.

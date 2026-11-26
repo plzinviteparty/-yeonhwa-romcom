@@ -1308,8 +1308,9 @@ function withAddress(line,name,p,side,insert=true){
  }
  if(!insert||line.includes(name))return line;
  const opening=line.match(/^[“"‘'….,\s]*/)[0],body=line.slice(opening.length);
- if(body.length<5||!/[가-힣]/.test(body)||/(?:한다|묻는다|건넨다|고개를 끄덕인다|그냥 있는다|돌아간다|계속하기)[.!…]*$/.test(body))return line;
- if(!/[?!]|(?:요|죠|까|네|어|야|지|래|자|게|해|군|다)[.?!…“”"\sㅋㅎ]*$/.test(body))return line;
+ // Action labels use plain declarative endings such as '받아들인다'.
+ // Require a spoken ending before inserting a vocative.
+ if(body.length<5||!/(?:요|죠|까|네|어|야|지|래|자|게|해|군|습니다|입니다|아|봐|돼|줘|와|가)[.?!…“”"\sㅋㅎ]*$/.test(body))return line;
  return opening+name+', '+body;
 }
 function addressAvailableInEvent(ev){

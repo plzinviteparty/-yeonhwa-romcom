@@ -99,7 +99,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.209</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.210</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -8223,12 +8223,69 @@ const dateSparkScenes={
   warm:'후렴이 돌아오자 눈을 맞추고 같이 부른다',
   after:'이번에는 딱 맞았다. 점수가 뜨기도 전에 기분이 좋아져 둘이 서로에게 먼저 박수를 쳤다.',
   ease:'화면을 짚어 다음 소절이 시작되는 자리를 보여 줬다. 놓쳤던 노래가 다시 이어졌다.'
+ }
+};
+
+const homeDateSparkScenes={
+ '서이준':{
+  moment:'식탁 위에 펼쳐진 게임 공략 노트에 조그만 별표가 보였다. 지난번에 내가 못 깨고 돌아간 스테이지였다. 이준이 물컵을 내려놓다가 내가 보고 있는 곳을 알아챘다.',
+  warm:'별표를 짚고 오늘은 같이 깨 보자고 한다',
+  after:'이준이 노트를 덮으며 보조 컨트롤러를 꺼냈다. 어디까지 알려 줄지 고민했는지, 막힌 구간 바로 앞에만 저장해 뒀다.',
+  ease:'노트를 살며시 덮고 물컵을 받아 들었다. 이준도 얼른 다른 얘기를 꺼냈다.'
  },
- '홈데이트':{
-  moment:'집 안으로 걸음을 옮기다 슬리퍼 한 짝이 살짝 벗겨졌다. 발로 끌어오려는데 상대도 슬리퍼 코를 밀어 줘서, 푹신한 두 발끝이 톡 부딪혔다. 잠깐 서로의 발만 내려다봤다.',
+ '강도윤':{
+  moment:'도윤이 코코아 위에 우유 거품을 올렸다. 무슨 모양인지 묻자 잔을 빙 돌려 보기 좋은 쪽을 찾았다. 어느 쪽에서 봐도 이상했는데, 옆에 앉아 같은 방향으로 보니 비뚤어진 모카 귀 두 개가 보였다.',
+  warm:'한쪽 귀를 가리키며 어느 쪽이 더 닮았는지 고른다',
+  after:'도윤이 반대쪽 귀 편을 들었다. 결판을 내자며 휴대전화에서 모카가 귀를 뒤집고 자는 사진까지 찾아왔다.',
+  ease:'모양이 가라앉기 전에 사진 한 장만 찍었다. 도윤은 이제 마음 놓고 마셔도 된다며 잔을 밀어 줬다.'
+ },
+ '한시우':{
+  moment:'시우가 게임기를 켜자 메뉴에 내 이름을 단 프로필이 하나 늘어 있었다. 그림은 세상에서 제일 억울하게 생긴 개구리였다. 시우가 얼른 메뉴를 닫으려 했다.',
+  warm:'시우 프로필에도 어울리는 그림을 골라 준다',
+  after:'시우는 내가 고른 짜증 난 오리를 한참 보더니 개구리 바로 옆에 놓았다. 둘이 붙여 놓으니 생각보다 잘 어울려서 결국 아무도 바꾸지 않았다.',
+  ease:'개구리는 그대로 두고 게임을 켰다. 시우는 로딩하는 내내 내 표정을 슬쩍 살폈다.'
+ },
+ '정태오':{
+  moment:'차를 나르던 태오가 손잡이가 내 손 쪽을 향하게 컵을 돌려 놨다. 내 쪽이 편해진 만큼 자기 컵은 손을 꼬아 잡아야 했다. 그제야 불편해진 모양인지 태오가 자기 손을 내려다봤다.',
+  warm:'태오의 컵도 잡기 좋은 방향으로 돌려 준다',
+  after:'태오가 손잡이를 감싸 쥐고 작게 고개를 끄덕였다. 그다음 모금까지 괜히 같은 타이밍이었다.',
+  ease:'컵이 움직이지 않게 받침을 나란히 놓았다. 태오는 제 손잡이도 정리하고 맞은편에 앉았다.'
+ },
+ '백지한':{
+  moment:'창가에서 햇빛이 딱 한 뼘만큼 들어왔다. 지한이 남은 볕에 손을 얹고 있다가 내 손이 가까워지자 손가락 끝을 조금 옮겼다. 두 손이 나란히 들어갈 자리가 생겼다.',
+  warm:'지한이 비워 둔 자리에 손을 얹는다',
+  after:'볕이 움직이자 지한이 내 손등을 가볍게 쓸었다. 따뜻했던 자리가 어디까지였는지 손끝으로 짚어 보듯이.',
+  ease:'창틀에 손을 얹고 볕이 움직이는 걸 잠깐 구경했다. 지한은 커튼을 조금 더 걷어 줬다.'
+ },
+ '임하나':{
+  moment:'하나가 빌려주겠다고 책 한 권을 펼쳤다. 중간에서 접힌 종이가 떨어졌다. 내가 좋아할 것 같은 구절만 빼곡히 적혀 있었다. 하나가 얼른 종이를 주웠지만 마지막 줄은 이미 읽었다.',
+  warm:'마지막 줄을 한 번만 소리 내 읽어 달라고 한다',
+  after:'하나가 책으로 얼굴을 반쯤 가리고 그 줄을 읽었다. 다 읽고 나서도 종이는 내 쪽에 살며시 밀어 줬다.',
+  ease:'접힌 종이를 원래 페이지에 끼워 줬다. 하나는 책을 덮어 내 앞에 놓았다.'
+ },
+ '차유리':{
+  moment:'유리가 잡지를 보더니 손가락 두 개로 조그만 네모를 만들었다. 조금 더 오른쪽이라고 해서 앉은 채로 옮겼더니 네모 한가운데 내가 들어갔다. 유리가 잡지를 내려놓고 웃었다.',
+  warm:'나도 손가락으로 네모를 만들어 유리를 담는다',
+  after:'유리는 찍힐 때처럼 표정을 잡다가 내가 아무 버튼도 누를 수 없다는 걸 깨닫고 웃음을 터뜨렸다. 그때가 제일 예뻐서 네모를 조금 더 들고 있었다.',
+  ease:'손가락 네모가 어디를 향하고 있었는지 들여다봤다. 유리는 내 뒤 벽에 걸린 색이 잘 어울린다고 했다.'
+ },
+ '오세린':{
+  moment:'주전자에서 찻잔으로 물이 떨어질 때마다 유리창에 김이 서렸다. 세린이 창에 손가락으로 눈과 코만 그려 놓고 돌아왔다. 입이 빠진 얼굴이 우리 쪽을 보고 있었다.',
+  warm:'세린을 보며 창에 작은 웃는 입을 그린다',
+  after:'세린이 얼굴을 한쪽으로 돌린 채 웃었다. 창에 그려 놓은 입과 꼭 같은 모양이었다.',
+  ease:'잔을 받아 들고 김이 사라지는 걸 같이 봤다. 끝까지 남은 건 점으로 찍은 코 하나였다.'
+ },
+ '유지안':{
+  moment:'스피커에서 익숙한 곡의 전주가 나오자 지안이 컵을 들고 멈췄다. 전주가 끝날 때마다 어깨를 한 번씩 들썩였다. 나도 맞은편에서 같은 박자에 어깨를 움직이자 지안이 입을 가리고 웃었다.',
+  warm:'다음 박자에는 같이 손뼉을 친다',
+  after:'손뼉 타이밍이 딱 맞았다. 지안은 그걸 놓치기 싫었는지 노래가 끝날 때까지 의자에 앉은 채로 안무를 이어 갔다.',
+  ease:'조용히 박자만 세며 음악을 들었다. 지안은 컵을 내려놓고 볼륨을 조금 낮췄다.'
+ },
+ '공재희':{
+  moment:'집 안으로 들어가다 슬리퍼 한 짝이 벗겨졌다. 발로 당겨 오려는데 재희도 발끝으로 슬리퍼를 밀어 줬다. 푹신한 두 슬리퍼 코가 톡 부딪혔다. 재희가 발만 내려다본 채 웃음을 삼켰다.',
   warm:'슬리퍼 코로 가볍게 한 번 더 인사한다',
-  after:'맞은편 슬리퍼도 톡, 조심스럽게 인사를 돌려줬다. 서로 고개를 들고 나서야 우리 둘 다 웃고 있던 걸 알았다.',
-  ease:'슬리퍼를 바로 신었다. 이제 됐다는 뜻으로 발끝을 들어 보이고 안으로 들어갔다.'
+  after:'재희가 이번에는 양쪽 슬리퍼를 번갈아 내밀었다. 인사를 한 번만 하려던 게 현관에서 둘 다 웃느라 한참 걸렸다.',
+  ease:'슬리퍼를 바로 신고 발끝을 들어 보였다. 재희가 이번엔 굳이 왼발까지 나란히 정리해 줬다.'
  }
 };
 
@@ -8258,7 +8315,8 @@ const cinemaSparkReplies={
  '한시우':['와, 나 팝콘 먹다가 이렇게 긴장한 거 처음이에요.','와, 나 팝콘 먹다가 이렇게 긴장한 거 처음이야.']
 };
 function renderDateSpark(ev,venue,companions,canStart){
- const scene=dateSparkScenes[venue]||groupTripSparkScenes[venue]||everydayDateSparkScenes[venue];
+ const scene=venue==='홈데이트'?homeDateSparkScenes[ev.dateSpark?.people?.[0]??companions[0]]:
+  dateSparkScenes[venue]||groupTripSparkScenes[venue]||everydayDateSparkScenes[venue];
  if(!scene)return false;
  const v=initSim(),day=ev.day??v.day;
  const eligible=()=>{

@@ -4555,7 +4555,73 @@ function renderGroupDate(ev){
  });
 }
 
-function renderBreakup(ev){const v=initSim(),p=ev.person;if(ev.breakupAnswer){add(state.name,ev.breakupAnswer,true);add(p,romanceProfiles[p][6]);choiceButton('일정 계속하기',finishEvent);return}add('이야기','지금의 관계를 계속 이어 갈지 이야기할 시간이다.');if(!ev.breakupReason){for(const [label,reason] of [['마음이 예전과 같지 않아요.','마음의 변화'],['계속되는 갈등이 힘들어요.','갈등과 소통의 문제'],['서로 원하는 관계가 다른 것 같아요.','관계 방식의 차이']])choiceButton(label,()=>{ev.breakupReason={label,reason};save();renderChoiceEvent()});choiceButton('아직 헤어지지 않는다',finishEvent);return}add(state.name,ev.breakupReason.label,true);choiceButton('연인 관계를 끝낸다',()=>{endDating(p,ev.breakupReason.reason);ev.breakupAnswer=ev.breakupReason.label;save();renderChoiceEvent();renderSim()});choiceButton('다시 생각한다',()=>{delete ev.breakupReason;save();renderChoiceEvent()})}
+const PLAYER_BREAKUP_VOICES={
+"서이준":{look:"이준은 한참 아무 말도 하지 않았다. 그러다 현관문에 걸었던 손을 천천히 내렸다.",ask:["…전에도 혼자 결론 내린 적 있죠. 이번엔 그러지 않으려고요. 정말 끝내고 싶은 건지, 아직 제가 할 수 있는 게 있는 건지 물어봐도 돼요?","…전에도 혼자 결론 내린 적 있잖아. 이번엔 안 그러려고. 정말 끝내고 싶은 건지, 아직 내가 할 수 있는 게 있는 건지 물어봐도 돼?"],stay:["…그럼 지금 뭐가 힘든지부터 들을게요. 모르는 척하고 싶지 않아요.","…그럼 지금 뭐가 힘든지부터 들을게. 모르는 척하고 싶지 않아."],end:["…알겠어요. 붙잡고 싶은 건 사실인데, 더 말하진 않을게요.","…알겠어. 붙잡고 싶은 건 사실인데, 더 말하진 않을게."]},
+"강도윤":{look:"도윤은 웃으려다 그만뒀다. 테이블 가장자리를 짚은 손가락에 힘이 들어갔다.",ask:["잠깐만요. …저 지금 너무 놀라서 제대로 대답 못 할 것 같아요. 바로 보내 드리기 싫어요. 한 번만 더 이야기하면 안 될까요?","잠깐만. …나 지금 너무 놀라서 제대로 대답 못 할 것 같아. 바로 보내기 싫어. 한 번만 더 이야기하면 안 될까?"],stay:["고마워요. 제가 괜찮은 척하다 놓친 말부터 할게요.","고마워. 내가 괜찮은 척하다 놓친 말부터 할게."],end:["…정말 끝이라면 받아들일게요. 오늘은 웃으면서 인사할 자신이 없네요.","…정말 끝이라면 받아들일게. 오늘은 웃으면서 인사할 자신이 없네."]},
+"한시우":{look:"시우의 표정에서 웃음기가 완전히 사라졌다. 잡았던 옷자락을 놓지 못하고 시선을 올렸다.",ask:["어? …잠깐만요. 지금 진짜요? 나 아직 좋아하는데. 나한테 뭐가 그렇게 싫었는지 말이라도 해 줘요. 그냥 가면 나 진짜 어떡해요.","어? …잠깐만. 지금 진짜? 나 아직 좋아하는데. 나한테 뭐가 그렇게 싫었는지 말이라도 해 줘. 그냥 가면 나 진짜 어떡해."],stay:["이번엔 장난 안 칠게요. 제대로 들을게요.","이번엔 장난 안 칠게. 제대로 들을게."],end:["…알겠어요. 손 놓을게요. 근데 나 오늘은 좀 울 것 같아요.","…알겠어. 손 놓을게. 근데 나 오늘은 좀 울 것 같아."]},
+"정태오":{look:"태오는 대답하려던 입술을 다물었다. 평소보다 긴 침묵 끝에 겨우 고개를 들었다.",ask:["결정을 존중하겠습니다. 하지만 제가 아직 좋아한다는 사실까지 감추고 싶지는 않습니다. …혹시 돌이킬 방법이 있는지 한 번만 묻겠습니다.","결정은 존중할게. 하지만 내가 아직 좋아한다는 것까지 감추고 싶진 않아. …혹시 돌이킬 방법이 있는지 한 번만 물을게."],stay:["고맙습니다. 이번에는 제 생각도 숨기지 않고 말씀드리겠습니다.","고마워. 이번에는 내 생각도 숨기지 않고 말할게."],end:["…알겠습니다. 마음은 바로 정리되지 않겠지만, 더 붙잡지는 않겠습니다.","…알겠어. 마음은 바로 정리되지 않겠지만, 더 붙잡진 않을게."]},
+"백지한":{look:"지한은 몇 걸음 다가왔다가 멈췄다. 평소처럼 손을 뻗으려던 순간, 당신의 표정을 보고 팔을 내렸다.",ask:["안 돼요. …아니, 당신이 싫다는데 안 된다고 할 수는 없죠. 그래도 지금은 보내기 싫어요. 저한테 기회가 한 번도 안 남은 겁니까?","안 돼. …아니, 네가 싫다는데 안 된다고 할 순 없지. 그래도 지금은 보내기 싫어. 나한테 기회가 한 번도 안 남은 거야?"],stay:["그럼 이번엔 제 욕심만 내세우지 않을게요. 어디가 답답했는지 말해 줘요.","그럼 이번엔 내 욕심만 내세우지 않을게. 어디가 답답했는지 말해 줘."],end:["…붙잡고 싶어 죽겠는데, 억지로 할 수 있는 일은 아니네요. 알겠습니다.","…붙잡고 싶어 죽겠는데, 억지로 할 수 있는 일은 아니네. 알겠어."]},
+"임하나":{look:"하나는 두 손으로 소매 끝을 구겼다. 괜찮다고 말하려던 입술이 떨렸다.",ask:["저, 저는 아직 안 괜찮아요. …제가 또 아무 말도 못 하면 정말 끝나는 거죠? 한 번만 더 기회를 달라고 하면 안 돼요?","나, 나 아직 안 괜찮아. …내가 또 아무 말도 못 하면 정말 끝나는 거지? 한 번만 더 기회를 달라고 하면 안 돼?"],stay:["저도 힘들었던 건 제대로 말할게요. 이번에는 도망가지 않을래요.","나도 힘들었던 건 제대로 말할게. 이번에는 도망가지 않을래."],end:["…네. 울면서 붙잡아도 바뀌지 않는 거죠. 그래도 좋아했어요.","…응. 울면서 붙잡아도 바뀌지 않는 거지. 그래도 좋아했어."]},
+"차유리":{look:"유리는 미간을 찌푸리며 고개를 돌렸다. 한참 뒤에야 스케치북을 덮었다.",ask:["아, 진짜. 이렇게 끝내자고요? 나 아직 좋아하는데. 자존심 상해서 이런 말 안 하려 했거든요. …한 번만 더 얘기해 보면 안 돼요?","아, 진짜. 이렇게 끝내자고? 나 아직 좋아하는데. 자존심 상해서 이런 말 안 하려 했거든. …한 번만 더 얘기해 보면 안 돼?"],stay:["그럼 나도 솔직하게 말할게요. 나 혼자 다 괜찮은 척 안 할게요.","그럼 나도 솔직하게 말할게. 나 혼자 다 괜찮은 척 안 할게."],end:["알았어요. …진짜 싫다. 끝내는 것보다 아직 좋아한다는 게.","알았어. …진짜 싫다. 끝내는 것보다 아직 좋아한다는 게."]},
+"오세린":{look:"세린은 찻잔을 내려놓았다. 손끝이 잔에서 떨어질 때 작은 소리가 났다.",ask:["제가 너무 늦게 알아챘나 봐요. …괜찮다면 조금만 더 시간을 주시겠어요? 아직 함께 있고 싶은 마음이 커서요.","내가 너무 늦게 알아챘나 봐. …괜찮다면 조금만 더 시간을 줄래? 아직 함께 있고 싶은 마음이 커서."],stay:["고마워요. 편한 말만 고르지 않고, 정말 듣고 싶은 걸 물어볼게요.","고마워. 편한 말만 고르지 않고, 정말 듣고 싶은 걸 물어볼게."],end:["그렇군요. …많이 그리울 거예요. 그래도 결정은 존중할게요.","그렇구나. …많이 그리울 거야. 그래도 결정은 존중할게."]},
+"유지안":{look:"지안은 평소처럼 뭐라도 말해 보려다 입술을 깨물었다. 눈가가 금세 붉어졌다.",ask:["아, 싫어요. …아니, 내가 싫다고 되는 건 아닌데. 나 아직 하고 싶은 것도, 같이 가고 싶은 데도 엄청 많은데. 진짜 마지막이에요?","아, 싫어. …아니, 내가 싫다고 되는 건 아닌데. 나 아직 하고 싶은 것도, 같이 가고 싶은 데도 엄청 많은데. 진짜 마지막이야?"],stay:["응, 그럼 오늘은 도망 안 갈게요. 내가 뭐 잘못했는지 알려 줘요.","응, 그럼 오늘은 도망 안 갈게. 내가 뭐 잘못했는지 알려 줘."],end:["…알겠어요. 웃으면서 보내 주는 건 오늘 못 하겠어요.","…알겠어. 웃으면서 보내 주는 건 오늘 못 하겠어."]},
+"공재희":{look:"재희는 휴대전화를 움켜쥔 채 한 걸음 다가왔다. 눈물이 차오르자 눈을 세게 깜빡였다.",ask:["에이, 장난이죠? …아니잖아. 나 진짜 싫어요. 내가 먼저 그만하자고 한 적도 있긴 한데, 지금은 싫어. 나 좀 봐 줘요. 응?","에이, 장난이지? …아니잖아. 나 진짜 싫어. 내가 먼저 그만하자고 한 적도 있긴 한데, 지금은 싫어. 나 좀 봐 줘. 응?"],stay:["나 이번엔 장난 안 칠게요. 진짜로 뭐가 싫었는지 다 들을게요.","나 이번엔 장난 안 칠게. 진짜로 뭐가 싫었는지 다 들을게."],end:["…알았어요. 억지로 붙잡지는 않을게요. 근데 나 오늘 진짜 펑펑 울 거야.","…알았어. 억지로 붙잡지는 않을게. 근데 나 오늘 진짜 펑펑 울 거야."]}
+};
+function renderBreakup(ev){
+ const v=initSim(),p=ev.person;
+ if(ev.breakupAnswer){
+  add(state.name,ev.breakupAnswer,true);
+  if(ev.breakupReply)add(p,ev.breakupReply);
+  else add(p,romanceProfiles[p][6]);
+  choiceButton('일정 계속하기',finishEvent);return;
+ }
+ add('이야기','지금의 관계를 계속 이어 갈지 이야기할 시간이다.');
+ if(!ev.breakupReason){
+  for(const [label,reason] of [['마음이 예전과 같지 않아요.','마음의 변화'],['계속되는 갈등이 힘들어요.','갈등과 소통의 문제'],['서로 원하는 관계가 다른 것 같아요.','관계 방식의 차이']]){
+   choiceButton(label,()=>{ev.breakupReason={label,reason};save();renderChoiceEvent()});
+  }
+  choiceButton('아직 헤어지지 않는다',finishEvent);return;
+ }
+ const voice=PLAYER_BREAKUP_VOICES[p];
+ const speak=(field)=>voice[field][speechRegisterIndex(p,'npc',v.day)];
+ add(state.name,ev.breakupReason.label,true);
+ if(!ev.breakupPleaSeen){
+  add('이야기',voice.look);add(p,speak('ask'));
+  choiceButton('무엇이 힘들었는지 다시 이야기한다',()=>{
+   ev.breakupPleaSeen='talk';ev.breakupReply=speak('stay');
+   remember(p,'breakup:held:'+v.day,ev.breakupReason.reason);
+   writeJournal(p+' · 이별을 고민하다 대화를 이어 갔다.');
+   save();renderChoiceEvent();renderSim();
+  });
+  choiceButton('미안하지만 헤어지겠다고 분명하게 말한다',()=>{
+   ev.breakupPleaSeen='end';ev.breakupReply=speak('end');
+   endDating(p,ev.breakupReason.reason);
+   ev.breakupAnswer='미안하지만 내 마음은 변하지 않았어요.';
+   remember(p,'breakup:player:'+v.day,ev.breakupReason.reason);
+   save();renderChoiceEvent();renderSim();
+  });
+  choiceButton('아직 결정을 못 하겠다고 말한다',()=>{
+   delete ev.breakupReason;delete ev.breakupPleaSeen;
+   remember(p,'breakup:paused:'+v.day,'이별을 망설였다');
+   save();renderChoiceEvent();
+  });
+  return;
+ }
+ if(ev.breakupPleaSeen==='talk'){
+  add(p,ev.breakupReply||speak('stay'));
+  add('이야기','두 사람은 당장 결론을 내리지 않고, 무엇이 힘들었는지 이야기를 계속했다.');
+  choiceButton('오늘은 헤어지지 않고 대화를 이어 간다',()=>{
+   ev.breakupAnswer='오늘은 끝내지 않고 다시 이야기해 볼래요.';
+   ev.breakupReply=speak('stay');
+   delete ev.breakupReason;save();renderChoiceEvent();renderSim();
+  });
+  choiceButton('이야기를 들었지만 역시 헤어진다',()=>{
+   ev.breakupAnswer='이야기는 들었지만 내 결정은 같아요.';
+   ev.breakupReply=speak('end');endDating(p,ev.breakupReason.reason);
+   save();renderChoiceEvent();renderSim();
+  });
+ }
+}
 function legacyOutingBetrayal(p){const v=initSim(),r=coupleIssueRecord(p),x=r.active;if(!x||x.kind!=='betrayal'||x.source||!vIsDating(p)||!vIsDating(x.other))return false;const q=x.other,pair=pairState(p,q),m=memoryFor(p),start=coupleRecord(q).since;if(!pair?.known?.[p]||pair.known[q]||!start)return false;const old=m.history.some(h=>h.day===x.day&&h.id.startsWith('couple:shared:'+q+':')&&Number(h.id.split(':').at(-1))<start);return old&&romanceNetwork().history.some(h=>h.kind==='revealed'&&h.day===x.day&&h.knower===p&&h.people?.includes(q)&&!h.source)&&!triangleRecord(p).history.some(h=>h.day===x.day&&h.other===q)}
 function repairLegacyOutingBetrayal(p,ev){if(!legacyOutingBetrayal(p))return false;const v=initSim(),r=coupleIssueRecord(p),x=r.active,q=x.other,pair=pairState(p,q),m=memoryFor(p),c=coupleRecord(p),net=romanceNetwork();try{localStorage.setItem(KEY+'-outing-repair-backup',JSON.stringify(state))}catch(e){return false}feel(p,{hurt:-8,jealousy:-4,obsession:-7,distrust:-9});pair.known[p]=false;pair.mode='secret';r.active=null;r.last=Math.max(0,...r.history.map(h=>h.day||0));const ids=new Set(['secret:revealed:'+x.day+':'+q]);if(c.warning?.reason==='비밀 교제와 신뢰의 상처'){ids.add('breakup:warning:'+c.warning.day);const d=c.warning.day;v.phone.threads[p]=(v.phone.threads[p]||[]).filter(h=>!(h.breakupNotice&&h.day>=d));delete c.warning}m.history=m.history.filter(h=>!ids.has(h.id));for(const id of ids)delete m.facts[id];net.history=net.history.filter(h=>!(h.kind==='revealed'&&h.day===x.day&&h.knower===p&&h.people?.includes(q)&&!h.source));if(!net.history.some(h=>h.kind==='revealed')&&v.lifeAchievements)delete v.lifeAchievements.revealed;v.journal=v.journal.filter(h=>!(h.day===x.day&&h.text===p+'가 '+q+'와의 교제 사실을 알게 되었다.'));if(socialRecord(p).knownLover===q)delete socialRecord(p).knownLover;ev.coupleIssue=false;delete ev.issueSnapshot;delete ev.betrayalAnswer;save();return true}
 function renderBetrayal(ev,p){const v=initSim(),r=coupleIssueRecord(p),x=r.active,anger=ev.coupleAnger||(x&&coupleAngerScene(ev,p,x));if(anger)renderCoupleAnger(p,anger);else add(p,romanceProfiles[p][7]);if(ev.betrayalAnswer){add(state.name,ev.betrayalAnswer,true);if(anger)add(p,ev.betrayalReply);choiceButton('일정 계속하기',finishEvent);return}if(legacyOutingBetrayal(p))choiceButton('외출 공개 오류 복구 (교제 유지)',()=>{if(!confirm('교제 사실을 직접 밝히지 않았는데 과거 외출 이야기만으로 발각된 경우에만 복구하세요. 현재 진행을 백업하고 해당 갈등을 취소합니다.'))return;if(!repairLegacyOutingBetrayal(p,ev)){alert('복구하지 못했습니다. 세이브 파일을 백업해 주세요.');return}renderChoiceEvent();renderSim()});if(!x)return;for(const label of ['다른 관계를 끝내고 신뢰를 다시 쌓고 싶어요.','이 관계를 끝내요.','아직 결정하지 않고 시간을 갖고 싶어요.'])choiceButton(label,()=>{if(ev.betrayalAnswer)return;ev.betrayalAnswer=label;if(anger)ev.betrayalReply=label.startsWith('이 관계')?'…알겠어요.':coupleAngerScenes[p].reply;if(label.startsWith('다른')){endDating(x.other,'비밀 교제 이후 이별');r.active={...x,kind:'distance',status:'waiting',reviewDay:v.day+3};}else if(label.startsWith('이 관계'))endDating(p,'비밀 교제 이후 이별');save();renderChoiceEvent();renderSim()})}

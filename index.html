@@ -89,7 +89,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.195.1-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.196-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -110,7 +110,7 @@
 <details><summary>긴 코드로 옮기기</summary>
 <textarea id="transferText" rows="7" style="width:100%;box-sizing:border-box" aria-label="세이브 코드" placeholder="세이브 코드를 붙여넣으세요"></textarea>
 <button id="transferExport">현재 세이브 표시</button><button id="transferCopy">코드 복사</button><button id="transferImport">코드 불러오기</button></details>
-<p id="transferStatus" role="status"></p><button id="transferClose" class="secondary">닫기</button></dialog><button id="transferOpen" class="secondary" style="position:fixed;bottom:12px;right:12px;z-index:20">세이브 관리</button><script>
+<p id="transferStatus" role="status"></p><button id="transferClose" class="secondary">닫기</button></dialog><button id="transferOpen" class="secondary" style="position:fixed;bottom:12px;right:12px;z-index:20">세이브 관리</button><script src="ending-modules.js"></script><script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id), KEY='yeonhwa-romcom-v05';
@@ -3754,7 +3754,7 @@ function makeYearRecord(ev){
   career:{title:career.title,line:career.line,profession:ev?.professionEnding||professionEnding()},
   job:state.job,money:v.money,energy:v.energy,fatigue:healthRecord().fatigue,
   skills:{...v.skills},inner:{...v.innerGrowth},traits:{...state.identity?.traits},
-  goals:[...goals],achievements:lifeAchievementList.filter(([id])=>v.lifeAchievements?.[id]).map(([id,name,description])=>({name,description,day:v.lifeAchievements[id]})),
+  goals:[...goals],memories:yearMemoExcerpt(v),achievements:lifeAchievementList.filter(([id])=>v.lifeAchievements?.[id]).map(([id,name,description])=>({name,description,day:v.lifeAchievements[id]})),
   page:'record'
  };
 }
@@ -3764,8 +3764,10 @@ function finishYear(ev){
  albumCapture(ev);
  christmasState().endingDone=true;
  v.finished=true;v.activeEvent=null;v.weekEnd=null;v.running=null;
+ if(!v.yearBook)v.yearBook=makeYearRecord(ev);
+ yearArchiveStore(v.yearBook);
  save();
- renderYearView('record');
+ renderYearView('future');
 }
 function yearElement(parent,tag,content,className){
  const el=document.createElement(tag);
@@ -3834,7 +3836,7 @@ function renderYearRecord(panel,b){
    const li=yearElement(list,'li');yearElement(li,'b',a.name);yearElement(li,'small','DAY '+a.day);yearElement(li,'p',a.description);
   }
  }else yearElement(achieved,'p','이번 회차에 획득한 업적이 없다.');
- yearButton(panel,'yearCreditsOpen','엔딩 크레딧 보기',()=>renderYearView('credits'));
+ yearStoryNav(panel,'record');
 }
 function renderYearCredits(panel,b){
  const end=yearElement(panel,'div',null,'year-colophon');
@@ -3855,6 +3857,7 @@ function renderYearCredits(panel,b){
  yearButton(panel,'yearRecordBack','한 해의 결산 다시 보기',()=>renderYearView('record'));
  yearButton(panel,'yearAlbumOpen','추억 앨범 열기',()=>{switchTab('album');$('album').querySelector('h2').scrollIntoView({block:'start'})},true);
  yearButton(panel,'yearRestart','새 회차 시작하기',()=>$('reset').click(),true);
+ yearStoryNav(panel,'credits');
 }
 function renderYearView(page){
  const v=initSim();if(!yearReady(v))return;
@@ -3863,11 +3866,16 @@ function renderYearView(page){
   v.yearBook=makeYearRecord();save();
  }
  const b=v.yearBook;
- page=page==='credits'?'credits':'record';
+ yearArchiveStore(b);
+ page=['future','people','diary','record','credits'].includes(page)?page:'future';
  if(b.page!==page){b.page=page;save()}
  $('yearReopen').hidden=false;
  const panel=$('yearFinale');panel.replaceChildren();panel.dataset.page=page;
- if(page==='credits')renderYearCredits(panel,b);else renderYearRecord(panel,b);
+ if(page==='future')renderYearFuture(panel,b);
+ else if(page==='people')renderYearPeople(panel,b);
+ else if(page==='diary')renderYearDiary(panel,b);
+ else if(page==='credits')renderYearCredits(panel,b);
+ else renderYearRecord(panel,b);
  $('progress').textContent='365일 · '+b.title;
  $('where').textContent='연화빌라';$('clock').textContent='2월 28일 · DAY 365';
  switchTab('yearFinale');
@@ -9998,11 +10006,22 @@ function syncSchedule(){const v=initSim();movePendingHomeVisits(v);renderUpcomin
 $('runDay').addEventListener('click',playDay);
 $('gift').addEventListener('click',()=>{const v=initSim(),p=selectedGiftTarget,i=items.find(x=>x.name===$('giftItem').value),f=$('giftFeedback');function feedback(t){f.textContent=t;f.classList.remove('hide');}if(!p||!i)return;if(v.affection[p]<20){feedback('지인 단계부터 선물을 줄 수 있습니다.');return}if(v.finished){feedback('한 해의 일정이 끝났습니다.');return}if(v.money<i.cost){feedback('소지금이 부족합니다.');return}const k=v.day+'-'+p;if(v.gifts[k]){feedback('같은 사람에게는 하루 한 번만 선물할 수 있어요.');return}v.money-=i.cost;v.gifts[k]=true;const [love,like,dislike]=giftPrefs[p];let delta=love.includes(i.name)?6:like.includes(i.name)?3:dislike.includes(i.name)?-2:0;v.giftHistory=v.giftHistory||{};const history=v.giftHistory[p]||(v.giftHistory[p]={});if(history[i.name]&&v.day-history[i.name].day<7&&delta>0)delta=1;const before=v.affection[p];v.affection[p]=Math.max(0,Math.min(999,before+delta));history[i.name]={day:v.day,reaction:love.includes(i.name)?'매우 좋아함':like.includes(i.name)?'좋아함':dislike.includes(i.name)?'부담스러워함':'보통'};const lines={"서이준":["…이건 필요한 거였는데. 감사합니다.","잘 쓰겠습니다. 기억해 두셨나 봐요.","아직 지난번 것도 있는데요. …감사합니다.","…저한테는 좀 과한 것 같네요.","아, 챙겨 주셨네요."],"강도윤":["와, 제 취향을 어떻게 아셨어요?","덕분에 기분 좋은 하루가 되겠네요.","하하, 지난번 선물도 잘 쓰고 있어요.","마음만으로도 충분한데요. 조금 부담되네요.","신경 써 주셔서 고마워요."],"한시우":["오! 이거 진짜 좋은데요?","오, 땡큐! 잘 쓸게요.","어? 이거 저번에도 받았는데!","앗, 이건 저보다 다른 사람이 잘 쓸 듯?","오, 선물이다! 감사요."],"정태오":["잘 쓰겠습니다. 신경 써 주셔서 감사합니다.","유용하게 쓰겠습니다.","지난번에 받은 것도 잘 보관하고 있습니다.","제게는 다소 부담스러운 물건입니다.","챙겨 주셨군요. 감사합니다."],"백지한":["센스 좋으시네요. 마음에 들어요.","제 생각하면서 고르셨어요? 좋네요.","지난번에도 주셨잖아요. 저한테 너무 잘해 주시는 거 아닌가요?","음, 이건 제 취향과 조금 거리가 있네요.","뜻밖의 선물이네요. 고마워요."],"임하나":["저한테요? 정말 감사해요…!","아껴서 쓸게요. 고마워요.","또 받아도 되는 걸까요……?","아… 저한테는 조금 부담스러워요.","제 몫도 챙겨 주셨네요."],"차유리":["우와, 이거 완전 제 취향이에요!","오, 괜찮다. 잘 쓸게요.","이거 두 개 됐네요. 하나는 작업실에 둘까.","음, 이건 제가 쓸 일이 별로 없을 것 같아요.","오, 선물이네요. 고마워요."],"오세린":["세심하게 골라 주셨네요. 고마워요.","덕분에 소소한 즐거움이 생겼네요.","지난번 것도 아직 잘 쓰고 있답니다.","제게는 조금 과분한 선물이네요.","마음 써 주셨군요."],"유지안":["와! 바로 써 보고 싶어요!","오예! 고마워요!","헐, 또요? 저번 것도 잘 쓰고 있는데!","앗, 저랑은 좀 안 어울리는 것 같아요.","우와, 깜짝 선물!"],"공재희":["헐 대박! 이거 완전 내 취향인데요? 개좋아 ㅋㅋ","모야모야, 나 주려고 샀어요? 고마워요!","엥 이거 또요? 하나 더 생겼네 ㅋㅋ","음… 이건 나 진짜 안 쓸 것 같은데.","오, 나 주는 거예요? 땡큐!"]};const line=lines[p][delta>=6?0:delta===3?1:delta===1?2:delta<0?3:4];const gain=v.affection[p]-before;feedback(p+' · “'+line+'”\n'+i.name+' · '+i.cost.toLocaleString()+'원 지출 · 호감도 '+(gain>0?'+':'')+gain);writeJournal(p+' · '+i.name+' 선물');renderSim();$('giftPanel').classList.add('hide');selectedGiftTarget=null;save()});
 const SLOTKEY=KEY+'-slots-v1';
-function readSlots(){const raw=localStorage.getItem(SLOTKEY);if(!raw)return [];const a=JSON.parse(raw);if(!Array.isArray(a))throw Error('슬롯 형식 오류');return a}
+function readSlots(){const raw=localStorage.getItem(SLOTKEY);if(!raw)return [];const a=JSON.parse(compactSlotUnpack(raw));if(!Array.isArray(a))throw Error('슬롯 형식 오류');return a}
 function validSave(s){return !!(s&&typeof s.name==='string'&&s.name&&Number.isInteger(s.scene)&&s.scene>=0&&s.scene<scenes.length&&s.sim&&Number.isInteger(s.sim.day)&&s.sim.day>=1&&s.sim.day<=366&&s.sim.affection&&typeof s.sim.affection==='object'&&!Array.isArray(s.sim.affection))}
-function snapshot(){if(!validSave(state))throw Error('저장할 진행이 없습니다.');albumData();return JSON.parse(JSON.stringify(state))}
+function snapshot(){if(!validSave(state))throw Error('저장할 진행이 없습니다.');albumData();const copy=JSON.parse(JSON.stringify(state));delete copy.album;return copy}
 function slotAction(fn){try{fn();drawSlots()}catch(e){$('slotStatus').textContent=e.message||'저장 공간 또는 데이터 오류'}}
-function storeSlots(a){localStorage.setItem(SLOTKEY,JSON.stringify(a))}
+function storeSlots(a){
+ const oldAlbum=albumData(),all=albumMerge(oldAlbum,...a.map(s=>s.state?.album));
+ let safelySeparated=false;
+ try{
+  const saved=JSON.stringify(all);
+  localStorage.setItem(ALBUMKEY,saved);
+  safelySeparated=localStorage.getItem(ALBUMKEY)===saved;
+  if(safelySeparated){albumCache=all;albumSerialized=saved;if(state){state.album=all;albumOwner=state}}
+ }catch(e){console.warn('앨범 공유 저장을 유지합니다',e)}
+ const cleaned=a.map(s=>({...s,state:safelySeparated?{...s.state,album:undefined}:s.state}));
+ localStorage.setItem(SLOTKEY,compactSlotPack(JSON.stringify(cleaned)));
+}
 function portableAutoJSON(raw){
  try{
   const saved=JSON.parse(raw),stored=JSON.parse(localStorage.getItem(ALBUMKEY)||'null');

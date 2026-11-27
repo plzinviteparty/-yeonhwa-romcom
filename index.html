@@ -156,6 +156,7 @@ function yearArchiveSummary(b){
   goals:(b.goals||[]).slice(0,20),
   achievements:(b.achievements||[]).map(x=>({name:x.name,day:x.day,description:x.description})).slice(0,30),
   memories:(b.memories||yearMemoExcerpt(v)).slice(0,16),
+  combos:(b.career?.profession?.ready?(b.partners||[]).map(x=>[b.career.profession.name,x.name]).filter(([job,p])=>!!professionCombos.find(x=>x[0]===job&&x[1]===p)):[]),
   money:Number(b.money)||0
  };
 }
@@ -193,6 +194,13 @@ function renderYearFuture(panel,b){
    for(const [who,line] of (x.lines||[]))yearElement(love,'p',who===x.name?'“'+line+'”':line);
   }
  }else yearElement(love,'p','누구와 연인이 되었는가만으로 한 해를 정의하지 않기로 했다. 혼자 보내는 날에도 내 일상은 다음 장으로 이어졌다.');
+ if(b.career?.profession?.ready){
+  for(const x of b.partners||[]){const combo=professionScene(b.career.profession,x.name);
+   if(!combo)continue;
+   const extra=yearSection(panel,'','특별 후일담 · '+b.career.profession.name+' × '+x.name);
+   yearElement(extra,'h4',combo[2]);yearElement(extra,'p',combo[3]);
+  }
+ }
  yearStoryNav(panel,'future');
 }
 function renderYearPeople(panel,b){
@@ -244,6 +252,7 @@ function archiveDetailShow(record,mode,where){
   yearElement(where,'h4','함께한 사람들');
   for(const x of record.partners||[]){yearElement(where,'b',x.name);for(const [who,line] of x.lines||[])yearElement(where,'p',who===x.name?'“'+line+'”':line)}
   if(!record.partners?.length)yearElement(where,'p','이 해를 마칠 때는 연인이 없었다.');
+  for(const [job,p] of record.combos||[]){const scene=professionCombos.find(x=>x[0]===job&&x[1]===p);if(scene){yearElement(where,'h4','특별 후일담 · '+job+' × '+p+' · '+scene[2]);yearElement(where,'p',scene[3])}}
   yearElement(where,'h4','획득 업적 · '+(record.achievements?.length||0)+'개');
   yearElement(where,'p',(record.achievements||[]).map(x=>x.name).join(' · ')||'아직 없음');
  }

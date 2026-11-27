@@ -1137,6 +1137,785 @@ if(['수영','러닝','산책','교류','아르바이트','카페 실습'].inclu
 return {place,note,person}}
 function legacyPlayDay(){const v=initSim();v.activeEvent=null;const notes=[];let highlight=null;for(let i=0;i<3;i++){v.slot=i;const result=runActivity(v.schedule[i]);notes.push(['오전','낮','오후','저녁'][i]+' · '+result.note);if(result.person)highlight=result}const completed=v.day;v.day=Math.min(365,v.day+1);v.slot=0;const message='DAY '+completed+' 일정 결과\n'+notes.join('\n')+'\n\n'+arrivalText(highlight?highlight.place:activityPlace(v.schedule[2]),highlight&&highlight.person);showEvent(highlight?highlight.place:activityPlace(v.schedule[2]),message,highlight&&highlight.person);renderSim();syncSchedule();drawTown()}
 
+// IDs are saved on the encounter and stay stable when more dialogue is added.
+const approvedDailyTalks = {
+  "임하나": {
+    "01": {
+      stage: "growing",
+      place: "store",
+      opening: "오늘 폐기 나오는 디저트가 제가 좋아하는 거였으면 좋겠어요. 아까부터 은근히 기대하고 있거든요.",
+      choices: [
+        {label: "무슨 디저트 좋아해요?", reply: [
+          ["npc", "푸딩이요. 캐러멜 시럽 들어 있는 거요."],
+        ]},
+        {label: "제가 하나 사 줄까요?", reply: [
+          ["npc", "아니에요! 제 돈 주고 사기 아까워서 기다리는 게 재밌는 건데."],
+        ]},
+      ]
+    },
+    "02": {
+      stage: "growing",
+      opening: "오늘 과외하는 학생한테 제가 모르는 유행어를 배웠어요. 저도 아직 어린 줄 알았는데….",
+      choices: [
+        {label: "무슨 유행어인데요?", reply: [
+          ["npc", "그게 기억이 안 나요. 분명히 아까까지 기억하고 있었는데."],
+        ]},
+        {label: "하나 씨도 충분히 어려요.", reply: [
+          ["npc", "그렇죠? 아직 그런 말 들으면 기분 좋아할 나이는 아닌 것 같은데…."],
+        ]},
+      ]
+    },
+    "03": {
+      stage: "growing",
+      place: "campus",
+      opening: "조별 과제를 하는데 한 분이 자꾸 연락을 안 보세요. 제가 그냥 그분 몫까지 해 버릴까 싶어요.",
+      choices: [
+        {label: "하나 씨가 왜 그 사람 몫까지 해요?", reply: [
+          ["npc", "…그렇죠? 저도 이번에는 좀 따져 볼까 봐요."],
+        ]},
+        {label: "그러다가 다음에도 하나 씨한테 맡기면요?", reply: [
+          ["npc", "으…. 그건 정말 싫어요. 오늘 안으로 연락 달라고 해야겠어요."],
+        ]},
+      ]
+    },
+    "04": {
+      stage: "growing",
+      opening: "저 어제 장 보러 갔다가 정작 사려고 했던 건 안 사고 다른 것만 잔뜩 사 왔어요.",
+      choices: [
+        {label: "뭐 사려고 했는데요?", reply: [
+          ["npc", "휴지요. 결국 오늘 또 가야 돼요."],
+        ]},
+        {label: "다음부터 메모하고 가요.", reply: [
+          ["npc", "메모도 했어요. 휴대폰을 안 보고 장을 봐서 그렇지…."],
+        ]},
+      ]
+    },
+    "05": {
+      stage: "growing",
+      opening: "가끔은 휴대폰을 꺼 놓고 하루 종일 자고 싶어요. 아무한테도 연락 안 오는 날이요.",
+      choices: [
+        {label: "그럼 저도 연락 안 할게요.", reply: [
+          ["npc", "아, 그쪽한테 오는 연락은 괜찮은데…."],
+          ["narration", "하나가 머쓱하게 웃었다."],
+        ]},
+        {label: "하루 정도는 그래도 괜찮잖아요.", reply: [
+          ["npc", "그렇겠죠? 막상 그러면 불안해서 한 시간 만에 다시 켤 것 같지만요."],
+        ]},
+      ]
+    },
+    "06": {
+      stage: "growing",
+      opening: "저는 드라마 재미있게 보면 마지막 화를 바로 안 봐요. 끝나는 게 아쉬워서요.",
+      choices: [
+        {label: "그러다 결말 스포일러 당하지 않아요?", reply: [
+          ["npc", "그래서 인터넷에서도 엄청 조심해요. 사실 그냥 보는 게 편할 텐데."],
+        ]},
+        {label: "다시 처음부터 보면 되잖아요.", reply: [
+          ["npc", "처음 볼 때만 느낄 수 있는 게 있잖아요. 범인이 누군지 모르고 추리한다든가…."],
+        ]},
+      ]
+    },
+    "07": {
+      stage: "growing",
+      opening: "어릴 때 동생들이랑 과자 나눠 먹으면 꼭 마지막 한 개가 남았거든요.",
+      choices: [
+        {label: "그건 누가 먹었어요?", reply: [
+          ["npc", "대부분 동생들이요. 근데 제가 먼저 먹어 버린 적도 있어요."],
+        ]},
+        {label: "하나 씨가 양보했을 것 같아요.", reply: [
+          ["npc", "…요즘에는 먹고 싶으면 먹어요. 제 돈 주고 샀으니까."],
+        ]},
+      ]
+    },
+    "08": {
+      stage: "growing",
+      opening: "저 생각보다 쓸데없는 물건 사는 거 좋아해요. 예쁜 스티커 같은 거요.",
+      choices: [
+        {label: "스티커는 어디에 붙여요?", reply: [
+          ["npc", "안 붙여요. 아까워서 못 쓰겠더라고요."],
+        ]},
+        {label: "저한테 하나 주세요.", reply: [
+          ["npc", "으으…. 제일 아끼는 것 빼고 골라 보실래요?"],
+        ]},
+      ]
+    },
+    "09": {
+      stage: "growing",
+      opening: "저 생각보다 싫어하는 게 많아요. 말로 잘 안 해서 그렇지.",
+      choices: [
+        {label: "저한테는 편하게 말해도 돼요.", reply: [
+          ["npc", "…그럼 다음에는 정말 말할 거예요. 놀라시면 안 돼요."],
+        ]},
+        {label: "저한테도 싫은 점 있어요?", reply: [
+          ["narration", "하나가 잠시 고민하는 척했다."],
+          ["npc", "음…. 오늘은 없는 걸로 해 드릴게요."],
+        ]},
+      ]
+    },
+    "10": {
+      stage: "growing",
+      opening: "…… 있잖아요, 혹시 이번 주말에 약속 있으세요?",
+      choices: [
+        {label: "하나 씨가 만나자고 하면 비워 둘게요.", reply: [
+          ["npc", "그렇게까지 말씀하시면…. 저 정말 만나자고 할 건데요."],
+        ]},
+        {label: "왜요? 어디 가고 싶은 곳 있어요?", reply: [
+          ["npc", "아니요. 장소는 아직 안 정했어요. 그냥 같이 있고 싶어서…."],
+        ]},
+      ]
+    },
+    "11": {
+      stage: "dating",
+      place: "store",
+      opening: "아, 왔어? 나 아직 삼십 분 남았는데.",
+      choices: [
+        {label: "끝날 때까지 기다릴게.", reply: [
+          ["npc", "정말? 그럼 끝나고 같이 아이스크림 먹자. 내가 살게."],
+        ]},
+        {label: "일하는 거 구경하고 있을게.", reply: [
+          ["npc", "그건 좀 부끄러운데…. 나 계산 실수하면 어떡해."],
+        ]},
+      ]
+    },
+    "12": {
+      stage: "dating",
+      opening: "나 오늘 과외하면서 칭찬을 엄청 많이 해 줬거든.",
+      choices: [
+        {label: "하나도 칭찬받고 싶어?", reply: [
+          ["npc", "…응. 어떻게 알았어?"],
+          ["narration", "하나가 웃으며 내게 머리를 내밀었다."],
+        ]},
+        {label: "좋은 선생님이네.", reply: [
+          ["npc", "그치? 나도 내가 가르치는 애들이 나 좋아했으면 좋겠어."],
+        ]},
+      ]
+    },
+    "13": {
+      stage: "dating",
+      opening: "나 어제 꿈에서 네가 나 몰래 맛있는 거 먹었어.",
+      choices: [
+        {label: "꿈인데 왜 나를 그렇게 봐?", reply: [
+          ["npc", "깨고 나서도 좀 억울하더라. 나도 한 입 달라고 했는데."],
+        ]},
+        {label: "오늘 진짜 맛있는 거 사 줄게.", reply: [
+          ["npc", "응? 이렇게 되는 거야? 그럼 꿈 잘 꿨네."],
+        ]},
+      ]
+    },
+    "14": {
+      stage: "dating",
+      opening: "나 오늘 좀 예쁘지 않아?",
+      choices: [
+        {label: "오늘만?", reply: [
+          ["npc", "…아, 진짜."],
+          ["narration", "하나가 웃음을 참지 못하고 내 팔을 붙잡았다."],
+          ["npc", "그런 말은 어디서 배워 오는 거야?"],
+        ]},
+        {label: "응. 오늘 유독 예쁘네.", reply: [
+          ["npc", "그럴 줄 알았어. 오늘 머리 하는 데 삼십 분이나 걸렸거든."],
+        ]},
+      ]
+    },
+    "15": {
+      stage: "dating",
+      opening: "나 머리 자를까? 요즘 말리는 데 너무 오래 걸려.",
+      choices: [
+        {label: "짧은 머리도 잘 어울릴 것 같은데.", reply: [
+          ["npc", "그래? 사실 하고 싶은 머리 사진 저장해 놨어. 볼래?"],
+        ]},
+        {label: "지금 머리도 예쁜데.", reply: [
+          ["npc", "그 말 들으니까 또 자르기 싫어지잖아. 아, 고민된다…."],
+        ]},
+      ]
+    },
+    "16": {
+      stage: "dating",
+      opening: "나도 가끔은 네가 나 때문에 안절부절못했으면 좋겠어.",
+      choices: [
+        {label: "지금도 충분히 그러고 있는데.", reply: [
+          ["npc", "거짓말. 나한테는 맨날 여유로운 척하면서."],
+          ["narration", "하나가 내 얼굴을 빤히 들여다봤다."],
+        ]},
+        {label: "하나가 한번 그렇게 만들어 봐.", reply: [
+          ["npc", "…나중에 후회하지 마."],
+          ["narration", "하나가 슬쩍 웃으며 내 손을 잡았다."],
+        ]},
+      ]
+    },
+    "17": {
+      stage: "dating",
+      opening: "나 오늘 좀 돈 아꼈어. 사고 싶었던 거 안 샀거든.",
+      choices: [
+        {label: "뭘 사고 싶었는데?", reply: [
+          ["npc", "잠옷. 토끼 귀 달린 거."],
+        ]},
+        {label: "잘 참았네.", reply: [
+          ["npc", "그치? 근데 칭찬받으니까 다시 사고 싶어졌어. 어떡하지?"],
+        ]},
+      ]
+    },
+    "18": {
+      stage: "dating",
+      opening: "…… 있잖아, 나 서운한 일 있으면 바로 말해도 되지?",
+      choices: [
+        {label: "당연하지. 무슨 일 있어?", reply: [
+          ["npc", "아니, 지금은 없어. 그냥 나도 그러는 버릇을 들이려고."],
+        ]},
+        {label: "참다가 말하는 것보다 훨씬 좋아.", reply: [
+          ["npc", "응. 나도 너한테 괜찮은 척하는 거 이제 그만하고 싶어."],
+        ]},
+      ]
+    },
+    "19": {
+      stage: "dating",
+      opening: "내 휴대폰에 네 이름 뭐라고 저장했는지 알아?",
+      choices: [
+        {label: "뭐라고 저장했는데?", reply: [
+          ["npc", "비밀."],
+          ["narration", "하나가 휴대폰을 등 뒤로 숨기며 웃었다."],
+        ]},
+        {label: "나는 뭐라고 저장하면 좋겠어?", reply: [
+          ["npc", "음…. 예쁜 거. 남들한테 보여 주기는 조금 부끄러울 정도로."],
+        ]},
+      ]
+    },
+    "20": {
+      stage: "dating",
+      opening: "나 예전에는 누가 나 좋아해 주면 그 사람이 원하는 건 다 해 줘야 하는 줄 알았어.",
+      choices: [
+        {label: "지금은 어떻게 생각해?", reply: [
+          ["npc", "지금은 내가 하고 싶은 것도 같이 하고 싶어. 좋아하는 건 서로 똑같잖아."],
+        ]},
+        {label: "나한테는 그러지 않아도 돼.", reply: [
+          ["npc", "알아."],
+          ["narration", "하나가 내 손을 꼭 쥐었다."],
+          ["npc", "요즘은 알아. 그래서 네가 더 좋아."],
+        ]},
+      ]
+    },
+  },
+  "오세린": {
+    "01": {
+      stage: "growing",
+      place: "clinic",
+      opening: "오늘은 진료실에 들어오기 싫다고 바닥에 드러누운 강아지가 있었어요. 보호자분이 간식까지 꺼내셨는데 꼼짝도 안 하더라고요.",
+      choices: [
+        {label: "세린 씨가 달래 줬어요?", reply: [
+          ["npc", "네. 한참 같이 앉아 있었죠. 결국 제가 먼저 지는 척했어요."],
+        ]},
+        {label: "고집이 엄청 센가 봐요.", reply: [
+          ["npc", "하하. 저도 고집으로는 어디 가서 지지 않는데 말이에요."],
+        ]},
+      ]
+    },
+    "02": {
+      stage: "growing",
+      place: "clinic",
+      opening: "어머, 벌써 시간이 이렇게 됐네요. 점심도 못 먹었는데.",
+      choices: [
+        {label: "잠깐이라도 뭐 드시는 게 어때요?", reply: [
+          ["npc", "그래야겠어요. 다른 사람한테는 잘 챙겨 먹으라고 하면서 제가 이러고 있네요."],
+        ]},
+        {label: "시간 괜찮으면 같이 먹어요.", reply: [
+          ["npc", "좋아요. 마침 혼자 먹기에는 조금 아쉬웠어요."],
+        ]},
+      ]
+    },
+    "03": {
+      stage: "growing",
+      opening: "저는 물건을 오래 쓰는 편이에요. 집에 대학생 때부터 쓰던 컵도 있답니다.",
+      choices: [
+        {label: "특별한 추억이 있는 컵인가요?", reply: [
+          ["npc", "아뇨. 그냥 튼튼해요. 하하."],
+        ]},
+        {label: "물건을 잘 관리하시나 봐요.", reply: [
+          ["npc", "그런 편이에요. 손에 익은 물건을 바꾸는 게 아쉽기도 하고요."],
+        ]},
+      ]
+    },
+    "04": {
+      stage: "growing",
+      opening: "어릴 때는 서른이 넘으면 뭐든 척척 알아서 하는 어른이 되어 있을 줄 알았어요.",
+      choices: [
+        {label: "지금도 충분히 멋진 어른인데요.", reply: [
+          ["npc", "아아, 그런가요? 기분 좋은 말을 해 주시네요."],
+        ]},
+        {label: "아직도 어려운 게 많아요?", reply: [
+          ["npc", "그럼요. 저녁에 뭘 먹을지 정하는 것부터 어렵답니다."],
+        ]},
+      ]
+    },
+    "05": {
+      stage: "growing",
+      opening: "어제 추리 영화를 봤는데 범인을 완전히 잘못 짚었어요.",
+      choices: [
+        {label: "누구라고 생각했는데요?", reply: [
+          ["npc", "주인공의 친구요. 끝까지 착한 사람이더라고요. 조금 미안했어요."],
+        ]},
+        {label: "저도 추리 영화 좋아해요.", reply: [
+          ["npc", "그러면 나중에 같이 볼까요? 누가 먼저 맞히는지 궁금하네요."],
+        ]},
+      ]
+    },
+    "06": {
+      stage: "growing",
+      opening: "으음, 요즘은 옷을 사려고 해도 비슷한 색만 눈에 들어오네요.",
+      choices: [
+        {label: "평소에 안 입는 색도 도전해 보세요.", reply: [
+          ["npc", "어떤 색이 좋을까요? 저 혼자 고르면 또 비슷한 걸 살 것 같아서요."],
+        ]},
+        {label: "자기한테 어울리는 색을 아시는 거겠죠.", reply: [
+          ["npc", "유리 씨도 비슷한 말을 하더라고요. 대신 옷장 좀 비우라고도 했지만요."],
+        ]},
+      ]
+    },
+    "07": {
+      stage: "growing",
+      opening: "유리 씨가 얼마 전에 제 사진을 찍어 줬는데, 제가 평소에 그렇게 웃는 줄 몰랐어요.",
+      choices: [
+        {label: "어떤 사진인데요? 보고 싶어요.", reply: [
+          ["npc", "잠시만요. 이상하게 나온 건 보여 드리지 않을 거예요."],
+        ]},
+        {label: "세린 씨는 웃을 때 예뻐요.", reply: [
+          ["npc", "……아아."],
+          ["narration", "세린이 손끝으로 제 뺨을 가볍게 만졌다."],
+          ["npc", "그렇게 말씀하시면 자꾸 웃게 되잖아요."],
+        ]},
+      ]
+    },
+    "08": {
+      stage: "growing",
+      opening: "저도 화가 나면 꽤 무서운 사람이에요.",
+      choices: [
+        {label: "상상이 안 가는데요.", reply: [
+          ["npc", "그런 모습을 보여 드릴 일이 없으면 좋겠네요. 저도 화내는 건 좋아하지 않아서요."],
+        ]},
+        {label: "어떤 일에 화가 나는데요?", reply: [
+          ["npc", "약한 사람이나 동물에게 함부로 대하는 걸 보면 참기 어려워요. 그런 건 그냥 넘어가지 못해요."],
+        ]},
+      ]
+    },
+    "09": {
+      stage: "growing",
+      opening: "혹시 노래방 가는 거 좋아하세요? 저는 남들 노래 듣는 것도 좋아하거든요.",
+      choices: [
+        {label: "세린 씨는 무슨 노래 불러요?", reply: [
+          ["npc", "조금 오래된 노래를 많이 불러요. 아는 곡이 나오면 같이 불러 주실래요?"],
+        ]},
+        {label: "저는 노래를 잘 못 불러요.", reply: [
+          ["npc", "어머, 노래방에 심사위원이 있는 것도 아닌데요. 즐거우면 됐죠."],
+        ]},
+      ]
+    },
+    "10": {
+      stage: "growing",
+      opening: "요즘은 좋은 일이 생기면 누구에게 이야기하고 싶은지 먼저 떠올리게 되네요.",
+      choices: [
+        {label: "그 사람이 누군데요?", reply: [
+          ["narration", "세린이 가만히 나를 바라보았다."],
+          ["npc", "으음, 정말 모르시겠어요?"],
+        ]},
+        {label: "저한테도 이야기해 주세요.", reply: [
+          ["npc", "그러려고 했어요. 오늘 만나면 꼭 이야기해야겠다고 생각했거든요."],
+        ]},
+      ]
+    },
+    "11": {
+      stage: "dating",
+      place: "clinic",
+      opening: "왔어? 오늘은 가운에 털이 잔뜩 묻었네. 잠깐만 기다려 줘.",
+      choices: [
+        {label: "세린에게 다가가 안긴다.", action: true, reply: [
+          ["npc", "어머, 너한테도 털 묻겠다."],
+          ["narration", "세린이 웃으며 나를 마주 안았다."],
+          ["npc", "그래도 보고 싶었어."],
+        ]},
+        {label: "세린의 가운에 묻은 털을 떼어 준다.", action: true, reply: [
+          ["npc", "고마워. 그런데 오늘은 떼어도 떼어도 계속 나오더라. 내가 털옷을 입고 있었나 봐."],
+        ]},
+      ]
+    },
+    "12": {
+      stage: "dating",
+      opening: "오늘따라 내 얼굴을 오래 보네.",
+      choices: [
+        {label: "예뻐서 보고 있었어.", reply: [
+          ["npc", "아아, 그래?"],
+          ["narration", "세린이 턱을 괴고 내 쪽으로 얼굴을 기울였다."],
+          ["npc", "그럼 좀 더 보여 줄까?"],
+        ]},
+        {label: "세린이도 내 얼굴 오래 보잖아.", reply: [
+          ["npc", "응. 나는 좋아하는 얼굴이니까 보는 건데."],
+          ["npc", "너도 같은 이유야?"],
+        ]},
+      ]
+    },
+    "13": {
+      stage: "dating",
+      opening: "나 어제 새벽까지 소설 읽었어.",
+      choices: [
+        {label: "그렇게 재미있었어?", reply: [
+          ["npc", "응. 한 장만 더 읽고 자려고 했는데 정신 차려 보니 끝이더라."],
+        ]},
+        {label: "나한테는 일찍 자라고 하더니?", reply: [
+          ["npc", "……어머."],
+          ["narration", "세린이 슬며시 웃었다."],
+          ["npc", "오늘은 내가 잔소리를 들어야겠네."],
+        ]},
+      ]
+    },
+    "14": {
+      stage: "dating",
+      opening: "나한테 잘 어울릴 것 같은 향수 있어?",
+      choices: [
+        {label: "은은한 꽃향기.", reply: [
+          ["npc", "응, 나도 그런 향 좋아해. 다음에 같이 골라 볼까?"],
+        ]},
+        {label: "지금 나는 향이 좋은데.", reply: [
+          ["npc", "이거? 바디로션 향인데."],
+          ["narration", "세린이 내게 손목을 내밀었다."],
+          ["npc", "가까이서 맡아 볼래?"],
+        ]},
+      ]
+    },
+    "15": {
+      stage: "dating",
+      opening: "오늘 저녁에 보고 싶은 영화가 있어. 그런데 혼자 보기에는 조금 무서울 것 같더라.",
+      choices: [
+        {label: "세린이도 무서운 게 있어?", reply: [
+          ["npc", "당연하지. 귀신이 나오는데 어떻게 안 무서워."],
+        ]},
+        {label: "같이 보자. 무서우면 나한테 안겨.", reply: [
+          ["npc", "좋아. 그런데 네가 더 무서워하면 어떡해?"],
+          ["narration", "세린이 웃으며 팔을 벌렸다."],
+          ["npc", "이쪽으로 안겨 와도 돼."],
+        ]},
+      ]
+    },
+    "16": {
+      stage: "dating",
+      opening: "오늘은 정말 매운 게 먹고 싶네.",
+      choices: [
+        {label: "세린이는 매운 거 잘 먹어?", reply: [
+          ["npc", "잘 먹는다고는 안 했어. 먹고 싶다고 했지."],
+        ]},
+        {label: "같이 먹자. 내가 더 잘 먹을 것 같아.", reply: [
+          ["npc", "그래? 그럼 우유는 한 사람 것만 준비해도 되겠네."],
+        ]},
+      ]
+    },
+    "17": {
+      stage: "dating",
+      opening: "오늘은 내가 조금 질투했어.",
+      choices: [
+        {label: "무슨 일 있었어?", reply: [
+          ["npc", "네가 다른 사람이랑 즐겁게 이야기하고 있더라. 잘못한 건 아닌데, 나도 모르게 부러웠어."],
+        ]},
+        {label: "질투하는 세린이는 처음 보네.", reply: [
+          ["npc", "처음 보여 주는 거지, 처음 하는 건 아니야."],
+          ["narration", "세린이 머리카락을 귀 뒤로 넘겼다."],
+          ["npc", "나도 좋아하는 사람 앞에서는 욕심이 생겨."],
+        ]},
+      ]
+    },
+    "18": {
+      stage: "dating",
+      opening: "너 어릴 때 장래 희망이 뭐였어?",
+      choices: [
+        {label: "지금이랑은 전혀 다른 거였어.", reply: [
+          ["npc", "어떤 꿈이었을까? 어린 네 모습을 상상하니까 궁금하네."],
+        ]},
+        {label: "세린이는 어릴 때부터 수의사가 꿈이었어?", reply: [
+          ["npc", "아니. 아주 어릴 때는 빵집 주인이 되고 싶었어. 매일 빵을 먹을 수 있을 줄 알았거든."],
+        ]},
+      ]
+    },
+    "19": {
+      stage: "dating",
+      opening: "나한테 항상 괜찮은 모습만 보여 주려고 하지 않아도 돼.",
+      choices: [
+        {label: "세린이한테는 멋있어 보이고 싶은데.", reply: [
+          ["npc", "이미 충분히 멋있어."],
+          ["narration", "세린이 내 손등을 가만히 쓸었다."],
+          ["npc", "그러니까 조금 못난 모습을 보여 줘도 괜찮아."],
+        ]},
+        {label: "세린이도 나한테 그래도 돼.", reply: [
+          ["npc", "……응. 나도 힘든 날에는 네 품에 좀 기대고 싶어."],
+          ["npc", "오늘처럼."],
+        ]},
+      ]
+    },
+    "20": {
+      stage: "dating",
+      opening: "아까 네가 웃는 소리 듣고 나도 따라 웃었어. 무슨 이야기인지도 모르면서.",
+      choices: [
+        {label: "내가 그렇게 좋아?", reply: [
+          ["npc", "응. 그런데 굳이 확인하고 싶은 거야?"],
+          ["narration", "세린이 내 뺨을 가볍게 꼬집었다."],
+        ]},
+        {label: "다음에는 같이 웃을 수 있게 이야기해 줄게.", reply: [
+          ["npc", "좋아. 사소한 이야기라도 들려줘. 그런 게 은근히 재미있더라."],
+        ]},
+      ]
+    },
+  },
+  "유지안": {
+    "01": {
+      stage: "growing",
+      place: "dance",
+      opening: "오늘 초등학생 수강생이 저보고 선생님은 몇 살까지 춤출 거냐고 물어봤어요.",
+      choices: [
+        {label: "뭐라고 대답했어요?", reply: [
+          ["npc", "할머니 될 때까지 출 거라고 했죠! 그랬더니 자기도 그때까지 다니겠대요."],
+        ]},
+        {label: "그 친구도 춤을 정말 좋아하나 봐요.", reply: [
+          ["npc", "그러니까요. 괜히 제가 더 열심히 살아야겠다는 생각이 들더라고요."],
+        ]},
+      ]
+    },
+    "02": {
+      stage: "growing",
+      opening: "저 배달 음식 리뷰 보는 거 진짜 좋아해요. 가끔 음식보다 리뷰가 더 재밌어요.",
+      choices: [
+        {label: "지안 씨도 리뷰 써요?", reply: [
+          ["npc", "네! 근데 맛있다는 말을 너무 많이 써서 제 리뷰는 별로 재미없어요."],
+        ]},
+        {label: "웃긴 리뷰 있으면 보내 줘요.", reply: [
+          ["npc", "오케이! 저 그런 거 엄청 많이 저장해 놨어요."],
+        ]},
+      ]
+    },
+    "03": {
+      stage: "growing",
+      place: "river",
+      sunnyMorning: true,
+      opening: "저기 나무 사이로 햇빛 들어오는 거 봐요. 오늘 날씨 진짜 끝내주지 않아요?",
+      choices: [
+        {label: "지안 씨는 아침부터 기분이 좋아 보이네요.", reply: [
+          ["npc", "오늘 알람 울리기 전에 일어났거든요! 왠지 하루를 공짜로 더 받은 기분이에요."],
+        ]},
+        {label: "사진으로 남겨 둘까요?", reply: [
+          ["npc", "좋아요! 저도 한 장 찍어야겠다. 나중에 흐린 날 보면 기분 좋을 것 같아요."],
+        ]},
+      ]
+    },
+    "04": {
+      stage: "growing",
+      opening: "저 길 가다가 인형뽑기 기계 있으면 꼭 한 번씩 들여다봐요.",
+      choices: [
+        {label: "인형뽑기 잘해요?", reply: [
+          ["npc", "못해요! 그래서 들여다보기만 하는 거예요. 한 번 넣으면 계속 넣게 되더라고요."],
+        ]},
+        {label: "뽑고 싶은 인형 있으면 알려 줘요.", reply: [
+          ["npc", "와우, 자신 있어요? 그럼 저 진짜 기대한다?"],
+        ]},
+      ]
+    },
+    "05": {
+      stage: "growing",
+      opening: "저 어릴 때는 키 크는 게 너무 싫었거든요. 지금은 완전 좋아요.",
+      choices: [
+        {label: "지금은 왜 좋아요?", reply: [
+          ["npc", "높은 선반에 있는 것도 잘 꺼내고, 멀리서 친구 찾기도 쉽고. 은근히 편하다니까요."],
+        ]},
+        {label: "키 큰 거 멋있어요.", reply: [
+          ["npc", "오, 고마워요! 이런 말 들으면 괜히 어깨도 펴게 된다니까."],
+        ]},
+      ]
+    },
+    "06": {
+      stage: "growing",
+      opening: "저 공포 영화 볼 때 귀를 막아요. 화면은 봐도 되는데 소리가 너무 무서워요.",
+      choices: [
+        {label: "그럼 재미없지 않아요?", reply: [
+          ["npc", "재밌게 보는 것보다 끝까지 보는 게 중요하죠!"],
+        ]},
+        {label: "저랑 보면 안 무서울걸요.", reply: [
+          ["npc", "오, 자신감 좋은데요? 나중에 누가 더 무서워하는지 봐요."],
+        ]},
+      ]
+    },
+    "07": {
+      stage: "growing",
+      opening: "저 오늘 택배 오는 날이에요. 뭐 주문했는지 맞혀 볼래요?",
+      choices: [
+        {label: "운동화요?", reply: [
+          ["npc", "땡! 이번에는 침구류예요. 이불이 엄청 푹신해 보이더라고요."],
+        ]},
+        {label: "뭔데 그렇게 신났어요?", reply: [
+          ["npc", "새 이불이요! 오늘 씻고 새 이불에 들어갈 생각 하니까 벌써 행복해요."],
+        ]},
+      ]
+    },
+    "08": {
+      stage: "growing",
+      opening: "저 생각보다 낯가려요. 아무도 안 믿어 주지만.",
+      choices: [
+        {label: "정말 의외인데요.", reply: [
+          ["npc", "그쵸? 그래서 어색하면 오히려 말을 더 많이 해요. 조용하면 무슨 말을 해야 할지 모르겠거든요."],
+        ]},
+        {label: "저랑 있을 때도 어색해요?", reply: [
+          ["npc", "아뇨. 이제는 편해요. 저 아무 말이나 막 하고 있잖아요!"],
+        ]},
+      ]
+    },
+    "09": {
+      stage: "growing",
+      opening: "예전에 같이 연습하던 친구가 오랜만에 연락했어요. 목소리 듣자마자 옛날 생각 엄청 나더라고요.",
+      choices: [
+        {label: "아직도 연락하고 지내요?", reply: [
+          ["npc", "가끔요. 다들 사는 게 바쁘니까. 그래도 연락하면 어제 본 사람처럼 편해요."],
+        ]},
+        {label: "한번 만나 보지 그래요?", reply: [
+          ["npc", "그러려고요. 만나면 옛날에 누가 제일 사고 많이 쳤는지부터 따져 볼래요."],
+        ]},
+      ]
+    },
+    "10": {
+      stage: "growing",
+      opening: "저 오늘 좀 재미없는 하루였거든요. 근데 지금은 재밌어요.",
+      choices: [
+        {label: "저 만나서요?", reply: [
+          ["npc", "네! 그걸 꼭 제 입으로 말하게 해야 돼요?"],
+          ["narration", "지안이 웃으며 내 팔을 가볍게 두드렸다."],
+        ]},
+        {label: "무슨 재미있는 일이라도 생겼어요?", reply: [
+          ["npc", "지금 이야기하고 있잖아요. 이거요!"],
+        ]},
+      ]
+    },
+    "11": {
+      stage: "dating",
+      opening: "나 오늘 진짜 멋진 옷 발견했어. 근데 가격 보고 조용히 내려놨어.",
+      choices: [
+        {label: "얼마였는데?", reply: [
+          ["npc", "말 안 할래. 다시 생각하면 또 사고 싶어져."],
+        ]},
+        {label: "무슨 옷인지 보여 줘.", reply: [
+          ["npc", "잠깐만. 사진 찍어 뒀지!"],
+          ["narration", "지안이 신이 나서 휴대폰을 꺼냈다."],
+        ]},
+      ]
+    },
+    "12": {
+      stage: "dating",
+      place: "dance",
+      opening: "오늘 애들이 나한테 연애하냐고 물어보더라.",
+      choices: [
+        {label: "뭐라고 했어?", reply: [
+          ["npc", "한다고 했지! 내가 왜 숨겨?"],
+          ["narration", "지안이 씩 웃었다."],
+        ]},
+        {label: "티 많이 나나 봐.", reply: [
+          ["npc", "그런가? 나 나름 평소랑 똑같이 행동하는데."],
+          ["npc", "아, 휴대폰 볼 때 자꾸 웃어서 그런가?"],
+        ]},
+      ]
+    },
+    "13": {
+      stage: "dating",
+      opening: "우리 서로 어릴 때 사진 한 장씩 보여 줄까?",
+      choices: [
+        {label: "좋아. 지안이부터 보여 줘.", reply: [
+          ["npc", "오케이! 웃어도 되는데 평생 놀리면 안 돼."],
+        ]},
+        {label: "나는 흑역사가 너무 많아.", reply: [
+          ["npc", "나도 많아! 그러니까 공평하게 하나씩 공개하자는 거지."],
+        ]},
+      ]
+    },
+    "14": {
+      stage: "dating",
+      opening: "나 오늘 아무것도 안 하고 뒹굴거리고 싶어.",
+      choices: [
+        {label: "지안이가 그런 말 하는 건 드물다.", reply: [
+          ["npc", "나도 사람이라구! 가끔은 침대에서 배달 음식 먹고 싶지."],
+        ]},
+        {label: "나도 옆에서 뒹굴거릴래.", reply: [
+          ["npc", "예쓰! 그럼 오늘 누가 더 게으른지 대결이다."],
+        ]},
+      ]
+    },
+    "15": {
+      stage: "dating",
+      opening: "나한테 처음 반한 순간이 언제야?",
+      choices: [
+        {label: "처음 봤을 때.", reply: [
+          ["npc", "와, 진짜? 잠깐만. 나 지금 표정 관리 좀 하고."],
+          ["narration", "지안이 입꼬리를 애써 눌렀다."],
+        ]},
+        {label: "같이 시간을 보내다 보니까 어느 순간.", reply: [
+          ["npc", "좋다. 그렇게 서서히 좋아하게 된 것도 되게 낭만적인데?"],
+        ]},
+      ]
+    },
+    "16": {
+      stage: "dating",
+      opening: "내가 갑자기 머리 색깔을 엄청 튀는 색으로 바꾸면 어떨 것 같아?",
+      choices: [
+        {label: "무슨 색으로?", reply: [
+          ["npc", "쨍한 분홍색! 아니면 초록색! 둘 중 하나?"],
+        ]},
+        {label: "지안이라면 잘 어울리겠는데.", reply: [
+          ["npc", "오, 위험한 발언이다. 나 진짜 할 수도 있어."],
+        ]},
+      ]
+    },
+    "17": {
+      stage: "dating",
+      opening: "나 오늘 좀 짜증 나는 일이 있었어. 별일도 아닌데 계속 생각나네.",
+      choices: [
+        {label: "무슨 일인데? 얘기해 봐.", reply: [
+          ["npc", "그냥 길에서 모르는 사람이랑 시비가 붙었거든. 내가 아무리 생각해도 그 사람 말이 웃겨."],
+        ]},
+        {label: "맛있는 거 먹으면서 기분 풀자.", reply: [
+          ["npc", "좋아. 근데 먹으면서 한 번만 욕해도 돼? 딱 한 번!"],
+        ]},
+      ]
+    },
+    "18": {
+      stage: "dating",
+      opening: "자, 문제! 내가 지금 제일 하고 싶은 게 뭘까요?",
+      choices: [
+        {label: "맛있는 거 먹기?", reply: [
+          ["npc", "땡! 그건 두 번째고."],
+          ["narration", "지안이 두 팔을 벌렸다."],
+          ["npc", "첫 번째는 너 안기!"],
+        ]},
+        {label: "나랑 뽀뽀하기?", reply: [
+          ["npc", "오, 정답으로 인정해 드립니다!"],
+          ["narration", "지안이 활짝 웃으며 가까이 다가왔다."],
+        ]},
+      ]
+    },
+    "19": {
+      stage: "dating",
+      opening: "나 너랑 싸우면 화해하기 전까지 다른 거에 집중을 못 하겠더라.",
+      choices: [
+        {label: "평소에는 그런 거 잘 털어 버리는 줄 알았어.", reply: [
+          ["npc", "다른 사람이면 그러지. 근데 네가 다른 사람이랑 같지는 않잖아."],
+        ]},
+        {label: "그럼 우리 싸우더라도 오래 끌지는 말자.", reply: [
+          ["npc", "좋아. 삐쳐도 할 말은 하고, 미안하면 미안하다고 하자. 나도 노력할게."],
+        ]},
+      ]
+    },
+    "20": {
+      stage: "dating",
+      opening: "나 갑자기 좋은 생각 났어. 서로 잘하는 거 하나씩 가르쳐 주는 거 어때?",
+      choices: [
+        {label: "지안이는 나한테 뭘 가르쳐 줄 건데?", reply: [
+          ["npc", "음, 뭘 가르쳐 줘야 네가 나한테 한 번 더 반할까?"],
+          ["narration", "지안이 진지하게 고민하는 척했다."],
+        ]},
+        {label: "내가 잘하는 게 별로 없는데.", reply: [
+          ["npc", "그걸 왜 네가 정해? 내가 보기에는 많은데."],
+          ["npc", "일단 나 기분 좋게 만드는 거. 그건 네가 제일 잘해."],
+        ]},
+      ]
+    },
+  },
+};
 const dayLabels=['오전','낮','오후','저녁'];
 const choiceData={
 '서이준':['고양이에게 밥을 챙겨 주시나 봐요.','“가끔요. ...고양이 좋아하세요?”','왜 그렇게 사람한테 무뚝뚝해요?','“굳이 친한 척할 필요는 없잖아요.”'],
@@ -1487,12 +2266,34 @@ function meetingBeatData(p,key){
  const row=residentMeetingTalks[p]?.[Number(key.slice(5))];
  return row?{lines:row[1],answers:row.slice(2)}:null;
 }
+function approvedDailyBeat(ev){
+ if(!ev.meetingBeat?.startsWith('daily:'))return null;
+ return approvedDailyTalks[ev.person]?.[ev.meetingBeat.slice(6)]||null;
+}
+function campusMeeting(ev){
+ return ev.person==='임하나'&&ev.activity==='대학 수업'&&ev.jobEvent?.[0]===ev.person;
+}
+function dailyBeatKeys(ev,stage){
+ const p=ev.person,talks=approvedDailyTalks[p];
+ if(!talks||ev.options||unresolvedOutingConflict(p))return [];
+ const dating=stage==='early'||stage==='steady';
+ if(!dating&&(!['normal','flirt','friend'].includes(stage)||relationshipTier(p)<2||initSim().romance[p]==='ended'))return [];
+ const place=campusMeeting(ev)?'campus':ev.place;
+ if(p==='임하나'&&place==='arcade'||p==='유지안'&&!['dance','river'].includes(place))return [];
+ const matches=Object.entries(talks).filter(([,beat])=>{
+  if(beat.stage!==(dating?'dating':'growing')||beat.place&&beat.place!==place)return false;
+  return !beat.sunnyMorning||((ev.slot??initSim().slot)===0&&weatherFor(ev.day??initSim().day).name==='맑음');
+ });
+ // Give each location-specific conversation a turn before general topics.
+ return matches.sort((a,b)=>Number(!!b[1].place)-Number(!!a[1].place)).map(([id])=>'daily:'+id);
+}
 function chooseMeetingBeat(ev,p){
  if(ev.meetingBeat||ev.answered||ev.selected||ev.abruptDeparture)return;
  const v=initSim(),day=ev.day??v.day,stage=relationshipVoiceStage(p);
  const couple=stage==='early'||stage==='steady';
  const intro=hanaIntroMeeting(ev);
- if(!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&['임하나','공재희'].includes(p)))return;
+ const approved=dailyBeatKeys(ev,stage);
+ if(!approved.length&&!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&['임하나','공재희'].includes(p)))return;
  // Do not reinterpret an old, already offered one-off opening.
  if(!relationshipVoices[p].slice(0,10).some(x=>ev.voiceMoment===x||ev.voiceMoment.endsWith(', '+x)))return;
  const activity=ev.activity??v.running?.plan?.[v.running.slot];
@@ -1506,21 +2307,27 @@ function chooseMeetingBeat(ev,p){
  });
  // Day-to-day stories also belong to people who have become partners.
  if(!intro)general.push(...friendTalkTopics[p].slice(0,2).map((_,i)=>'friend:'+i));
- const pool=couple||intro||stage==='friend'?[]:['usual:'+stage];
- for(let i=0;i<Math.max(local.length,general.length);i++){
+ const pool=[...approved];
+ if(!couple&&!intro&&stage!=='friend'&&!ev.jobEvent)pool.push('usual:'+stage);
+ for(let i=0;!ev.jobEvent&&i<Math.max(local.length,general.length);i++){
   if(local[i])pool.push(local[i]);
   if(general[i])pool.push(general[i]);
  }
+ if(!pool.length)return;
  const rec=socialRecord(p),last=rec.meetingTalkHistory||[];
  const key=pool.find(k=>!last.includes(k))||last.find(k=>pool.includes(k));
  ev.meetingBeat=key;
  rec.meetingTalkHistory=[...last.filter(k=>k!==key),key];
  const data=meetingBeatData(p,key);
- if(data)ev.voiceMoment=data.lines[speechRegisterIndex(p,'npc',day)];
+ const daily=approvedDailyBeat(ev);
+ if(daily)ev.voiceMoment=daily.opening;
+ else if(data)ev.voiceMoment=data.lines[speechRegisterIndex(p,'npc',day)];
  if(data&&ev.options){delete ev.options;ev.socialAdded=false}
  save();
 }
 function meetingBeatAnswers(ev){
+ const daily=approvedDailyBeat(ev);
+ if(daily)return daily.choices.map(({label,reply})=>[label,reply.find(([speaker])=>speaker==='npc')[1],2]);
  const data=meetingBeatData(ev.person,ev.meetingBeat);
  if(!data)return null;
  const p=ev.person,day=ev.day??initSim().day,player=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
@@ -1547,7 +2354,7 @@ function openingAnswers(ev) {
   if(stage===3)rows=[...rows,['오늘은 이대로 얘기만 하고 싶어요.', '오늘은 이대로 얘기만 하고 싶어.', '그럼요. 여기서 얘기해요.', '그럼. 여기서 얘기하자.']];
   return (rows||[]).map(row=>[row[casual?1:0],row[index%2?3:2],2]);
 }
-function encounterOptions(ev){if(ev.weatherScene)return ev.weatherScene.options;if(ev.jobEvent){const e=ev.jobEvent,v=initSim(),p=ev.person,t=relationshipTier(p),seen=v.topicHistory?.[p+':work']||[];let pool=t===0?[[e[3],e[4],3],[e[5],e[6],2]]:[];pool.push(...(workTopics[p]||[]).filter(x=>x[0]<=t).map(x=>x.slice(1)));pool.push(...weatherChoices(p,v.day));const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0])),offset=v.day%Math.max(1,used.length);return [['가볍게 인사한다','“'+personalSocialVoice[p][t>=2?10:11]+'”',1],...[...fresh,...used.slice(offset),...used.slice(0,offset)].slice(0,4),[ev.activity==='대학 수업'?'다음 일정을 위해 이만 자리를 비운다':'업무 중이니 이만 자리를 비운다','',0]]}const v=initSim(),p=ev.person,tier=relationshipTier(p),key=p+':'+ev.place;v.topicHistory=v.topicHistory||{};const seen=v.topicHistory[key]||[];let pool=(encounterTopics[ev.place]?.[p]||[]).map(x=>x.slice());if(ev.place==='cafe'&&p==='강도윤')pool[0]=['오늘 추천 메뉴가 뭐예요?',['“오늘은 고소한 헤이즐넛 라테를 추천해 드려요.”','“오늘은 바닐라빈 라테요. 달콤한 거 좋아하세요?”','“신메뉴를 시험 중인데, 괜찮으시면 맛봐 주실래요?”','“메뉴판에 없는 레시피가 하나 있어요. 한번 드셔 보실래요?”'][tier],2];if(ev.place==='pc'&&p==='한시우')pool.push(['같이 한 판 할래요?',v.skills.게임숙련도>=30?'“오, 잘하시는데요? 우리 계속 같이 해요.”':'“좋아요! 모르는 건 제가 알려 드릴게요.”',3]);pool.push(...dailyTopics[p].map(x=>[...x,2]));if(p==='공재희'&&v.jaeheeBear)pool.push(['그때 준 흰색 곰인형 잘 두고 있어요.','“아직 갖고 있어요? ……좋다ㅋㅋ”',2]);if(tier>=2)pool.unshift([...closeTopics[p],3]);const activity=ev.activity||v.running?.plan?.[v.running.slot];if(partJobs[activity]&&partJobs[activity][1]===p){pool=[['오늘 근무하면서 더 신경 쓸 점이 있을까요?','“오늘도 수고 많으셨어요. 다음에도 잘 부탁드려요.”',2],['정리할 일이 더 있나요?','“괜찮아요. 남은 건 제가 정리할게요.”',2],['오늘도 고생 많으셨어요.','“감사해요. 조심히 들어가세요.”',2]]}const working=ev.place==='cafe'&&p==='강도윤'&&['아르바이트','카페 실습'].includes(activity);if(working){pool=[['오늘 일하면서 부족했던 점이 있을까요?','“정리도 잘해 주셨고 좋았어요. 다음엔 주문 순서만 조금 신경 써 주세요.”',2],['다음에는 커피 내리는 법도 배워 보고 싶어요.','“좋아요. 한가한 시간에 추출부터 알려 드릴게요.”',3],['오늘 손님이 많았네요.','“그러게요. 덕분에 수월했어요. 고생 많으셨어요.”',2],['마감 전에 더 도울 일이 있을까요?','“괜찮아요. 오늘 할 일은 다 끝났으니 쉬세요.”',2],['원두마다 추출 방법이 달라요?','“네. 로스팅 정도에 따라 물 온도나 분쇄도를 조절해요.”',2],['일하면서 가장 보람 있는 순간은 언제예요?','“손님이 맛있었다고 다시 찾아오실 때요.”',2]];if(tier>=2)pool.unshift(['요즘 신메뉴 준비하세요?','“네. 아직 배합을 조정 중이에요. 나중에 의견 좀 부탁할게요.”',3])}else if(ev.place==='cafe'&&p==='강도윤'){pool.push(['디저트는 뭐가 맛있어요?','“오늘 구운 레몬 파운드케이크요. 커피랑 잘 어울려요.”',2],['원두는 직접 고르세요?','“네. 여러 곳에서 샘플을 받아 비교해 보고 골라요.”',2],['카페에서 가장 좋아하는 시간대가 있어요?','“오픈 직후요. 조용히 커피 향을 맡을 수 있거든요.”',2])}pool.unshift(...(expandedTopics[p]||[]).filter(x=>x[0]===ev.place&&x[1]<=tier).sort((a,b)=>b[1]-a[1]).map(x=>[x[2],'“'+x[3]+'”',3,x[4]?'hint:'+x[4]:null]));if(p==='강도윤'){pool=pool.filter(x=>!(/강아지 이름|이름이 궁금/.test(x[0])));v.knownFacts=v.knownFacts||{};v.knownFacts.moka=true;}const seasonal=[...seasonChoices(p,v.day),...weatherChoices(p,v.day)];const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0]));const offset=(v.day+(v.talkCount[p]||0))%Math.max(1,used.length);const topics=[...seasonal.slice(0,2),...fresh,...used.slice(offset),...used.slice(0,offset)].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,9);const negative=working?['다음부터는 바쁜 시간에 좀 빠져도 되죠?','“근무 시간은 미리 조율해 주세요. 갑자기 빠지면 곤란해요.”',-3]:['지금 하던 일은 그만하고 제 얘기부터 들어 주세요.','“죄송하지만 지금은 좀 곤란해요.”',-3];const dayQuestion=p==='강도윤'&&relationshipVoices[p].slice(0,2).includes(ev.voiceMoment);
+function encounterOptions(ev){if(ev.weatherScene)return ev.weatherScene.options;if(ev.jobEvent){const e=ev.jobEvent,v=initSim(),p=ev.person,t=relationshipTier(p),seen=v.topicHistory?.[p+':work']||[];let pool=t===0?[[e[3],e[4],3],[e[5],e[6],2]]:[];pool.push(...(workTopics[p]||[]).filter(x=>x[0]<=t).map(x=>x.slice(1)));pool.push(...weatherChoices(p,v.day));const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0])),offset=v.day%Math.max(1,used.length);const direct=meetingBeatAnswers(ev)||[];return [...direct,['가볍게 인사한다','“'+personalSocialVoice[p][t>=2?10:11]+'”',1],...[...fresh,...used.slice(offset),...used.slice(0,offset)].slice(0,4),[ev.activity==='대학 수업'?'다음 일정을 위해 이만 자리를 비운다':'업무 중이니 이만 자리를 비운다','',0,direct.length?'leave':null]]}const v=initSim(),p=ev.person,tier=relationshipTier(p),key=p+':'+ev.place;v.topicHistory=v.topicHistory||{};const seen=v.topicHistory[key]||[];let pool=(encounterTopics[ev.place]?.[p]||[]).map(x=>x.slice());if(ev.place==='cafe'&&p==='강도윤')pool[0]=['오늘 추천 메뉴가 뭐예요?',['“오늘은 고소한 헤이즐넛 라테를 추천해 드려요.”','“오늘은 바닐라빈 라테요. 달콤한 거 좋아하세요?”','“신메뉴를 시험 중인데, 괜찮으시면 맛봐 주실래요?”','“메뉴판에 없는 레시피가 하나 있어요. 한번 드셔 보실래요?”'][tier],2];if(ev.place==='pc'&&p==='한시우')pool.push(['같이 한 판 할래요?',v.skills.게임숙련도>=30?'“오, 잘하시는데요? 우리 계속 같이 해요.”':'“좋아요! 모르는 건 제가 알려 드릴게요.”',3]);pool.push(...dailyTopics[p].map(x=>[...x,2]));if(p==='공재희'&&v.jaeheeBear)pool.push(['그때 준 흰색 곰인형 잘 두고 있어요.','“아직 갖고 있어요? ……좋다ㅋㅋ”',2]);if(tier>=2)pool.unshift([...closeTopics[p],3]);const activity=ev.activity||v.running?.plan?.[v.running.slot];if(partJobs[activity]&&partJobs[activity][1]===p){pool=[['오늘 근무하면서 더 신경 쓸 점이 있을까요?','“오늘도 수고 많으셨어요. 다음에도 잘 부탁드려요.”',2],['정리할 일이 더 있나요?','“괜찮아요. 남은 건 제가 정리할게요.”',2],['오늘도 고생 많으셨어요.','“감사해요. 조심히 들어가세요.”',2]]}const working=ev.place==='cafe'&&p==='강도윤'&&['아르바이트','카페 실습'].includes(activity);if(working){pool=[['오늘 일하면서 부족했던 점이 있을까요?','“정리도 잘해 주셨고 좋았어요. 다음엔 주문 순서만 조금 신경 써 주세요.”',2],['다음에는 커피 내리는 법도 배워 보고 싶어요.','“좋아요. 한가한 시간에 추출부터 알려 드릴게요.”',3],['오늘 손님이 많았네요.','“그러게요. 덕분에 수월했어요. 고생 많으셨어요.”',2],['마감 전에 더 도울 일이 있을까요?','“괜찮아요. 오늘 할 일은 다 끝났으니 쉬세요.”',2],['원두마다 추출 방법이 달라요?','“네. 로스팅 정도에 따라 물 온도나 분쇄도를 조절해요.”',2],['일하면서 가장 보람 있는 순간은 언제예요?','“손님이 맛있었다고 다시 찾아오실 때요.”',2]];if(tier>=2)pool.unshift(['요즘 신메뉴 준비하세요?','“네. 아직 배합을 조정 중이에요. 나중에 의견 좀 부탁할게요.”',3])}else if(ev.place==='cafe'&&p==='강도윤'){pool.push(['디저트는 뭐가 맛있어요?','“오늘 구운 레몬 파운드케이크요. 커피랑 잘 어울려요.”',2],['원두는 직접 고르세요?','“네. 여러 곳에서 샘플을 받아 비교해 보고 골라요.”',2],['카페에서 가장 좋아하는 시간대가 있어요?','“오픈 직후요. 조용히 커피 향을 맡을 수 있거든요.”',2])}pool.unshift(...(expandedTopics[p]||[]).filter(x=>x[0]===ev.place&&x[1]<=tier).sort((a,b)=>b[1]-a[1]).map(x=>[x[2],'“'+x[3]+'”',3,x[4]?'hint:'+x[4]:null]));if(p==='강도윤'){pool=pool.filter(x=>!(/강아지 이름|이름이 궁금/.test(x[0])));v.knownFacts=v.knownFacts||{};v.knownFacts.moka=true;}const seasonal=[...seasonChoices(p,v.day),...weatherChoices(p,v.day)];const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0]));const offset=(v.day+(v.talkCount[p]||0))%Math.max(1,used.length);const topics=[...seasonal.slice(0,2),...fresh,...used.slice(offset),...used.slice(0,offset)].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,9);const negative=working?['다음부터는 바쁜 시간에 좀 빠져도 되죠?','“근무 시간은 미리 조율해 주세요. 갑자기 빠지면 곤란해요.”',-3]:['지금 하던 일은 그만하고 제 얘기부터 들어 주세요.','“죄송하지만 지금은 좀 곤란해요.”',-3];const dayQuestion=p==='강도윤'&&relationshipVoices[p].slice(0,2).includes(ev.voiceMoment);
 const casual=ev.voiceMoment===relationshipVoices['강도윤'][1];
 const replies=dayQuestion?[
   [working?'오늘은 손이 좀 빨라진 것 같아서 뿌듯했어요.':'오늘은 하려던 일을 다 해서 기분이 좋아요.',working?(casual?'맞아. 아까는 내가 컵 꺼내기도 전에 주문을 받았더라.':'맞아요. 아까는 제가 컵 꺼내기도 전에 주문을 받으시던데요.'):(casual?'오, 그럴 때 기분 좋지. 이제 좀 쉴 수 있겠네.':'오, 그럴 때 기분 좋죠. 이제 좀 쉴 수 있겠네요.'),2],
@@ -1570,7 +2377,7 @@ if(direct.length){
   return [...direct,...topics,[bye,'',0,'leave']];
 }
 return [...replies,[working?'수고하셨다고 인사한다':'가볍게 인사한다',working?'“오늘도 고생 많으셨어요.”':null,1],...topics,negative,[working?'인사만 하고 퇴근한다':'말을 걸지 않고 지나간다','',0]]}
-function choiceButton(label,fn){const b=document.createElement('button');b.type='button';b.className='secondary';const ev=state?.sim?.activeEvent,p=singleSpeechTarget(ev);const spoken=p&&!ev.speechOffer?formatSpeech(p,label,'player'):label;b.textContent=chatSpacing(p&&addressAvailableInEvent(ev)?withAddress(spoken,agreedAddress(p,'player',ev.day??state.sim.day),p,'player'):spoken);b.addEventListener('click',fn);$('suggest').append(b)}
+function choiceButton(label,fn,prepared=false){const b=document.createElement('button');b.type='button';b.className='secondary';const ev=state?.sim?.activeEvent,p=singleSpeechTarget(ev);const spoken=p&&!prepared&&!ev.speechOffer?formatSpeech(p,label,'player'):label;b.textContent=prepared?label:chatSpacing(p&&addressAvailableInEvent(ev)?withAddress(spoken,agreedAddress(p,'player',ev.day??state.sim.day),p,'player'):spoken);b.addEventListener('click',fn);$('suggest').append(b)}
 function isBeforeScheduleEvent(ev){
  return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
 }
@@ -1837,15 +2644,36 @@ const reunionTalk={
 };
 // Reserve at most one added address for an ordinary meeting. Keeping the
 // original label in event state also preserves choice history and topic rules.
-function meetingCall(p,ev,side,line,position='before'){
+function meetingCall(p,ev,side,line,position='before',prepared=false){
  if(singleSpeechTarget(ev)!==p)return line;
  const day=ev.day??initSim().day;
  const turn=(day+people.indexOf(p)+(ev.slot??initSim().slot??0))%4;
  if(turn!==(side==='npc'?0:2)||!agreedAddress(p,side,day))return line;
  const mode=speechRegisterIndex(p,side,day)?'반말':'존댓말';
- return spokenCall(p,side,day,formatSpeech(p,line,side,mode,day),position);
+ return spokenCall(p,side,day,prepared?line:formatSpeech(p,line,side,mode,day),position);
+}
+function dailySpeech(ev,side,line,position){
+ const p=ev.person,day=ev.day??initSim().day;
+ if(position)line=meetingCall(p,ev,side,line,position,true);
+ return withAddress(line,agreedAddress(p,side,day),p,side);
+}
+function dailyChoice(ev,label){
+ return approvedDailyBeat(ev)?.choices.find(choice=>choice.label===label);
+}
+function renderDailyAnswer(ev){
+ const choice=dailyChoice(ev,ev.selected);
+ if(!choice)return false;
+ if(choice.action)add('이야기',choice.label,false,false,undefined,true);
+ else add(state.name,openingAnswerLabel(ev,choice.label),true,false,undefined,true);
+ for(const [speaker,line] of choice.reply){
+  if(speaker==='narration')add('이야기',line,false,false,undefined,true);
+  else add(ev.person,dailySpeech(ev,'npc',line),false,false,undefined,true);
+ }
+ return true;
 }
 function openingAnswerLabel(ev,label){
+ const choice=dailyChoice(ev,label);
+ if(choice)return choice.action?label:dailySpeech(ev,'player',label,ev.options?.[0][0]===label?'after':null);
  if(!ev.voiceMoment||ev.options?.at(-1)?.[3]!=='leave'||ev.options[0][0]!==label)return label;
  return meetingCall(ev.person,ev,'player',label,'after');
 }
@@ -2464,7 +3292,7 @@ function beginAbruptDeparture(ev,label,typed=false){
 function renderAbruptDeparture(ev){
  const p=ev.person,o=ev.abruptDeparture,[action,question,,leave]=abruptDepartureVoices[p];
  if(!ev.weatherScene)voiceMoment(ev);
- if(ev.selected){add(state.name,ev.selected,true);if(ev.response)add(p,ev.response)}
+ if(ev.selected&&!renderDailyAnswer(ev)){add(state.name,ev.selected,true);if(ev.response)add(p,ev.response)}
  for(const [line,response] of ev.departureTalkHistory||[]){add(state.name,line,true,true);add(p,response)}
  add(state.name,o.label,true,o.typed);
  add('이야기',action);
@@ -2647,14 +3475,14 @@ if(!ev.everydayArgument&&!ev.contactFollowup&&!ev.coupleIssue&&intro?.trim())add
 if(ev.weatherScene)add(p,ev.weatherScene.line);switchTab('story');
 if(ev.everydayArgument){renderEverydayArgument(ev);return}if(ev.doorVisit){renderDoorVisit(ev);return}if(ev.jihanScene){renderJihanScene(ev);return}if(ev.surpriseVisit){renderSurpriseVisit(ev);return}if(ev.anniversary){renderAnniversary(ev);return}if(ev.tripScene){renderTrip(ev);return}if(ev.sharedLife){renderSharedLife(ev);return}if(ev.nicknameScene){renderNickname(ev);return}if(ev.crushMeeting){renderCrushMeeting(ev);return}if(ev.friendCrush){renderFriendCrush(ev);return}if(ev.friendScene){renderFriendScene(ev);return}if(ev.npcLifeSupport){renderNpcLifeSupport(ev);return}if(ev.contactFollowup){renderContactFollowup(ev);return}if(ev.professionStory){renderProfessionStory(ev);return}if(ev.volunteerEvent){renderVolunteer(ev);return}if(ev.professionEvent){renderProfession(ev);return}if(ev.developmentEvent){renderDevelopment(ev);return}if(ev.exMemory){renderExMemory(ev);return}if(ev.exBelonging){renderExBelonging(ev);return}if(ev.exAddress){renderExAddress(ev);return}if(ev.npcBreakup){renderNpcBreakup(ev);return}if(ev.exAfter){renderExAfter(ev);return}if(ev.exTalk){renderExTalk(ev);return}if(ev.multiDiscussion){renderMultiDiscussion(ev);return}if(ev.newConfession){renderNewConfession(ev);return}if(ev.breakup){renderBreakup(ev);return}if(ev.groupPartners){renderGroupDate(ev);return}if(ev.aftermath){renderAftermath(ev);return}if(ev.triangle&&!ev.dateEvent){if(renderTriangle(ev))return;choiceButton('일정 계속하기',finishEvent);return}if(ev.coupleIssue){renderCoupleIssue(ev);return}if(ev.coupleMorning){renderCoupleMorning(ev);return}if(ev.summerNight){renderSummerNight(ev);return}if(ev.speechOffer){renderSpeechOffer(ev);return}if(ev.flirtScene){renderFlirt(ev);return}if(ev.crossIntro){renderCrossIntro(ev);return}if(ev.jaeheeGift){renderJaeheeGift(ev);return}if(ev.jaeheeIntro){renderJaeheeIntro(ev);return}if(ev.conflictStage){renderConflict(ev);return}if(ev.christmasEvent){renderChristmas(ev);return}if(ev.attachment){renderAttachment(ev);return}if(ev.careerEvent){renderCareerEvent(ev);return}if(ev.birthdayParty){renderBirthdayParty(ev);return}if(ev.festival){renderFestival(ev);return}if(ev.reunion){if(renderReunion(ev))return;choiceButton('일정 계속하기',finishEvent);return}if(ev.dateEvent){showMatchingOnDate(ev);renderDateEvent(ev);return}if(ev.personalStory){renderPersonalStory(ev);return}if(ev.group){const g=ev.group;$('progress').textContent='함께하는 만남 · '+g.people.join(' · ');for(const [who,line] of g.lines)add(who,line);if(ev.answered){add(state.name,ev.selected,true);for(const [who,line] of ev.groupReply)add(who,line);for(const [who,d] of Object.entries(ev.groupDelta))if(d)add('시스템',who+' 호감도 '+(d>0?'+':'')+d);choiceButton('일정 계속하기',finishEvent);return}for(const [label,reply,deltas] of g.options)choiceButton(label,()=>{if(ev.answered)return;ev.answered=true;ev.selected=label;ev.groupReply=reply;ev.groupDelta={};g.people.forEach((who,i)=>{const before=v.affection[who]||0;v.affection[who]=Math.max(0,Math.min(999,before+deltas[i]));ev.groupDelta[who]=v.affection[who]-before;v.talkCount[who]=(v.talkCount[who]||0)+1});writeJournal(g.people.join('·')+' · '+label);renderChoiceEvent();renderSim();save()});return}
 if(ev.abruptDeparture){renderAbruptDeparture(ev);return}
-if(ev.answered){if(!ev.weatherScene&&!ev.jobEvent)voiceMoment(ev);add(state.name,openingAnswerLabel(ev,ev.selected),true);if(p&&ev.response)add(p,ev.response,false,false,relationshipVoiceStage(p)==='ex'?argumentPortraits[p]?.early:'기본');if(ev.delta)add('시스템',p+' 호감도 '+(ev.delta>0?'+':'')+ev.delta);if(p==='서이준'&&everydayAnswers[p][0].slice(0,2).includes(ev.selected)&&!ev.afterglowMeeting?.answer){
+if(ev.answered){if(!ev.weatherScene)voiceMoment(ev);if(!renderDailyAnswer(ev)){add(state.name,openingAnswerLabel(ev,ev.selected),true);if(p&&ev.response)add(p,ev.response,false,false,relationshipVoiceStage(p)==='ex'?argumentPortraits[p]?.early:'기본')}if(ev.delta)add('시스템',p+' 호감도 '+(ev.delta>0?'+':'')+ev.delta);if(p==='서이준'&&everydayAnswers[p][0].slice(0,2).includes(ev.selected)&&!ev.afterglowMeeting?.answer){
   add('이야기','잠시 아무도 말을 꺼내지 않았다. 이준도 그대로 곁에 머물렀다.');
   choiceButton('일정 계속하기',finishEvent);return;
 }if(ev.leftEncounter){choiceButton('일정 계속하기',finishEvent);return}if(p&&renderPartnerComfort(ev,p))return;if(p&&renderAfterglowMeeting(ev,p))return;if(p&&renderRelationshipTouch(ev,p))return;if(p&&renderCoupleHabit(ev,p))return;if(p&&renderPlayfulCouple(ev,p))return;if(p)coupleHabitRecall(ev,p);if(p&&renderSensoryRomance(ev,p))return;if(p&&renderSpontaneousInvite(ev,p))return;if(p&&renderSpontaneousVisit(ev,p))return;if(p&&ev.farewell){if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}if(p&&renderInvitation(ev,p))return;
 if(canReactToDeparture(ev)){departureTalkEvent=ev;choiceButton('오늘은 이만 가 볼게요.',()=>beginAbruptDeparture(ev,'오늘은 이만 가 볼게요.'))}
 choiceButton('일정 계속하기',finishEvent);return}
 if(!p){if(ev.careAnswer){add('이야기',ev.carePerson+'의 배려 덕분에 마음이 한결 편해졌다.')}else if(renderCare(ev))return;choiceButton('일정 계속하기',finishEvent);return}
-if(!ev.weatherScene&&!ev.jobEvent)voiceMoment(ev);
+if(!ev.weatherScene)voiceMoment(ev);
 if(canReactToDeparture(ev))departureTalkEvent=ev;
 const options=(ev.answered||ev.optionsVersion===48)&&ev.options?ev.options:(ev.optionsVersion=48,ev.socialAdded=false,ev.options=encounterOptions(ev));if(!ev.weatherScene&&!ev.jobEvent&&relationshipTier(p)>=2&&!ev.socialAdded){ev.socialAdded=true;ev.options=[...options.slice(0,-1),['앞으로도 편하게 지내는 친구가 되고 싶어요.','“'+personalSocialVoice[p][2]+'”',1,'friend'],['다음에는 둘이서 시간을 보내고 싶어요.',{'서이준':'“둘이요? …시간 맞춰 보죠.”','강도윤':'“좋죠. 저도 그러고 싶었어요.”','한시우':'“오, 저야 좋죠. 언제가 좋아요?”','정태오':'“좋습니다. 시간 맞춰 보겠습니다.”','백지한':'“그거 좋은데요? 기대할게요.”','임하나':'“저랑요? …좋아요.”','차유리':'“좋아요! 어디 갈지 생각해 봐요.”','오세린':'“좋아요. 여유 있을 때 만나요.”','유지안':'“좋죠! 둘이서 놀러 가요.”','공재희':'“웅ㅋㅋ 둘이 놀면 더 재밌겠죠?”'}[p],2,'interest'],options[options.length-1]]}
 let visibleOptions=ev.options;
@@ -2672,7 +3500,7 @@ if((!hasOpening||ev.moreTopics)&&npcProfiles[p]?.gender==='남'&&memoryFor(p).ad
  choiceButton('부르는 호칭을 다시 의논한다',()=>revisitPlayerAddress(ev));
  $('suggest').lastElementChild.dataset.addressReply='revisit';
 }
-for(const [label,response,delta,direction] of visibleOptions)choiceButton(openingAnswerLabel(ev,label),()=>{if(ev.answered)return;if((direction==='leave'||label==='말을 걸지 않고 지나간다')&&beginAbruptDeparture(ev,label))return;ev.answered=true;ev.selected=label;ev.leftEncounter=direction==='leave';v.knownFacts=v.knownFacts||{};if(p==='강도윤'&&label==='강아지 이름이 궁금해요.')v.knownFacts.moka=true;v.topicHistory=v.topicHistory||{};const topicKey=p+':'+ev.place;v.topicHistory[topicKey]=[...new Set([...(v.topicHistory[topicKey]||[]),label])];ev.response=response===null?encounterGreeting(p,ev.place):response;farewellReaction(ev,p,label);if(response!=='')v.talkCount[p]=(v.talkCount[p]||0)+1;const key='choice:'+v.day+':'+p+':'+label;let change=v.topicRewards[key]?0:delta;v.topicRewards[key]=true;const before=v.affection[p]||0;v.affection[p]=Math.max(0,Math.min(999,before+change));change=v.affection[p]-before;ev.delta=change;if(direction?.startsWith('hint:')){v.giftHints=v.giftHints||{};const hints=v.giftHints[p]||(v.giftHints[p]=[]);const item=direction.slice(5);if(!hints.includes(item))hints.push(item)}else if(direction&&delta>0){const s=socialRecord(p);if(direction==='friend')s.friendship++;else s.interest++;}ev.expression=change<0?'uncomfortable':change>0?'smile':'neutral';writeJournal(p+' · '+label);renderChoiceEvent();renderSim();save()});
+for(const [label,response,delta,direction] of visibleOptions)choiceButton(openingAnswerLabel(ev,label),()=>{if(ev.answered)return;if((direction==='leave'||label==='말을 걸지 않고 지나간다')&&beginAbruptDeparture(ev,label))return;ev.answered=true;ev.selected=label;ev.leftEncounter=direction==='leave';v.knownFacts=v.knownFacts||{};if(p==='강도윤'&&label==='강아지 이름이 궁금해요.')v.knownFacts.moka=true;v.topicHistory=v.topicHistory||{};const topicKey=p+':'+ev.place;v.topicHistory[topicKey]=[...new Set([...(v.topicHistory[topicKey]||[]),label])];ev.response=response===null?encounterGreeting(p,ev.place):response;farewellReaction(ev,p,label);if(response!=='')v.talkCount[p]=(v.talkCount[p]||0)+1;const key='choice:'+v.day+':'+p+':'+label;let change=v.topicRewards[key]?0:delta;v.topicRewards[key]=true;const before=v.affection[p]||0;v.affection[p]=Math.max(0,Math.min(999,before+change));change=v.affection[p]-before;ev.delta=change;if(direction?.startsWith('hint:')){v.giftHints=v.giftHints||{};const hints=v.giftHints[p]||(v.giftHints[p]=[]);const item=direction.slice(5);if(!hints.includes(item))hints.push(item)}else if(direction&&delta>0){const s=socialRecord(p);if(direction==='friend')s.friendship++;else s.interest++;}ev.expression=change<0?'uncomfortable':change>0?'smile':'neutral';writeJournal(p+' · '+label);renderChoiceEvent();renderSim();save()},!!dailyChoice(ev,label));
 if(hasOpening&&!ev.moreTopics){
   choiceButton('다른 이야기를 꺼낸다',()=>{ev.moreTopics=true;renderChoiceEvent()});
   const [label]=ev.options.at(-1);
@@ -8843,13 +9671,19 @@ const speechOffers={"서이준":["…우리 굳이 계속 존댓말 해야 하�
 const relationshipVoices={"서이준":["…왔어요. 오늘은 좀 조용하네요.","…왔어. 오늘은 좀 조용하네.","…이런 얘기까지 하게 될 줄은 몰랐어요.","…이런 얘기까지 하게 될 줄 몰랐네.","……오늘은 안 오나 했어요.","……오늘은 안 오나 했어.","오늘은 조금 더 같이 있어도 될까요?","오늘은 조금 더 같이 있어도 돼?","…옆에 있으니까 마음이 편해요.","…옆에 있으니까 좋네.","…부르던 이름 말고, 좀 다르게 불러도 될까요?","…그 친구도 왔네요. 인사해요.","…괜찮아요. 친구인 건 알고 있으니까."],"강도윤":["하하, 오늘은 어떻게 보내셨어요?","하하, 오늘 하루 어땠어?","오늘은 제가 제 얘기도 좀 해 볼까요?","오늘은 나도 내 얘기 좀 해 볼까?","오늘따라 자꾸 문 쪽을 보게 되더라고요.","오늘따라 자꾸 문 쪽을 보게 되더라.","오늘은 제가 조금 더 가까이 있어도 될까요?","오늘은 조금 더 가까이 있어도 될까?","이제는 같이 있는 시간도 제 일상 같네요.","이제 같이 있는 시간도 내 일상 같네.","하하, 둘만 있을 때 특별한 이름으로 불러 보고 싶어요.","하하, 마침 두 분 다 뵙네요.","친구 사이인 건 이해해요. 저도 제 마음은 이야기할게요."],"한시우":["앗, 오늘도 만났네요.","앗, 오늘도 만났네.","오, 이거 친구한테만 하는 얘긴데요.","오, 이거 친구한테만 하는 얘긴데.","아, 오늘 좀 보고 싶었다고요.","아, 오늘 좀 보고 싶었다고.","히히, 오늘은 좀 붙어 있어도 돼요?","히히, 오늘 좀 붙어 있어도 돼?","이제 완전 내 편인 기분이에요.","완전 내 편인 기분이다.","오, 우리만 쓰는 호칭 하나 정하면 안 돼요?","앗, 여기서 두 분 다 만나네요?","괜찮아요. 우리 나중에 둘이 얘기해요."],"정태오":["안녕하십니까. 오늘도 무리하지 마십시오.","왔어? 오늘도 너무 무리하지 마.","당신이라면 편하게 이야기할 수 있을 것 같습니다.","너한테는 편하게 얘기해도 될 것 같아.","…뵙고 싶었다는 말씀을 드리고 싶었습니다.","…보고 싶었어. 오늘은 꼭 만나고 싶더라.","사적인 시간을 함께 보내고 싶습니다.","오늘은 너랑 좀 더 같이 있고 싶어.","당신과 함께하는 시간이 익숙해졌습니다.","이제 네가 옆에 있는 게 참 편해.","둘만 있는 자리에서 조금 다른 호칭을 사용해도 되겠습니까?","두 분 모두 안녕하십니까.","서로의 관계를 존중하면 될 일입니다."],"백지한":["오늘 일정은 어떠셨나요?","오늘 일정 어땠어?","이런 얘기는 아무한테나 하지 않는데 말이죠.","이런 얘기는 아무한테나 하지 않는데.","오늘 저녁 비워 둬요. 보고 싶으니까.","오늘 저녁 비워 둬. 보고 싶으니까.","오늘은 조금 더 가까이 앉고 싶네요.","오늘은 조금 더 가까이 앉고 싶어.","당신이 편하게 쉬는 모습도 좋아요.","네가 편하게 쉬는 모습도 좋아.","다른 사람과 똑같은 호칭으로 부르기는 싫은데, 괜찮겠어요?","마침 여기 계셨네요. 인사는 해야겠죠.","친구라는 건 알아요. 그래도 나중에 둘이 이야기합시다."],"임하나":["안녕하세요. 오늘 하루 괜찮으셨어요?","안녕. 오늘 하루 괜찮았어?","저도 이제는 이런 얘기를 할 수 있네요.","나도 이제 이런 얘기를 할 수 있네.","…오늘 만나고 싶었어요.","…오늘 만나고 싶었어.","저, 조금 더 같이 있고 싶어요.","나, 조금 더 같이 있고 싶어.","이렇게 함께 있어도 어색하지 않아서 좋아요.","이렇게 같이 있어도 어색하지 않아서 좋아.","저… 우리 둘만 사용하는 호칭이 있으면 좋겠어요.","아, 두 분 다 계셨네요.","저도 마음을 숨기지 않고 이야기해 볼게요."],"차유리":["오, 오늘 뭐 하고 왔어요?","오, 오늘 뭐 하고 왔어?","이거 다른 데선 안 하는 얘긴데, 들어 볼래요?","이거 다른 데선 안 하는 얘긴데, 들어 볼래?","오, 오늘따라 같이 놀고 싶었어요.","오, 오늘따라 같이 놀고 싶었어.","오늘은 좀 더 붙어 다녀도 되죠?","오늘은 좀 더 붙어 다녀도 되지?","오케이, 이렇게 각자 할 일 하면서 같이 있는 것도 좋네요.","오케이, 각자 할 일 하면서 같이 있는 것도 좋네.","둘만 아는 별명 하나 만들까요?","오, 셋이 여기서 만나다니.","친구는 친구죠. 다만 서로 불편한 건 얘기해요."],"오세린":["아아, 오늘은 잘 지내셨나요?","아아, 오늘은 잘 지냈어?","으음, 당신에게는 제 마음도 말씀드리고 싶네요.","으음, 너에게는 내 마음도 말하고 싶네.","아아, 오늘은 함께 차를 마시고 싶었어요.","아아, 오늘 같이 차 마시고 싶었어.","조금 더 가까이 있어도 괜찮을까요?","조금 더 가까이 있어도 괜찮을까?","이런 평온한 시간이 참 소중하네요.","이런 평온한 시간이 참 소중하네.","둘만 있을 때 조금 더 다정하게 불러도 괜찮을까요?","아아, 두 분이 여기 계셨군요.","으음, 우리 각자의 마음을 존중해요."],"유지안":["오늘도 좋은 하루 보내고 있어요?","오늘도 좋은 하루 보내고 있어?","이건 우리끼리만 하는 얘기예요.","이건 우리끼리만 하는 얘기야.","와우, 오늘 진짜 보고 싶었어요!","와우, 오늘 진짜 보고 싶었어!","오늘은 조금 더 붙어서 걸어요. 괜찮죠?","오늘은 좀 더 붙어서 걷자. 괜찮지?","이제 같이 있는 게 참 자연스러워요.","이제 같이 있는 게 참 자연스러워.","우리만의 애칭 하나 만들어요! 어때요?","와, 여기서 셋이 만나네요!","친구인 건 알아요. 나중에 나랑도 시간 보내요."],"공재희":["헐ㅋㅋ 오늘 뭐 했어요?","헐ㅋㅋ 오늘 뭐 했어?","이거 진짜 친구라서 하는 얘기임.","이거 진짜 친구라서 하는 얘기임.","아니 나 오늘 개보고 싶었는데.","아니 나 오늘 개보고 싶었는데.","오늘은 나 좀 옆에 붙어 있어도 돼요?","오늘 나 좀 옆에 붙어 있어도 돼?","웅, 그냥 같이 있는 게 좋아요. 조금만 더요!","웅, 그냥 같이 있는 게 좋아. 조금만 더!","우리만 쓰는 애칭 만들면 안 됨?","헐, 여기서 다 만남?","친구인 건 알겠는데… 나중에 얘기 좀 해요."]};
 function relationshipVoiceStage(p){const v=initSim();if(vIsDating(p)){if(coupleIssueRecord(p).active)return 'conflict';return v.day-coupleRecord(p).since>=45?'steady':'early'}if(crushRecord(p).status==='cooling'||['cooling','ready'].includes(aftermathRecord(p)?.status))return 'distance';if(v.romance[p]==='ended'&&exRecord(p))return aftermathRecord(p)?.status==='friend'?'friend':'ex';if(['aware','hidden'].includes(crushRecord(p).status))return 'crush';if(closeFriend(p))return 'friend';if(!platonicOnly(p)&&flirtRecord(p).interest>=3)return 'flirt';return 'normal'}
 function relationshipVoice(p,stage){const a=relationshipVoices[p],m=memoryFor(p).address;const casual=m.npcSpeech==='반말'||m.npcSpeech==='혼용'&&initSim().day%2===0;const i={normal:0,friend:2,crush:4,flirt:4,early:6,steady:8}[stage];if(i===undefined)return null;return a[i+(casual?1:0)]}
-function voiceMoment(ev){const p=ev.person;if(!p||!relationshipVoices[p]||ev.jobEvent||ev.personalStory||ev.speechOffer||ev.triangle||ev.crushMeeting||ev.aftermath||ev.coupleIssue||ev.group||ev.flirtScene||ev.contactFollowup||ev.friendCrush||!initSim().running)return; if(ev.quietArrival || (relationshipTier(p)===0 && relationshipVoiceStage(p)==='normal'&&!hanaIntroMeeting(ev))){
+function voiceMoment(ev){const p=ev.person;if(!p||!relationshipVoices[p]||(ev.jobEvent&&!campusMeeting(ev))||ev.personalStory||ev.speechOffer||ev.triangle||ev.crushMeeting||ev.aftermath||ev.coupleIssue||ev.group||ev.flirtScene||ev.contactFollowup||ev.friendCrush||!initSim().running)return; if(ev.quietArrival || (relationshipTier(p)===0 && relationshipVoiceStage(p)==='normal'&&!hanaIntroMeeting(ev))){
   ev.quietArrival=true;
   delete ev.voiceMoment;
   return;
 }
+if(ev.jobEvent&&!ev.meetingBeat&&(ev.options||ev.answered||!dailyBeatKeys(ev,relationshipVoiceStage(p)).length))return;
 if(!ev.voiceMoment){const stage=relationshipVoiceStage(p);if(!['normal','friend','flirt','early','steady'].includes(stage))return;ev.voiceMoment=relationshipVoice(p,stage)}if(!ev.voiceMoment)return;
  chooseMeetingBeat(ev,p);
+ const daily=approvedDailyBeat(ev);
+ if(daily){
+  add(p,dailySpeech(ev,'npc',daily.opening,'before'),false,false,'기본',true);
+  return;
+ }
  let line=ev.voiceMoment;
  if(hasFriendTopicOpening(ev)){
   const topic=takeFriendTopic(ev,p),detail=friendStoryLine(topic,p,ev.day??initSim().day);
@@ -10018,7 +10852,7 @@ function advanceDay(){const v=initSim(),run=v.running;if(!run)return;repairPendi
   invitedVia:d.invitedVia||null,day:v.day,slot:run.slot,
   description:d.group.includes(d.invitedVia)?'먼저 연락했던 '+d.invitedVia+' 옆에 서서 손을 흔들었다. 멀리서 다른 한 사람도 우리를 알아보고 다가왔다.':'모두의 동의로 잡은 약속 날이다.'};
  save();renderChoiceEvent();return
-}if(v.money<20000||v.energy<10){run.notes.push('외출 약속 취소 · 비용 또는 체력 부족');delete dateBook()[v.day];run.slot++;continue}v.money-=20000;v.energy-=10;run.notes.push(d.p+' · '+dateVenue(d.p,d.venue)+' 외출 (-20,000원)');v.activeEvent={person:d.p,place:'home',description:dayLabels[run.slot]+' 약속 시간에 맞춰 도착했다.',venue:dateVenue(d.p,d.venue),day:v.day,slot:run.slot,dateEvent:true,dateDisclosed:!!d.disclosed,answered:false};socialRecord(d.p).lastSeen=v.day;delete dateBook()[v.day];save();renderChoiceEvent();return}if(a==='자유외출'){const h=healthRecord();h.fatigue=Math.min(100,h.fatigue+4);run.outing=true;save();drawTown();switchTab('map');return}const result=runActivity(a);run.notes.push(dayLabels[run.slot]+' · '+result.note);if(result.volunteer){v.activeEvent={place:'park',day:v.day,description:'봉사활동에 참여했다.',volunteerEvent:{guests:volunteerGuests()}};save();renderChoiceEvent();return}if(a==='대학 수업'&&state.job==='대학생'&&v.jaeheeIntro&&v.slot===1&&!npcLifeBusy('공재희',v.day,v.slot)&&!result.jobEvent&&!result.person&&Math.random()<.22){showEvent('campus','수업을 마치고 나오다가 모자와 마스크를 쓴 공재희를 발견했다.','공재희',a);return}if(result.jobEvent){const e=result.jobEvent;showEvent('work',result.note+'\n\n'+(relationshipTier(e[0])>=1?(a==='대학 수업'?'수업을 마치고 대학 근처에서 '+e[0]+'과 다시 마주쳤다.':e[0]+'과 업무 중 다시 마주쳤다.'):e[2]),e[0],a,e);return}if(result.person){showEvent(result.place,result.note+'\n\n'+(['아르바이트','카페 실습'].includes(a)&&result.person==='강도윤'?(familiarEncounter('강도윤')?familiarEncounterLine('cafe','강도윤',v.day,v.slot||0):'일을 마치자 강도윤이 카운터에서 고개를 들었다.'):' '+arrivalText(result.place,result.person)),result.person,a);return}if(doorHomeActivities.has(a)&&result.place==='home'&&startDoorVisit('home',result.note))return;
+}if(v.money<20000||v.energy<10){run.notes.push('외출 약속 취소 · 비용 또는 체력 부족');delete dateBook()[v.day];run.slot++;continue}v.money-=20000;v.energy-=10;run.notes.push(d.p+' · '+dateVenue(d.p,d.venue)+' 외출 (-20,000원)');v.activeEvent={person:d.p,place:'home',description:dayLabels[run.slot]+' 약속 시간에 맞춰 도착했다.',venue:dateVenue(d.p,d.venue),day:v.day,slot:run.slot,dateEvent:true,dateDisclosed:!!d.disclosed,answered:false};socialRecord(d.p).lastSeen=v.day;delete dateBook()[v.day];save();renderChoiceEvent();return}if(a==='자유외출'){const h=healthRecord();h.fatigue=Math.min(100,h.fatigue+4);run.outing=true;save();drawTown();switchTab('map');return}const result=runActivity(a);run.notes.push(dayLabels[run.slot]+' · '+result.note);if(result.volunteer){v.activeEvent={place:'park',day:v.day,description:'봉사활동에 참여했다.',volunteerEvent:{guests:volunteerGuests()}};save();renderChoiceEvent();return}if(a==='대학 수업'&&state.job==='대학생'&&v.jaeheeIntro&&v.slot===1&&!npcLifeBusy('공재희',v.day,v.slot)&&!result.jobEvent&&!result.person&&Math.random()<.22){showEvent('campus','수업을 마치고 나오다가 모자와 마스크를 쓴 공재희를 발견했다.','공재희',a);return}if(result.jobEvent){const e=result.jobEvent;showEvent(a==='대학 수업'&&e[0]==='임하나'?'campus':'work',result.note+'\n\n'+(relationshipTier(e[0])>=1?(a==='대학 수업'?'수업을 마치고 대학 근처에서 '+e[0]+'과 다시 마주쳤다.':e[0]+'과 업무 중 다시 마주쳤다.'):e[2]),e[0],a,e);return}if(result.person){showEvent(result.place,result.note+'\n\n'+(['아르바이트','카페 실습'].includes(a)&&result.person==='강도윤'?(familiarEncounter('강도윤')?familiarEncounterLine('cafe','강도윤',v.day,v.slot||0):'일을 마치자 강도윤이 카운터에서 고개를 들었다.'):' '+arrivalText(result.place,result.person)),result.person,a);return}if(doorHomeActivities.has(a)&&result.place==='home'&&startDoorVisit('home',result.note))return;
 if(startSurpriseVisit(a,result)||meetNeighborAfterActivity(a,result))return;run.slot++}
 if(startDoorVisit(doorHomeActivities.has(run.plan[3])?'home':'return'))return;
 const completed=v.day,notes=run.notes.slice();npcLifeTick(completed);crushNight(completed);emotionNight(completed);coupleIssueNight(completed);triangleReportNight(completed);aftermathNight(completed);exNight(completed);breakupNight(completed);if(healthRecord().fatigue>=65)developmentRecord().fatigueDays[completed]=true;healthNight(completed,run,notes);if(deliverPhone(completed))notes.push('휴대전화 · 새 메시지가 도착했다.');const beforeSleep=v.energy;v.energy=Math.min(100,v.energy+(healthRecord().sickDays?35:60));notes.push('수면 · 체력 +'+(v.energy-beforeSleep)+' ('+v.energy+'/100)');v.money-=10000;notes.push('기본 생활비 -10,000원');householdNight(completed,notes);if(state.job==='회사원'&&calendarDate(completed).last){v.money+=2400000;notes.push('월급 입금 +2,400,000원')}if(calendarDate(completed).last){v.money-=550000;notes.push('월세 및 관리비 -550,000원')}if(v.money<0)notes.push('생활비 부족 · 미납액 '+(-v.money).toLocaleString()+'원 (다음 수입에서 충당)');delete v.weekPlans[completed];v.running=null;v.slot=0;if(completed>=365)v.finished=true;else v.day++;writeJournal('DAY '+completed+' 일정 결과\n'+notes.join('\n'));if(completed>=365){v.activeEvent={place:'home',description:'2월 28일, 마지막 하루.',christmasEvent:'ending',day:v.day};save();renderChoiceEvent()}else if(v.overnightPending?.day===completed){const {p,loveNight,loveRoute}=v.overnightPending;delete v.overnightPending;v.activeEvent={place:'home',person:p,day:v.day,description:'다음 날 아침.',coupleMorning:true,loveNight,loveRoute};v.weekEnd=null;save();renderChoiceEvent()}else showEvent('home','DAY '+completed+' 일정 결과\n'+notes.join('\n'),null);renderSim();syncSchedule();drawTown()}
@@ -10799,9 +11633,9 @@ function dialogueExpression(who,label){
  face.style.backgroundPosition=(frame*25)+'% 0';
  return face;
 }
-function add(who,text,me=false,typed=false,expression){
+function add(who,text,me=false,typed=false,expression,prepared=false){
  const ev=state?.sim?.activeEvent,log=$('log');
- text=storyLine(who,text,me,typed,ev);
+ if(!prepared)text=storyLine(who,text,me,typed,ev);
  const npc=!me&&people.includes(who);
  if(npc&&!(ev?.carePerson||/^DAY \d+ 일정 결과/.test(ev?.description||'')))setStoryStanding(who);
  const el=document.createElement('div');

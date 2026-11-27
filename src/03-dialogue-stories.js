@@ -348,12 +348,34 @@ function meetingBeatData(p,key){
  const row=residentMeetingTalks[p]?.[Number(key.slice(5))];
  return row?{lines:row[1],answers:row.slice(2)}:null;
 }
+function approvedDailyBeat(ev){
+ if(!ev.meetingBeat?.startsWith('daily:'))return null;
+ return approvedDailyTalks[ev.person]?.[ev.meetingBeat.slice(6)]||null;
+}
+function campusMeeting(ev){
+ return ev.person==='임하나'&&ev.activity==='대학 수업'&&ev.jobEvent?.[0]===ev.person;
+}
+function dailyBeatKeys(ev,stage){
+ const p=ev.person,talks=approvedDailyTalks[p];
+ if(!talks||ev.options||unresolvedOutingConflict(p))return [];
+ const dating=stage==='early'||stage==='steady';
+ if(!dating&&(!['normal','flirt','friend'].includes(stage)||relationshipTier(p)<2||initSim().romance[p]==='ended'))return [];
+ const place=campusMeeting(ev)?'campus':ev.place;
+ if(p==='임하나'&&place==='arcade'||p==='유지안'&&!['dance','river'].includes(place))return [];
+ const matches=Object.entries(talks).filter(([,beat])=>{
+  if(beat.stage!==(dating?'dating':'growing')||beat.place&&beat.place!==place)return false;
+  return !beat.sunnyMorning||((ev.slot??initSim().slot)===0&&weatherFor(ev.day??initSim().day).name==='맑음');
+ });
+ // Give each location-specific conversation a turn before general topics.
+ return matches.sort((a,b)=>Number(!!b[1].place)-Number(!!a[1].place)).map(([id])=>'daily:'+id);
+}
 function chooseMeetingBeat(ev,p){
  if(ev.meetingBeat||ev.answered||ev.selected||ev.abruptDeparture)return;
  const v=initSim(),day=ev.day??v.day,stage=relationshipVoiceStage(p);
  const couple=stage==='early'||stage==='steady';
  const intro=hanaIntroMeeting(ev);
- if(!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&['임하나','공재희'].includes(p)))return;
+ const approved=dailyBeatKeys(ev,stage);
+ if(!approved.length&&!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&['임하나','공재희'].includes(p)))return;
  // Do not reinterpret an old, already offered one-off opening.
  if(!relationshipVoices[p].slice(0,10).some(x=>ev.voiceMoment===x||ev.voiceMoment.endsWith(', '+x)))return;
  const activity=ev.activity??v.running?.plan?.[v.running.slot];
@@ -367,21 +389,27 @@ function chooseMeetingBeat(ev,p){
  });
  // Day-to-day stories also belong to people who have become partners.
  if(!intro)general.push(...friendTalkTopics[p].slice(0,2).map((_,i)=>'friend:'+i));
- const pool=couple||intro||stage==='friend'?[]:['usual:'+stage];
- for(let i=0;i<Math.max(local.length,general.length);i++){
+ const pool=[...approved];
+ if(!couple&&!intro&&stage!=='friend'&&!ev.jobEvent)pool.push('usual:'+stage);
+ for(let i=0;!ev.jobEvent&&i<Math.max(local.length,general.length);i++){
   if(local[i])pool.push(local[i]);
   if(general[i])pool.push(general[i]);
  }
+ if(!pool.length)return;
  const rec=socialRecord(p),last=rec.meetingTalkHistory||[];
  const key=pool.find(k=>!last.includes(k))||last.find(k=>pool.includes(k));
  ev.meetingBeat=key;
  rec.meetingTalkHistory=[...last.filter(k=>k!==key),key];
  const data=meetingBeatData(p,key);
- if(data)ev.voiceMoment=data.lines[speechRegisterIndex(p,'npc',day)];
+ const daily=approvedDailyBeat(ev);
+ if(daily)ev.voiceMoment=daily.opening;
+ else if(data)ev.voiceMoment=data.lines[speechRegisterIndex(p,'npc',day)];
  if(data&&ev.options){delete ev.options;ev.socialAdded=false}
  save();
 }
 function meetingBeatAnswers(ev){
+ const daily=approvedDailyBeat(ev);
+ if(daily)return daily.choices.map(({label,reply})=>[label,reply.find(([speaker])=>speaker==='npc')[1],2]);
  const data=meetingBeatData(ev.person,ev.meetingBeat);
  if(!data)return null;
  const p=ev.person,day=ev.day??initSim().day,player=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
@@ -408,7 +436,7 @@ function openingAnswers(ev) {
   if(stage===3)rows=[...rows,['오늘은 이대로 얘기만 하고 싶어요.', '오늘은 이대로 얘기만 하고 싶어.', '그럼요. 여기서 얘기해요.', '그럼. 여기서 얘기하자.']];
   return (rows||[]).map(row=>[row[casual?1:0],row[index%2?3:2],2]);
 }
-function encounterOptions(ev){if(ev.weatherScene)return ev.weatherScene.options;if(ev.jobEvent){const e=ev.jobEvent,v=initSim(),p=ev.person,t=relationshipTier(p),seen=v.topicHistory?.[p+':work']||[];let pool=t===0?[[e[3],e[4],3],[e[5],e[6],2]]:[];pool.push(...(workTopics[p]||[]).filter(x=>x[0]<=t).map(x=>x.slice(1)));pool.push(...weatherChoices(p,v.day));const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0])),offset=v.day%Math.max(1,used.length);return [['가볍게 인사한다','“'+personalSocialVoice[p][t>=2?10:11]+'”',1],...[...fresh,...used.slice(offset),...used.slice(0,offset)].slice(0,4),[ev.activity==='대학 수업'?'다음 일정을 위해 이만 자리를 비운다':'업무 중이니 이만 자리를 비운다','',0]]}const v=initSim(),p=ev.person,tier=relationshipTier(p),key=p+':'+ev.place;v.topicHistory=v.topicHistory||{};const seen=v.topicHistory[key]||[];let pool=(encounterTopics[ev.place]?.[p]||[]).map(x=>x.slice());if(ev.place==='cafe'&&p==='강도윤')pool[0]=['오늘 추천 메뉴가 뭐예요?',['“오늘은 고소한 헤이즐넛 라테를 추천해 드려요.”','“오늘은 바닐라빈 라테요. 달콤한 거 좋아하세요?”','“신메뉴를 시험 중인데, 괜찮으시면 맛봐 주실래요?”','“메뉴판에 없는 레시피가 하나 있어요. 한번 드셔 보실래요?”'][tier],2];if(ev.place==='pc'&&p==='한시우')pool.push(['같이 한 판 할래요?',v.skills.게임숙련도>=30?'“오, 잘하시는데요? 우리 계속 같이 해요.”':'“좋아요! 모르는 건 제가 알려 드릴게요.”',3]);pool.push(...dailyTopics[p].map(x=>[...x,2]));if(p==='공재희'&&v.jaeheeBear)pool.push(['그때 준 흰색 곰인형 잘 두고 있어요.','“아직 갖고 있어요? ……좋다ㅋㅋ”',2]);if(tier>=2)pool.unshift([...closeTopics[p],3]);const activity=ev.activity||v.running?.plan?.[v.running.slot];if(partJobs[activity]&&partJobs[activity][1]===p){pool=[['오늘 근무하면서 더 신경 쓸 점이 있을까요?','“오늘도 수고 많으셨어요. 다음에도 잘 부탁드려요.”',2],['정리할 일이 더 있나요?','“괜찮아요. 남은 건 제가 정리할게요.”',2],['오늘도 고생 많으셨어요.','“감사해요. 조심히 들어가세요.”',2]]}const working=ev.place==='cafe'&&p==='강도윤'&&['아르바이트','카페 실습'].includes(activity);if(working){pool=[['오늘 일하면서 부족했던 점이 있을까요?','“정리도 잘해 주셨고 좋았어요. 다음엔 주문 순서만 조금 신경 써 주세요.”',2],['다음에는 커피 내리는 법도 배워 보고 싶어요.','“좋아요. 한가한 시간에 추출부터 알려 드릴게요.”',3],['오늘 손님이 많았네요.','“그러게요. 덕분에 수월했어요. 고생 많으셨어요.”',2],['마감 전에 더 도울 일이 있을까요?','“괜찮아요. 오늘 할 일은 다 끝났으니 쉬세요.”',2],['원두마다 추출 방법이 달라요?','“네. 로스팅 정도에 따라 물 온도나 분쇄도를 조절해요.”',2],['일하면서 가장 보람 있는 순간은 언제예요?','“손님이 맛있었다고 다시 찾아오실 때요.”',2]];if(tier>=2)pool.unshift(['요즘 신메뉴 준비하세요?','“네. 아직 배합을 조정 중이에요. 나중에 의견 좀 부탁할게요.”',3])}else if(ev.place==='cafe'&&p==='강도윤'){pool.push(['디저트는 뭐가 맛있어요?','“오늘 구운 레몬 파운드케이크요. 커피랑 잘 어울려요.”',2],['원두는 직접 고르세요?','“네. 여러 곳에서 샘플을 받아 비교해 보고 골라요.”',2],['카페에서 가장 좋아하는 시간대가 있어요?','“오픈 직후요. 조용히 커피 향을 맡을 수 있거든요.”',2])}pool.unshift(...(expandedTopics[p]||[]).filter(x=>x[0]===ev.place&&x[1]<=tier).sort((a,b)=>b[1]-a[1]).map(x=>[x[2],'“'+x[3]+'”',3,x[4]?'hint:'+x[4]:null]));if(p==='강도윤'){pool=pool.filter(x=>!(/강아지 이름|이름이 궁금/.test(x[0])));v.knownFacts=v.knownFacts||{};v.knownFacts.moka=true;}const seasonal=[...seasonChoices(p,v.day),...weatherChoices(p,v.day)];const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0]));const offset=(v.day+(v.talkCount[p]||0))%Math.max(1,used.length);const topics=[...seasonal.slice(0,2),...fresh,...used.slice(offset),...used.slice(0,offset)].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,9);const negative=working?['다음부터는 바쁜 시간에 좀 빠져도 되죠?','“근무 시간은 미리 조율해 주세요. 갑자기 빠지면 곤란해요.”',-3]:['지금 하던 일은 그만하고 제 얘기부터 들어 주세요.','“죄송하지만 지금은 좀 곤란해요.”',-3];const dayQuestion=p==='강도윤'&&relationshipVoices[p].slice(0,2).includes(ev.voiceMoment);
+function encounterOptions(ev){if(ev.weatherScene)return ev.weatherScene.options;if(ev.jobEvent){const e=ev.jobEvent,v=initSim(),p=ev.person,t=relationshipTier(p),seen=v.topicHistory?.[p+':work']||[];let pool=t===0?[[e[3],e[4],3],[e[5],e[6],2]]:[];pool.push(...(workTopics[p]||[]).filter(x=>x[0]<=t).map(x=>x.slice(1)));pool.push(...weatherChoices(p,v.day));const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0])),offset=v.day%Math.max(1,used.length);const direct=meetingBeatAnswers(ev)||[];return [...direct,['가볍게 인사한다','“'+personalSocialVoice[p][t>=2?10:11]+'”',1],...[...fresh,...used.slice(offset),...used.slice(0,offset)].slice(0,4),[ev.activity==='대학 수업'?'다음 일정을 위해 이만 자리를 비운다':'업무 중이니 이만 자리를 비운다','',0,direct.length?'leave':null]]}const v=initSim(),p=ev.person,tier=relationshipTier(p),key=p+':'+ev.place;v.topicHistory=v.topicHistory||{};const seen=v.topicHistory[key]||[];let pool=(encounterTopics[ev.place]?.[p]||[]).map(x=>x.slice());if(ev.place==='cafe'&&p==='강도윤')pool[0]=['오늘 추천 메뉴가 뭐예요?',['“오늘은 고소한 헤이즐넛 라테를 추천해 드려요.”','“오늘은 바닐라빈 라테요. 달콤한 거 좋아하세요?”','“신메뉴를 시험 중인데, 괜찮으시면 맛봐 주실래요?”','“메뉴판에 없는 레시피가 하나 있어요. 한번 드셔 보실래요?”'][tier],2];if(ev.place==='pc'&&p==='한시우')pool.push(['같이 한 판 할래요?',v.skills.게임숙련도>=30?'“오, 잘하시는데요? 우리 계속 같이 해요.”':'“좋아요! 모르는 건 제가 알려 드릴게요.”',3]);pool.push(...dailyTopics[p].map(x=>[...x,2]));if(p==='공재희'&&v.jaeheeBear)pool.push(['그때 준 흰색 곰인형 잘 두고 있어요.','“아직 갖고 있어요? ……좋다ㅋㅋ”',2]);if(tier>=2)pool.unshift([...closeTopics[p],3]);const activity=ev.activity||v.running?.plan?.[v.running.slot];if(partJobs[activity]&&partJobs[activity][1]===p){pool=[['오늘 근무하면서 더 신경 쓸 점이 있을까요?','“오늘도 수고 많으셨어요. 다음에도 잘 부탁드려요.”',2],['정리할 일이 더 있나요?','“괜찮아요. 남은 건 제가 정리할게요.”',2],['오늘도 고생 많으셨어요.','“감사해요. 조심히 들어가세요.”',2]]}const working=ev.place==='cafe'&&p==='강도윤'&&['아르바이트','카페 실습'].includes(activity);if(working){pool=[['오늘 일하면서 부족했던 점이 있을까요?','“정리도 잘해 주셨고 좋았어요. 다음엔 주문 순서만 조금 신경 써 주세요.”',2],['다음에는 커피 내리는 법도 배워 보고 싶어요.','“좋아요. 한가한 시간에 추출부터 알려 드릴게요.”',3],['오늘 손님이 많았네요.','“그러게요. 덕분에 수월했어요. 고생 많으셨어요.”',2],['마감 전에 더 도울 일이 있을까요?','“괜찮아요. 오늘 할 일은 다 끝났으니 쉬세요.”',2],['원두마다 추출 방법이 달라요?','“네. 로스팅 정도에 따라 물 온도나 분쇄도를 조절해요.”',2],['일하면서 가장 보람 있는 순간은 언제예요?','“손님이 맛있었다고 다시 찾아오실 때요.”',2]];if(tier>=2)pool.unshift(['요즘 신메뉴 준비하세요?','“네. 아직 배합을 조정 중이에요. 나중에 의견 좀 부탁할게요.”',3])}else if(ev.place==='cafe'&&p==='강도윤'){pool.push(['디저트는 뭐가 맛있어요?','“오늘 구운 레몬 파운드케이크요. 커피랑 잘 어울려요.”',2],['원두는 직접 고르세요?','“네. 여러 곳에서 샘플을 받아 비교해 보고 골라요.”',2],['카페에서 가장 좋아하는 시간대가 있어요?','“오픈 직후요. 조용히 커피 향을 맡을 수 있거든요.”',2])}pool.unshift(...(expandedTopics[p]||[]).filter(x=>x[0]===ev.place&&x[1]<=tier).sort((a,b)=>b[1]-a[1]).map(x=>[x[2],'“'+x[3]+'”',3,x[4]?'hint:'+x[4]:null]));if(p==='강도윤'){pool=pool.filter(x=>!(/강아지 이름|이름이 궁금/.test(x[0])));v.knownFacts=v.knownFacts||{};v.knownFacts.moka=true;}const seasonal=[...seasonChoices(p,v.day),...weatherChoices(p,v.day)];const fresh=pool.filter(x=>!seen.includes(x[0])),used=pool.filter(x=>seen.includes(x[0]));const offset=(v.day+(v.talkCount[p]||0))%Math.max(1,used.length);const topics=[...seasonal.slice(0,2),...fresh,...used.slice(offset),...used.slice(0,offset)].filter((x,i,a)=>a.findIndex(y=>y[0]===x[0])===i).slice(0,9);const negative=working?['다음부터는 바쁜 시간에 좀 빠져도 되죠?','“근무 시간은 미리 조율해 주세요. 갑자기 빠지면 곤란해요.”',-3]:['지금 하던 일은 그만하고 제 얘기부터 들어 주세요.','“죄송하지만 지금은 좀 곤란해요.”',-3];const dayQuestion=p==='강도윤'&&relationshipVoices[p].slice(0,2).includes(ev.voiceMoment);
 const casual=ev.voiceMoment===relationshipVoices['강도윤'][1];
 const replies=dayQuestion?[
   [working?'오늘은 손이 좀 빨라진 것 같아서 뿌듯했어요.':'오늘은 하려던 일을 다 해서 기분이 좋아요.',working?(casual?'맞아. 아까는 내가 컵 꺼내기도 전에 주문을 받았더라.':'맞아요. 아까는 제가 컵 꺼내기도 전에 주문을 받으시던데요.'):(casual?'오, 그럴 때 기분 좋지. 이제 좀 쉴 수 있겠네.':'오, 그럴 때 기분 좋죠. 이제 좀 쉴 수 있겠네요.'),2],
@@ -431,7 +459,7 @@ if(direct.length){
   return [...direct,...topics,[bye,'',0,'leave']];
 }
 return [...replies,[working?'수고하셨다고 인사한다':'가볍게 인사한다',working?'“오늘도 고생 많으셨어요.”':null,1],...topics,negative,[working?'인사만 하고 퇴근한다':'말을 걸지 않고 지나간다','',0]]}
-function choiceButton(label,fn){const b=document.createElement('button');b.type='button';b.className='secondary';const ev=state?.sim?.activeEvent,p=singleSpeechTarget(ev);const spoken=p&&!ev.speechOffer?formatSpeech(p,label,'player'):label;b.textContent=chatSpacing(p&&addressAvailableInEvent(ev)?withAddress(spoken,agreedAddress(p,'player',ev.day??state.sim.day),p,'player'):spoken);b.addEventListener('click',fn);$('suggest').append(b)}
+function choiceButton(label,fn,prepared=false){const b=document.createElement('button');b.type='button';b.className='secondary';const ev=state?.sim?.activeEvent,p=singleSpeechTarget(ev);const spoken=p&&!prepared&&!ev.speechOffer?formatSpeech(p,label,'player'):label;b.textContent=prepared?label:chatSpacing(p&&addressAvailableInEvent(ev)?withAddress(spoken,agreedAddress(p,'player',ev.day??state.sim.day),p,'player'):spoken);b.addEventListener('click',fn);$('suggest').append(b)}
 function isBeforeScheduleEvent(ev){
  return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
 }
@@ -698,15 +726,36 @@ const reunionTalk={
 };
 // Reserve at most one added address for an ordinary meeting. Keeping the
 // original label in event state also preserves choice history and topic rules.
-function meetingCall(p,ev,side,line,position='before'){
+function meetingCall(p,ev,side,line,position='before',prepared=false){
  if(singleSpeechTarget(ev)!==p)return line;
  const day=ev.day??initSim().day;
  const turn=(day+people.indexOf(p)+(ev.slot??initSim().slot??0))%4;
  if(turn!==(side==='npc'?0:2)||!agreedAddress(p,side,day))return line;
  const mode=speechRegisterIndex(p,side,day)?'반말':'존댓말';
- return spokenCall(p,side,day,formatSpeech(p,line,side,mode,day),position);
+ return spokenCall(p,side,day,prepared?line:formatSpeech(p,line,side,mode,day),position);
+}
+function dailySpeech(ev,side,line,position){
+ const p=ev.person,day=ev.day??initSim().day;
+ if(position)line=meetingCall(p,ev,side,line,position,true);
+ return withAddress(line,agreedAddress(p,side,day),p,side);
+}
+function dailyChoice(ev,label){
+ return approvedDailyBeat(ev)?.choices.find(choice=>choice.label===label);
+}
+function renderDailyAnswer(ev){
+ const choice=dailyChoice(ev,ev.selected);
+ if(!choice)return false;
+ if(choice.action)add('이야기',choice.label,false,false,undefined,true);
+ else add(state.name,openingAnswerLabel(ev,choice.label),true,false,undefined,true);
+ for(const [speaker,line] of choice.reply){
+  if(speaker==='narration')add('이야기',line,false,false,undefined,true);
+  else add(ev.person,dailySpeech(ev,'npc',line),false,false,undefined,true);
+ }
+ return true;
 }
 function openingAnswerLabel(ev,label){
+ const choice=dailyChoice(ev,label);
+ if(choice)return choice.action?label:dailySpeech(ev,'player',label,ev.options?.[0][0]===label?'after':null);
  if(!ev.voiceMoment||ev.options?.at(-1)?.[3]!=='leave'||ev.options[0][0]!==label)return label;
  return meetingCall(ev.person,ev,'player',label,'after');
 }

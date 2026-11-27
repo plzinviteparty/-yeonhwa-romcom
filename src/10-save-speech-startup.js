@@ -587,9 +587,9 @@ function dialogueExpression(who,label){
  face.style.backgroundPosition=(frame*25)+'% 0';
  return face;
 }
-function add(who,text,me=false,typed=false,expression){
+function add(who,text,me=false,typed=false,expression,prepared=false){
  const ev=state?.sim?.activeEvent,log=$('log');
- text=storyLine(who,text,me,typed,ev);
+ if(!prepared)text=storyLine(who,text,me,typed,ev);
  const npc=!me&&people.includes(who);
  if(npc&&!(ev?.carePerson||/^DAY \d+ 일정 결과/.test(ev?.description||'')))setStoryStanding(who);
  const el=document.createElement('div');

@@ -4161,9 +4161,9 @@ function exAfterGate(){
  for(const p of people){
   if(!exAfterEligible(p))continue;
   const e=exRecord(p),a=exAfterState(p);
-  if(!a.notice||!a.reply||a.reply==='no'||a.decision==='stop'||a.decision==='reunited')continue;
+  if(!a.notice||a.reply==='no'||a.decision==='stop'||a.decision==='reunited')continue;
   let chapter=0;
-  if(a.scene===0&&v.day>=e.day+5)chapter=1;
+  if(a.scene===0&&v.day>=e.day+(a.reply?5:8))chapter=1;
   else if(a.scene===1&&a.decision==='talk'&&v.day>=a.last+7)chapter=2;
   if(!chapter)continue;
   a.scene=chapter;a.last=v.day;

@@ -102,7 +102,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.213</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.214</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -5795,20 +5795,20 @@ const closerNightScenes={
  },
  '한시우':{
   deep:[
-   '시우가 눈을 감았다가 한쪽만 슬쩍 떴다. 실눈 뜬 게 들키자 귀까지 빨개졌다. 나도 눈을 감고 그의 입술을 찾았다.',
-   '아, 들켰네요. 한 번만 더 해요.',
-   '아, 들켰네. 한 번만 더 하자.',
-   '내가 먼저 입을 맞췄다. 조금 전까지 웃고 있던 입가가 차분해졌다. 내가 눈을 떴을 때도 시우는 내 뺨에 손을 댄 채 가만히 나를 보고 있었다.'
+   '입술이 떨어지자 시우가 웃었다. 내가 왜 웃느냐고 묻는 동안엔 대답이 없었다.',
+   '다시 해 봐요. 이번엔 눈 안 감을게요.',
+   '다시 해 봐. 이번엔 눈 안 감을게.',
+   '막상 내가 다가가자 시우가 먼저 눈을 감았다. 입술이 떨어지고도 한참 그대로였다.'
   ],
   offer:{
-   intro:'시우가 한 손을 내 옆에 짚었다. 올려다보니 눈이 마주쳤다. 평소 같으면 여기서 장난을 한마디 했을 텐데, 이번엔 웃지 않았다. 왼손을 편한 데로 옮기고는 목소리를 낮췄다.',
-   ask:['손목이 아파서 오래는 못 버텨요. …바로 본론으로 가도 괜찮아요?','손목이 아파서 오래는 못 버텨. …바로 본론으로 가도 괜찮아?'],
-   yes:['괜찮아요. 저도 그러고 싶어요.','괜찮아. 나도 그러고 싶어.'],
-   quiet:'시우가 바로 내 옆에 누웠다. 베개를 반씩 나눠 베고 마주 보니 눈높이가 다시 같아졌다. 내가 잘 자라고 하자 시우도 작게 웃었다.'
+   intro:'시우가 내 옆에 짚었던 왼손을 뗐다. 손목을 한 번 돌려 보더니, 이번에는 오른팔로 몸을 받쳤다. 고개를 들었을 때는 아까의 웃음이 없었다.',
+   ask:['손목 아파서요. 오늘은 바로 본론으로 가도 돼요?','손목 아파서. 오늘은 바로 본론으로 가도 돼?'],
+   yes:['괜찮아요. 가까이 와요.','괜찮아. 가까이 와.'],
+   quiet:'시우가 몸을 물리고 이불 한쪽을 들었다. 내가 그 안으로 들어가자 자기 베개를 반쯤 밀어 줬다.'
   },
-  start:'내가 등을 감싸자 시우가 왼손을 짚지 않고 내 품으로 파고들었다. 아까 웃으며 피했던 눈을 이번에는 똑바로 맞췄다.',
+  start:'내가 옷깃을 당기자 시우가 고개를 숙였다. 이번엔 먼저 눈을 감지 않았다.',
   aside:['이리 와요.','이리 와.'],
-  last:'귓가에 낮게 닿은 목소리에 내가 그를 더 가까이 안았다. 시우가 내 뺨을 감싸고 천천히 입을 맞췄다. 잠시 후 불이 꺼졌다.'
+  last:'입을 맞춘 채로 스탠드를 더듬었다. 두 번이나 헛짚자 시우가 내 손을 잡아 스위치에 데려다 댔다.'
  },
  '정태오':{
   deep:[
@@ -5870,24 +5870,13 @@ const longNightScenes={
   }
  },
  "한시우": {
-  "start": "웃으면서 내 쪽으로 돌아누우려던 시우가 왼손을 깔고 멈칫했다.",
-  "aside": [
-   "…계속 나 봐 줘요.",
-   "…계속 나 봐 줘."
-  ],
-  "last": "내가 먼저 시선을 피할 때마다 시우가 내 이름을 불렀다. 세 번째에는 나도 끝까지 눈을 뜨고 있었다. 그제야 시우가 이마를 내 이마에 기댔다. 서로의 입술이 다시 닿을 때까지, 좁은 틈으로 들고 나는 숨이 유난히 컸다.",
-  "accept": [
-   "네. 저도 그러고 싶어요.",
-   "응. 나도 그러고 싶어."
-  ],
-  "morning": "시우가 눈도 안 뜨고 내 손부터 찾았다. 잡아 주니 어젯밤처럼 낮은 목소리로 내 이름을 불렀다. 내가 대답하자 그제야 시우가 웃었다.",
-  "after": "우리가 사랑을 나눈 자리에 이불이 반쯤 밀려 내려가 있었다. 시우가 성한 손으로 이불을 끌어올려 우리 둘을 덮었다. 그제야 장난기 섞인 목소리로 자기 심장 소리 들리냐고 물었다.",
-  "reaction": {
-   "at": "start",
-   "speaker": "npc",
-   "line": "윽.",
-   "next": "내가 팔을 거두자 시우가 손목을 빼서 베개 위에 올렸다. 편한 자리를 잡은 시우가 이번에는 오른팔로 나를 안았다. 장난치던 얼굴이 가라앉았다."
-  }
+  "start": "시우가 왼손을 짚었다가 곧바로 뗐다.",
+  "aside": ["…잠깐. 나 좀 봐 줘요.", "…잠깐. 나 좀 봐 줘."],
+  "last": "내가 고개를 돌리자 시우가 코끝을 맞댔다. 가까이서 보니 장난을 칠 때보다 더 귀가 빨갰다.",
+  "accept": ["나도요. 이리 와요.", "나도. 이리 와."],
+  "morning": "알람이 세 번 울렸다. 시우가 끄려고 손을 뻗다가 내 팔에 걸렸다. 결국 내가 끄고 나서야 왜 이름도 안 부르고 버티고 있었느냐고 물었다. 깨우기 싫었단다.",
+  "after": "한참 뒤에 시우가 툭 물었다. 아까 진짜 갈 생각이었냐고. 물어볼 타이밍이 이제야 왔냐고 하니, 이불을 코 밑까지 끌어올렸다.",
+  "reaction": {"at":"start","speaker":"npc","line":"윽.","next":"내가 베개를 한쪽으로 밀어 주자 시우가 그 위에 손목을 올렸다. 오른손으로 내 옷깃을 당겼다."}
  },
  "정태오": {
   "start": "태오가 내 허리를 받쳐 번쩍 안아 올렸다. 발끝이 바닥에서 뜨자 반사적으로 그의 목을 끌어안았다. 늘 올려다보던 얼굴이 이번엔 내 눈보다 조금 아래에 있었다. 내가 먼저 고개를 숙여 귀 뒤에 입술을 대자, 나를 받친 팔에 힘이 바짝 들어갔다.",
@@ -6064,20 +6053,12 @@ const familiarNightScenes={
   }
  },
  "한시우": {
-  "start": "시우의 왼손목 아래에 베개를 받쳐 줬다. 내가 뭘 하려는지 벌써 안다는 얼굴이라 이번엔 입술 바로 아래, 턱이 오목한 곳에 살짝 입을 맞췄다.",
-  "aside": [
-   "아, 거기. 나 거기 좋아하는 건 어떻게 알았어요?",
-   "아, 거기. 나 거기 좋아하는 건 어떻게 알았어?"
-  ],
-  "last": "나도 방금 알았다. 그렇게 대답하자 시우가 한 번 더 확인해 보라는 듯 턱을 들었다. 그날 밤에는 내가 가까워질 때마다 시우의 숨이 먼저 달라졌다. 눈을 감고도 알아챌 만큼.",
-  "morning": "시우가 하품을 하다가 내가 제 턱을 보고 웃자 얼른 손으로 가렸다. 이미 다 안다고 했더니, 그 손을 내리고는 잘 아는 사람이 먼저 뽀뽀해 달란다.",
-  "after": "사랑을 나누고 난 시우가 낮게 웃었다. 눈만 봐도 다 들키는데 다음엔 무슨 수로 나를 놀라게 하느냐는 거였다.",
-  "reaction": {
-   "at": "start",
-   "speaker": "npc",
-   "line": "어…?",
-   "next": "시우가 반대쪽 손으로 제 턱을 만져 봤다. 웃음이 빠진 눈이 내 쪽을 보더니, 손을 내리고 턱을 조금 들어 주었다."
-  }
+  "start":"시우가 들고 있던 베개를 왼팔 아래에 끼웠다. 내가 웃었더니 오늘은 놀려도 대꾸 안 할 거라며 먼저 입을 맞췄다.",
+  "aside":["…웃어요. 아까 하던 거 마저 해요.","…웃어. 아까 하던 거 마저 해."],
+  "last":"웃으려고 했는데 시우가 가만히 보고만 있어서 입꼬리가 도로 내려갔다. 결국 내가 먼저 그의 어깨 너머로 손을 뻗어 불을 껐다.",
+  "morning":"베개가 없어서 눈을 뜨니 시우가 양팔로 끌어안고 있었다. 자기 건 저쪽이라고 알려 줬는데 눈도 안 뜨고 모른 척했다.",
+  "after":"어둠 속에서 침대 밑을 더듬는 소리가 났다. 뭐 찾느냐고 물으니 시우가 휴대전화를 주웠다. 화면에 아침 알람이 세 개나 떠 있었다. 둘이서 첫 번째 것만 조용히 껐다.",
+  "reaction":{"at":"start","speaker":"npc","line":"어, 잠깐.","next":"시우가 이불 끝에 낀 베개를 빼냈다. 다시 자리를 잡기도 전에 내가 그의 어깨를 당겼다."}
  },
  "정태오": {
   "start": "태오가 나를 가볍게 안아 올렸다. 늘 하던 대로 목에 팔을 감았는데 이번에는 내 맨발 아래에 따뜻한 게 닿았다.",
@@ -6213,13 +6194,13 @@ const menNightRoutes = {
  },
  '한시우': {
   close: {
-   firstStart: '시우가 왼손목을 베개에 편히 얹고 내 옆으로 몸을 붙였다. 아까까지 내 눈만 봐도 웃던 사람이 지금은 내가 눈을 감으면 가만히 기다렸다. 내가 눈을 뜨자 시우가 오른손으로 내 허리를 당겼다. 그 조용한 한 번에 내 숨이 턱 막혔다.',
-   repeatStart: '내가 베개를 돌려 주자 시우가 그 위에 왼손목을 얹었다. 내가 잘했다는 듯 뺨을 톡 치니 웃음이 번졌다. 그런데 오른팔을 내 등에 두르고 가까이 오는 동안 그 웃음이 사르르 걷혔다. 나는 시우가 다음에 무슨 말을 할지 기다렸다.',
-   aside: ['나 좀 더 욕심내도 돼요? 아직 듣고 싶은 소리가 있어서.', '나 좀 더 욕심내도 돼? 아직 듣고 싶은 소리가 있어서.'],
-   lastCall: {side:'npc',lead:'좋다고 했더니 시우가 내 귓가에 입을 댔다.',line:['한 번만 더 나 봐 줄래요?','한 번만 더 나 봐 줄래?']},
-   last: '대답이 제대로 나올 땐 입술을, 흐려질 땐 귓가를 찾았다. “아, 잠깐….” 그 말에는 바로 멎었다. 내가 숨을 들이켜고 셔츠 자락을 당기자 다시 다가왔다. 한 번만 더라던 건 나였는데, 한 번을 그렇게 오래 끌 줄은 몰랐다.',
-   after: '잠자리가 끝나고도 한동안 시우의 가슴에 이마를 대고 숨만 쉬었다. 시우가 어땠냐고 물어서 눈만 흘겨 주니 뒤늦게 그 장난스러운 웃음이 돌아왔다. 귀를 대 보니 그렇게 태연해 보이던 시우의 심장도 아직 쿵쿵 뛰고 있었다.',
-   morning: '시우가 간밤처럼 낮게 내 이름을 불러서 눈을 떴다. 아침부터 뭘 그렇게 진지하게 부르냐니까 사실은 내 팔에 눌려서 못 일어나는 중이란다. 둘이 같이 웃느라 조금 더 누워 있었다.'
+   firstStart:'내가 오라고 하자 시우가 베개를 옆으로 밀었다. 시우의 무릎이 내 무릎 사이로 들어왔다. 숨이 한 박자 늦게 나왔다.',
+   repeatStart:'시우가 내 옆에 앉자 내가 먼저 그의 옷깃을 잡았다. 아까부터 그러고 싶었냐며 웃었는데, 내가 고개를 끄덕이자 바로 입을 다물었다. 시우의 무릎이 내 무릎 사이로 들어왔다. 숨이 한 박자 늦게 나왔다.',
+   aside:['……아직도 내가 장난치는 것 같아요?','……아직도 내가 장난치는 것 같아?'],
+   lastCall:{side:'npc',lead:'내가 고개를 저었다. 시우가 입술이 닿기 직전에 멈췄다.',line:['그럼 이쪽 봐요.','그럼 이쪽 봐.']},
+   last:'내가 시우를 올려다봤다. 시우가 내 옷깃을 조금 더 세게 쥐었다. 입술이 닿는 순간 내가 옆으로 손을 뻗어 스탠드를 껐다.',
+   after:'한참 뒤, 시우가 아직 켜져 있던 아침 알람을 하나씩 껐다. 마지막 하나를 남겨 놓고는 내일 알람 못 들으면 자기를 깨워 달란다. 그럴 거면 왜 껐냐고 하니 이불 속에서 웃음이 새었다.',
+   morning:'시우한테 어제 그 말 연습했느냐고 물었다. 손목 아픈 건 진짜였단다. 그러고는 베개를 정리하다가 소곤거렸다. 본론은 미리 생각해 뒀다고.'
   }
  },
  '정태오': {
@@ -6372,12 +6353,12 @@ const nightFlowScenes={
   affirm:'도윤이 웃음을 거두고 고개를 끄덕였다. 서로 원하는 게 같다는 걸 확인한 뒤 다시 가까워졌다.'
  },
  '한시우':{
-  opening:'시우가 하려던 장난을 삼켰다. 손가락으로 내 손바닥을 톡 건드리더니 이번에는 조용히 마주 봤다.',
-  afterKiss:'시우가 한번 웃으려다 말았다. 귀 끝이 붉어진 채 내 표정을 살폈고, 나는 잡고 있던 손을 놓지 않았다.',
-  linger:'시우가 베개를 가운데에 놓고 나란히 앉았다. 웃긴 얘기를 꺼내 놓고는 정작 내 얼굴을 보느라 말을 끝맺지 못했다.',
-  stay:'시우가 아픈 손목을 편한 자리에 두고 다른 팔로 나를 감쌌다. 평소보다 낮아진 목소리로 괜찮은지 물었다.',
-  soft:'시우가 내 손을 자기 뺨에 대고 웃었다. 조금 뒤에는 장난도 없이 잘 자라는 인사를 건넸다.',
-  affirm:'시우는 이번만큼은 농담하지 않았다. 내 손을 꼭 잡고 고개를 끄덕인 뒤 먼저 가까이 다가왔다.'
+  opening:'시우가 뭐라고 하려다 나와 눈이 마주쳤다. 아까부터 만지작거리던 이불 끝을 놓았다.',
+  afterKiss:'입술이 떨어졌다. 내가 그의 옷깃을 놓지 않자 시우도 물러나지 않았다.',
+  linger:'시우가 내 옆에 앉아 이불 끝을 팽팽하게 당겼다. 내가 반대편을 당기자 그제야 웃으면서 놓았다.',
+  stay:'시우가 대답한 뒤 휴대전화를 뒤집어 놓았다. 화면이 꺼지자 방 안이 조금 어두워졌다.',
+  soft:'시우는 발밑에 몰린 이불을 펴서 내 쪽에도 덮어 줬다.',
+  affirm:'시우가 내 대답을 듣고 잠깐 숨을 들이켰다.'
  },
  '정태오':{
   opening:'태오는 풀어 둔 손목시계를 한쪽에 놓았다. 곧게 앉은 자세를 조금 낮춰 내 눈높이에 맞췄다.',
@@ -6546,7 +6527,7 @@ function renderIntimateEvening(ev,p,beat,options){
    }else{
     if(scene&&p==='백지한')replies.push(['untied',playerCasual?'넥타이는 두고, 더 가까이 와.':'넥타이는 두고, 더 가까이 와요.']);
     let love=nightResponsiveAdvance[p][playerCasual];
-    if(siwoo)love=playerCasual?'응. 오늘은 하고 싶은 대로 해 줘.':'네. 오늘은 하고 싶은 대로 해 줘요.';
+    if(siwoo)love=playerCasual?'응. 가까이 와.':'네. 가까이 와요.';
     if(taeo)love=playerCasual?'안아 올려 줘. 그 품에서 사랑하고 싶어.':'안아 올려 줘요. 그 품에서 사랑하고 싶어요.';
     replies.push(['love',love]);
    }

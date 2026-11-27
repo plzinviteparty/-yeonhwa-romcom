@@ -4655,18 +4655,19 @@ function groupOutingControls(p,root,others){
  wrap.id='multiOutingInvite';wrap.open=true;title.textContent='다자연애 데이트 · 셋이 함께 만나기';wrap.append(title);root.append(wrap);
  const guest=bookingSelect(wrap,'같이 갈 연인'),venue=bookingSelect(wrap,'장소');
  for(const q of others)bookingOption(guest,q,q);
- for(const place of groupOutingVenues)bookingOption(venue,place,place);
+ function refreshGroupVenues(){const previous=venue.value;venue.replaceChildren();for(const place of groupOutingVenues.filter(x=>groupVenueAllowed(x,[p,guest.value])))bookingOption(venue,place,place);if(Array.from(venue.options).some(o=>o.value===previous))venue.value=previous;}
+ refreshGroupVenues();
  const send=document.createElement('button');send.type='button';send.className='secondary';send.textContent='셋이 만나자고 제안하기';
  const status=bookingAvailabilityNote(wrap,'');
  const pick=bookingPicker(wrap,v.day+1,Math.min(364,v.day+14),day=>groupBookingSlots([p,guest.value],day),available=>{
   send.disabled=!available;status.hidden=false;
   status.textContent=available?'외출 당일 20,000원 · 체력 10':'앞으로 14일 안에 셋이 함께 비는 시간이 없어요.';
  });
- guest.onchange=()=>pick.refresh();
+ guest.onchange=()=>{refreshGroupVenues();pick.refresh()};
  send.onclick=()=>{
   const q=guest.value,place=venue.value,day=pick.day(),slot=pick.slot(),group=[p,q];
   if(!wrap.isConnected||phoneSelected!==p||v!==initSim()||v.finished||v.running||v.activeEvent)return;
-  if(!agreedOutingPartners(p).includes(q)||day<=v.day||day>v.day+14||!groupOutingVenues.includes(place)||!groupBookingSlots(group,day).includes(slot)){
+  if(!agreedOutingPartners(p).includes(q)||day<=v.day||day>v.day+14||!groupVenueAllowed(place,group)||!groupBookingSlots(group,day).includes(slot)){
    pick.refresh();return;
   }
   const threads=phoneData().threads;
@@ -4842,7 +4843,14 @@ const groupOutingScenes={
   ending:['서로 같은 줄을 보느라 두 사람의 이마가 닿을 뻔했다. 그사이 다른 한 사람은 맞은편 서가에서 책 한 권을 빼들었다.','셋이 손에 든 띠지를 차례로 읽었다. 고른 문장 세 개가 꼭 한 이야기처럼 이어져 책방 안에서 웃음을 참아야 했다.','잠시 흩어졌다 계산대 앞에서 만났다. 누구는 책을 들고, 누구는 마음에 든 책 제목만 휴대전화에 적어 왔다.']
  }
 };
+for(const host of ['강도윤','한시우','차유리','오세린','유지안']){
+ const venue=host+' 집 홈데이트';
+ groupInviteActivities[venue]=['같이 '+host+' 씨 집에서 놀래요?','같이 '+host+' 집에서 놀래?'];
+ groupOutingScenes[venue]={...groupOutingScenes['우리 집 홈데이트'],arrival:host+'의 집에 도착했다. 집주인이 현관에서 두 사람을 맞이하고 거실로 안내했다.'};
+}
 const groupOutingVenues=Object.keys(groupOutingScenes);
+function groupVenueAllowed(venue,group){return groupOutingVenues.includes(venue)&&(!venue.endsWith(' 집 홈데이트')||venue==='우리 집 홈데이트'||group.some(w=>venue===w+' 집 홈데이트'))}
+
 const groupOutingVoices={
  '강도윤':{
   tense:['잠깐만요. 오늘은 저도 먼저 골라 보고 싶어요.','잠깐만. 오늘은 나도 먼저 골라 보고 싶어.'],
@@ -4938,7 +4946,7 @@ function renderGroupDate(ev){
   add(state.name,ev.groupDateAnswer,true);
   if(scene&&ev.groupOutingEnding)add('이야기',ev.groupOutingEnding);
   for(const w of partners)add(w,scene?ev.multiReplies[w]:formatSpeech(w,ev.multiReplies[w],'npc'));
-  if(ev.venue==='우리 집 홈데이트'){
+  if(ev.venue?.endsWith('집 홈데이트')){
    const o=ev.groupHomeAfter||(ev.groupHomeAfter={});
    if(o.answer){
     add('이야기',o.answer);

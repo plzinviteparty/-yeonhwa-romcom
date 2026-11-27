@@ -722,9 +722,9 @@ function groupProposalLine(p,other,day,slot,venue,second){
 }
 function groupOutingControls(p,root,others){
  const v=initSim();
- if(!others.length||v.running||v.activeEvent||v.finished)return;
+ if(!others.length||v.finished)return;
  const wrap=document.createElement('details'),title=document.createElement('summary');
- wrap.id='multiOutingInvite';title.textContent='셋이 함께하는 데이트 제안하기';wrap.append(title);root.append(wrap);
+ wrap.id='multiOutingInvite';wrap.open=true;title.textContent='다자연애 데이트 · 셋이 함께 만나기';wrap.append(title);root.append(wrap);
  const guest=bookingSelect(wrap,'같이 갈 연인'),venue=bookingSelect(wrap,'장소');
  for(const q of others)bookingOption(guest,q,q);
  for(const place of groupOutingVenues)bookingOption(venue,place,place);

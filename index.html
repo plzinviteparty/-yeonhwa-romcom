@@ -99,7 +99,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.210</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.211</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -1435,6 +1435,36 @@ const residentMeetingTalks={
  ]
 };
 
+residentMeetingTalks['임하나'].push(
+ ['intro:store',['봉투 필요하세요? 아, 아직 아무것도 안 고르셨죠. 방금 앞 손님한테 못 물어보고 그대로 말이 나왔어요.','봉투 필요해? 아, 아직 아무것도 안 골랐지. 방금 앞 손님한테 못 물어보고 그대로 말이 나왔어.'],
+  ['뭐 하나 고르고 다시 올게요.','뭐 하나 고르고 다시 올게.','네. 천천히 보세요. 이번엔 순서 맞춰서 물어볼게요.','응. 천천히 봐. 이번엔 순서 맞춰서 물어볼게.'],
+  ['여기서 따뜻한 음료도 팔아요?','여기서 따뜻한 음료도 팔아?','계산대 오른쪽에 있어요. 두 번째 줄부터는 아직 따뜻해요.','계산대 오른쪽에 있어. 두 번째 줄부터는 아직 따뜻해.']],
+ ['intro:store',['혹시 우산 두고 가셨어요? 문 옆에 파란 우산이 하나 있어서요.','혹시 우산 두고 갔어? 문 옆에 파란 우산이 하나 있어서.'],
+  ['아뇨, 제 것은 아니에요.','아니, 내 건 아니야.','그렇군요. 손잡이에 별 스티커가 있어서 주인이 알아볼 수 있겠어요.','그렇구나. 손잡이에 별 스티커가 있어서 주인이 알아보겠다.'],
+  ['계산대에서 맡아 두면 찾으러 오지 않을까요?','계산대에서 맡아 두면 찾으러 오지 않을까?','그래야겠어요. 문에 쪽지 하나 붙여 둘게요.','그래야겠다. 문에 쪽지 하나 붙여 둘게.']],
+ ['intro:park',['이쪽에 앉으셔도 돼요. 가방은 제가 치울게요.','이쪽에 앉아도 돼. 가방은 내가 치울게.'],
+  ['잠깐 앉았다 갈게요.','잠깐 앉았다 갈게.','네. 여기 앉으면 큰길 소리가 잘 안 들려서 좋아요.','응. 여기 앉으면 큰길 소리가 잘 안 들려서 좋아.'],
+  ['괜찮아요. 저는 한 바퀴 더 돌려고요.','괜찮아. 난 한 바퀴 더 돌려고.','그럼 저쪽 길로 가 보세요. 공사 끝나서 다시 걸을 수 있어요.','그럼 저쪽 길로 가 봐. 공사 끝나서 다시 걸을 수 있어.']],
+ ['intro:park',['혹시 물 마시는 곳을 아세요? 지도에는 여기라고 되어 있는데 안 보여서요.','혹시 물 마시는 곳 알아? 지도에는 여기라고 되어 있는데 안 보여서.'],
+  ['저도 처음이라 같이 찾아봐요.','나도 처음이라 같이 찾아보자.','아, 저기 안내판 뒤에 수도가 있네요. 한참 바로 앞만 보고 있었어요.','아, 저기 안내판 뒤에 수도가 있네. 한참 바로 앞만 보고 있었어.'],
+  ['저기 안내판 뒤 한번 확인해 보세요.','저기 안내판 뒤 한번 확인해 봐.','아, 저기였네요. 고마워요.','아, 저기였네. 고마워.']],
+ ['store',['새로 들어온 귤 젤리 봉지에 귤이 세 개 그려져 있잖아요. 방금 아이가 딱 세 알 들어 있냐고 물어봤어요.','새로 들어온 귤 젤리 봉지에 귤이 세 개 그려져 있잖아. 방금 아이가 딱 세 알 들어 있냐고 물어봤어.'],
+  ['하나 씨도 열어서 확인하고 싶었죠?','하나도 열어서 확인하고 싶었지?','네. 교대하고 나서 하나 사려고 맨 앞에 빼 뒀어요.','응. 교대하고 나서 하나 사려고 맨 앞에 빼 뒀어.'],
+  ['그 아이는 결국 샀어요?','그 아이는 결국 샀어?','아뇨. 포도는 스무 알쯤 그려져 있어서 그걸 골랐어요.','아니. 포도는 스무 알쯤 그려져 있어서 그걸 골랐어.']],
+ ['store',['오늘은 계산대 옆에 동전 굴러가는 소리가 다 들려요. 평소에 냉장고가 얼마나 시끄러웠는지 꺼지고 나서야 알았어요.','오늘은 계산대 옆에 동전 굴러가는 소리가 다 들려. 평소에 냉장고가 얼마나 시끄러웠는지 꺼지고 나서야 알았어.'],
+  ['이렇게 조용하니까 좀 살 것 같아요?','이렇게 조용하니까 좀 살 것 같아?','네. 아까는 손님이 한 말을 다시 묻지 않고 한 번에 들었어요.','응. 아까는 손님이 한 말을 다시 묻지 않고 한 번에 들었어.'],
+  ['수리하는 동안 음료는 어디 있어요?','수리하는 동안 음료는 어디 있어?','안쪽 냉장고요. 지금 가져오려고 했어요. 필요한 거 있으면 같이 꺼내 드릴게요.','안쪽 냉장고. 지금 가져오려고 했어. 필요한 거 있으면 같이 꺼내 줄게.']],
+ ['park',['이 벤치에 매일 앉는 분이 있어서 옆자리를 비워 놨거든요. 오늘 보니 앉는 건 그분이 아니라 데리고 온 개였어요.','이 벤치에 매일 앉는 분이 있어서 옆자리를 비워 놨거든. 오늘 보니 앉는 건 그분이 아니라 데리고 온 개였어.'],
+  ['개가 자기 자리인 걸 알아요?','개가 자기 자리인 걸 알아?','네. 다른 데 앉히면 내려와서 그 자리 옆에 가만히 서 있더라고요.','응. 다른 데 앉히면 내려와서 그 자리 옆에 가만히 서 있더라.'],
+  ['그분은 그럼 어디 앉아요?','그분은 그럼 어디 앉아?','그 옆에요. 저는 어느 쪽 자리까지 비워 드려야 할지 다시 생각 중이에요.','그 옆에. 난 어느 쪽 자리까지 비워 줘야 할지 다시 생각 중이야.']],
+ ['park',['저기 자전거 지나가는 소리 들었어요? 한 대만 종이 두 번 울리는데, 그 소리 나면 늘 이 근처에서 하루가 끝났구나 싶어요.','저기 자전거 지나가는 소리 들었어? 한 대만 종이 두 번 울리는데, 그 소리 나면 늘 이 근처에서 하루가 끝났구나 싶어.'],
+  ['오늘은 그 소리 들을 때까지 더 앉아 있어요.','오늘은 그 소리 들을 때까지 더 앉아 있자.','좋아요. 들리면 제가 먼저 가리켜 볼게요.','좋아. 들리면 내가 먼저 가리켜 볼게.'],
+  ['하루 중에 이 시간이 제일 좋아요?','하루 중에 이 시간이 제일 좋아?','요즘은요. 누구한테 뭐 해 주기 전에 잠깐 제 시간이 생기거든요.','요즘은. 누구한테 뭐 해 주기 전에 잠깐 내 시간이 생기거든.']]
+);
+
+function hanaIntroMeeting(ev){
+ return ev.person==='임하나'&&relationshipTier(ev.person)===0&&['store','park'].includes(ev.place);
+}
 // Append new everyday conversations after the two original friend topics so
 // in-progress saves keep the subject and reply indices they were offered.
 for(const [p,beats] of Object.entries(residentMeetingTalks)){
@@ -1454,7 +1484,8 @@ function chooseMeetingBeat(ev,p){
  if(ev.meetingBeat||ev.answered||ev.selected||ev.abruptDeparture)return;
  const v=initSim(),day=ev.day??v.day,stage=relationshipVoiceStage(p);
  const couple=stage==='early'||stage==='steady';
- if(!couple&&stage!=='flirt'&&stage!=='normal')return;
+ const intro=hanaIntroMeeting(ev);
+ if(!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&p==='임하나'))return;
  // Do not reinterpret an old, already offered one-off opening.
  if(!relationshipVoices[p].slice(0,10).some(x=>ev.voiceMoment===x||ev.voiceMoment.endsWith(', '+x)))return;
  const activity=ev.activity??v.running?.plan?.[v.running.slot];
@@ -1462,12 +1493,13 @@ function chooseMeetingBeat(ev,p){
  const general=[],local=[];
  residentMeetingTalks[p].forEach(([scope],i)=>{
   const key='meet:'+i;
+  if(intro){if(scope==='intro:'+ev.place)local.push(key);return;}
   if(scope==='any'||scope==='*'&&couple)general.push(key);
   else if(scope===ev.place||scope==='shift:cafe'&&cafeShift)local.push(key);
  });
  // Day-to-day stories also belong to people who have become partners.
- general.push(...friendTalkTopics[p].slice(0,2).map((_,i)=>'friend:'+i));
- const pool=couple?[]:['usual:'+stage];
+ if(!intro)general.push(...friendTalkTopics[p].slice(0,2).map((_,i)=>'friend:'+i));
+ const pool=couple||intro||stage==='friend'?[]:['usual:'+stage];
  for(let i=0;i<Math.max(local.length,general.length);i++){
   if(local[i])pool.push(local[i]);
   if(general[i])pool.push(general[i]);
@@ -8733,7 +8765,7 @@ const speechOffers={"서이준":["…우리 굳이 계속 존댓말 해야 하�
 const relationshipVoices={"서이준":["…왔어요. 오늘은 좀 조용하네요.","…왔어. 오늘은 좀 조용하네.","…이런 얘기까지 하게 될 줄은 몰랐어요.","…이런 얘기까지 하게 될 줄 몰랐네.","……오늘은 안 오나 했어요.","……오늘은 안 오나 했어.","오늘은 조금 더 같이 있어도 될까요?","오늘은 조금 더 같이 있어도 돼?","…옆에 있으니까 마음이 편해요.","…옆에 있으니까 편하네.","…부르던 이름 말고, 좀 다르게 불러도 될까요?","…그 친구도 왔네요. 인사해요.","…괜찮아요. 친구인 건 알고 있으니까."],"강도윤":["하하, 오늘은 어떻게 보내셨어요?","하하, 오늘 하루 어땠어?","오늘은 제가 제 얘기도 좀 해 볼까요?","오늘은 나도 내 얘기 좀 해 볼까?","오늘따라 자꾸 문 쪽을 보게 되더라고요.","오늘따라 자꾸 문 쪽을 보게 되더라.","오늘은 제가 조금 더 가까이 있어도 될까요?","오늘은 조금 더 가까이 있어도 될까?","이제는 같이 있는 시간도 제 일상 같네요.","이제 같이 있는 시간도 내 일상 같네.","하하, 둘만 있을 때 특별한 이름으로 불러 보고 싶어요.","하하, 마침 두 분 다 뵙네요.","친구 사이인 건 이해해요. 저도 제 마음은 이야기할게요."],"한시우":["오예! 오늘도 만났네요.","오예! 오늘도 만났네.","오, 이거 친구한테만 하는 얘긴데요.","오, 이거 친구한테만 하는 얘긴데.","아, 오늘 좀 보고 싶었다고요.","아, 오늘 좀 보고 싶었다고.","히히, 오늘은 좀 붙어 있어도 돼요?","히히, 오늘 좀 붙어 있어도 돼?","오예, 이제 완전 내 편인 기분이에요.","오예, 완전 내 편인 기분이다.","오, 우리만 쓰는 호칭 하나 정하면 안 돼요?","앗, 여기서 두 분 다 만나네요?","괜찮아요. 우리 나중에 둘이 얘기해요."],"정태오":["안녕하십니까. 오늘도 무리하지 마십시오.","왔군. 오늘도 무리하지 마.","당신이라면 편하게 이야기할 수 있을 것 같습니다.","너라면 편하게 이야기할 수 있을 것 같아.","…뵙고 싶었다는 말씀을 드리고 싶었습니다.","…보고 싶었다고 말하고 싶었어.","사적인 시간을 함께 보내고 싶습니다.","오늘은 같이 시간을 보내고 싶어.","당신과 함께하는 시간이 익숙해졌습니다.","너와 함께하는 시간이 익숙해졌어.","둘만 있는 자리에서 조금 다른 호칭을 사용해도 되겠습니까?","두 분 모두 안녕하십니까.","서로의 관계를 존중하면 될 일입니다."],"백지한":["오늘 일정은 어떠셨나요?","오늘 일정 어땠어?","이런 얘기는 아무한테나 하지 않는데 말이죠.","이런 얘기는 아무한테나 하지 않는데.","오늘 저녁 비워 둬요. 보고 싶으니까.","오늘 저녁 비워 둬. 보고 싶으니까.","오늘은 조금 더 가까이 앉고 싶네요.","오늘은 조금 더 가까이 앉고 싶어.","당신이 편하게 쉬는 모습도 좋아요.","네가 편하게 쉬는 모습도 좋아.","다른 사람과 똑같은 호칭으로 부르기는 싫은데, 괜찮겠어요?","마침 여기 계셨네요. 인사는 해야겠죠.","친구라는 건 알아요. 그래도 나중에 둘이 이야기합시다."],"임하나":["안녕하세요. 오늘 하루 괜찮으셨어요?","안녕. 오늘 하루 괜찮았어?","저도 이제는 이런 얘기를 할 수 있네요.","나도 이제 이런 얘기를 할 수 있네.","…오늘 만나고 싶었어요.","…오늘 만나고 싶었어.","저, 조금 더 같이 있고 싶어요.","나, 조금 더 같이 있고 싶어.","이렇게 함께 있어도 어색하지 않아서 좋아요.","이렇게 같이 있어도 어색하지 않아서 좋아.","저… 우리 둘만 사용하는 호칭이 있으면 좋겠어요.","아, 두 분 다 계셨네요.","저도 마음을 숨기지 않고 이야기해 볼게요."],"차유리":["오, 오늘 뭐 하고 왔어요?","오, 오늘 뭐 하고 왔어?","이거 다른 데선 안 하는 얘긴데, 들어 볼래요?","이거 다른 데선 안 하는 얘긴데, 들어 볼래?","오, 오늘따라 같이 놀고 싶었어요.","오, 오늘따라 같이 놀고 싶었어.","오늘은 좀 더 붙어 다녀도 되죠?","오늘은 좀 더 붙어 다녀도 되지?","오케이, 이렇게 각자 할 일 하면서 같이 있는 것도 좋네요.","오케이, 각자 할 일 하면서 같이 있는 것도 좋네.","둘만 아는 별명 하나 만들까요?","오, 셋이 여기서 만나다니.","친구는 친구죠. 다만 서로 불편한 건 얘기해요."],"오세린":["아아, 오늘은 잘 지내셨나요?","아아, 오늘은 잘 지냈어?","으음, 당신에게는 제 마음도 말씀드리고 싶네요.","으음, 너에게는 내 마음도 말하고 싶네.","아아, 오늘은 함께 차를 마시고 싶었어요.","아아, 오늘 같이 차 마시고 싶었어.","조금 더 가까이 있어도 괜찮을까요?","조금 더 가까이 있어도 괜찮을까?","이런 평온한 시간이 참 소중하네요.","이런 평온한 시간이 참 소중하네.","둘만 있을 때 조금 더 다정하게 불러도 괜찮을까요?","아아, 두 분이 여기 계셨군요.","으음, 우리 각자의 마음을 존중해요."],"유지안":["오늘도 좋은 하루 보내고 있어요?","오늘도 좋은 하루 보내고 있어?","이건 우리끼리만 하는 얘기예요.","이건 우리끼리만 하는 얘기야.","와우, 오늘 진짜 보고 싶었어요!","와우, 오늘 진짜 보고 싶었어!","오늘은 조금 더 붙어서 걸어요. 괜찮죠?","오늘은 좀 더 붙어서 걷자. 괜찮지?","이제 같이 있는 게 참 자연스러워요.","이제 같이 있는 게 참 자연스러워.","우리만의 애칭 하나 만들어요! 어때요?","와, 여기서 셋이 만나네요!","친구인 건 알아요. 나중에 나랑도 시간 보내요."],"공재희":["헐ㅋㅋ 오늘 뭐 했어요?","헐ㅋㅋ 오늘 뭐 했어?","이거 진짜 친구라서 하는 얘기임.","이거 진짜 친구라서 하는 얘기임.","아니 나 오늘 개보고 싶었는데.","아니 나 오늘 개보고 싶었는데.","오늘은 좀 옆에 붙어 있어도 됨?","오늘 좀 옆에 붙어 있어도 됨?","웅ㅋㅋ 그냥 같이 있는 게 좋음.","웅ㅋㅋ 그냥 같이 있는 게 좋음.","우리만 쓰는 애칭 만들면 안 됨?","헐, 여기서 다 만남?","친구인 건 알겠는데… 나중에 얘기 좀 해요."]};
 function relationshipVoiceStage(p){const v=initSim();if(vIsDating(p)){if(coupleIssueRecord(p).active)return 'conflict';return v.day-coupleRecord(p).since>=45?'steady':'early'}if(crushRecord(p).status==='cooling'||['cooling','ready'].includes(aftermathRecord(p)?.status))return 'distance';if(v.romance[p]==='ended'&&exRecord(p))return aftermathRecord(p)?.status==='friend'?'friend':'ex';if(['aware','hidden'].includes(crushRecord(p).status))return 'crush';if(closeFriend(p))return 'friend';if(!platonicOnly(p)&&flirtRecord(p).interest>=3)return 'flirt';return 'normal'}
 function relationshipVoice(p,stage){const a=relationshipVoices[p],m=memoryFor(p).address;const casual=m.npcSpeech==='반말'||m.npcSpeech==='혼용'&&initSim().day%2===0;const i={normal:0,friend:2,crush:4,flirt:4,early:6,steady:8}[stage];if(i===undefined)return null;return a[i+(casual?1:0)]}
-function voiceMoment(ev){const p=ev.person;if(!p||!relationshipVoices[p]||ev.jobEvent||ev.personalStory||ev.speechOffer||ev.triangle||ev.crushMeeting||ev.aftermath||ev.coupleIssue||ev.group||ev.flirtScene||ev.contactFollowup||ev.friendCrush||!initSim().running)return; if(ev.quietArrival || (relationshipTier(p)===0 && relationshipVoiceStage(p)==='normal')){
+function voiceMoment(ev){const p=ev.person;if(!p||!relationshipVoices[p]||ev.jobEvent||ev.personalStory||ev.speechOffer||ev.triangle||ev.crushMeeting||ev.aftermath||ev.coupleIssue||ev.group||ev.flirtScene||ev.contactFollowup||ev.friendCrush||!initSim().running)return; if(ev.quietArrival || (relationshipTier(p)===0 && relationshipVoiceStage(p)==='normal'&&!hanaIntroMeeting(ev))){
   ev.quietArrival=true;
   delete ev.voiceMoment;
   return;

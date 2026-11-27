@@ -89,7 +89,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.195-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.195.1-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -2645,21 +2645,21 @@ const everydayArgumentScenes = {
   unresolved: ["알았어요. 지금 약속부터 잡으면 또 내 속도대로 가는 거겠죠. 주소는 잘 갖고 있을게요.", "알았어. 지금 약속부터 잡으면 또 내 속도대로 가는 거겠지. 주소는 잘 갖고 있을게."]
  },
  "서이준": {
-  setup: "이준이 지난번에 보고 왔다는 영화 얘기를 꺼냈다. 내가 어땠냐고 묻자 휴대전화로 예매 내역을 보여 줬다. 한 사람이 보고 온 영화치고는 좌석 번호가 길었다. F7, F8.",
-  opening: ["그날 몇 시에 시작하냐고 한 번쯤은 물어볼 줄 알았어요.", "그날 몇 시에 시작하냐고 한 번쯤은 물어볼 줄 알았어."],
-  truth: ["시작 직전에 휴대전화 끌 때요. 오는 길에 내가 전화를 못 받으면 어떡하지 싶어서 진동으로 뒀어요. 상영관 번호를 알려 준 적도 없으면서.", "시작 직전에 휴대전화 끌 때. 오는 길에 내가 전화를 못 받으면 어떡하지 싶어서 진동으로 뒀어. 상영관 번호를 알려 준 적도 없으면서."],
-  pushback: ["혼자 보고 싶을 때 가끔 가는 데라면서요. 두 자리 잡은 건 지금 알았어요.", "혼자 보고 싶을 때 가끔 가는 데라며. 두 자리 잡은 건 지금 알았어."],
-  retort: ["그러게요. 온다는 말도 안 했는데 문 열릴 때마다 옆으로 다리 비켜 주고. 나중에는 제가 다 민망하더라고요.", "그러게. 온다는 말도 안 했는데 문 열릴 때마다 옆으로 다리 비켜 주고. 나중에는 내가 다 민망하더라."],
-  mySide: ["나도 같이 보고 싶었어요. 근데 지나간 표를 오늘 보여 주면, 나는 가고 싶단 말도 못 해 보고 약속 안 지킨 사람이 되잖아요.", "나도 같이 보고 싶었어. 근데 지나간 표를 오늘 보여 주면, 나는 가고 싶단 말도 못 해 보고 약속 안 지킨 사람이 되잖아."],
-  walkAway: ["됐어요. 표는 내가 끊었는데 누구한테 따지겠어요. 그냥 그만해요.", "됐어. 표는 내가 끊었는데 누구한테 따져. 그냥 그만하자."],
-  playerExitReply: ["…알겠어요. 예매 내역까지 보여 주는 건 저도 좀 치사했네요.", "…알겠어. 예매 내역까지 보여 주는 건 나도 좀 치사했네."],
-  silentAction: "이준이 먼저 영화 얘기를 꺼냈다. 어느 장면에서 옆을 보게 됐는지 얘기하다가 문득 말을 멈췄다.",
-  afterNpcExit: ["…사실 이 얘기 벌써 세 번째예요. 먼저 문자로 보내려다가 두 번 지웠어요. 그만하자고 한 거, 내가 먼저 취소할게요.", "…사실 이 얘기 벌써 세 번째야. 먼저 문자로 보내려다가 두 번 지웠어. 그만하자고 한 거, 내가 먼저 취소할게."],
-  afterPlayerExit: ["어제 이 얘길 문자로 쓰다가 지웠어요. 피곤하다고 했는데 또 영화 얘기냐 싶어서요. …잘 지냈어요? 사실 그게 궁금했어요.", "어제 이 얘길 문자로 쓰다가 지웠어. 피곤하다고 했는데 또 영화 얘기냐 싶어서. …잘 지냈어? 사실 그게 궁금했어."],
-  early: ["…영화 어땠냐고 물었잖아요. 별로였어요. 재밌는 장면 나와도 돌아볼 데가 없어서.", "…영화 어땠냐고 물었잖아. 별로였어. 재밌는 장면 나와도 돌아볼 데가 없어서."],
-  repair: ["다음 영화 같이 볼래요? 보고 나오면 뭐가 제일 별로였는지도 듣고 싶어요. 이번엔 대답 듣고 표 끊을게요.", "다음 영화 같이 볼래? 보고 나오면 뭐가 제일 별로였는지도 듣고 싶어. 이번엔 대답 듣고 표 끊을게."],
-  answer: ["같이 봐요. 전 뒷자리가 좋아요. 엔딩 자막 끝날 때까지 앉아 있다 나와요, 우리.", "같이 보자. 난 뒷자리가 좋아. 엔딩 자막 끝날 때까지 앉아 있다 나오자, 우리."],
-  unresolved: ["그래요. 그래도 그날 안 온 게 미안할 필요는 없어요. 같이 가자는 말 안 한 건 저니까.", "그래. 그래도 그날 안 온 게 미안할 필요는 없어. 같이 가자는 말 안 한 건 나니까."]
+  setup: "금요일에 같이 보기로 한 영화는 이준의 야근 때문에 한 번 미뤘다. 근무표가 나오면 다시 날짜를 알려 주겠다는 말에, 나는 괜찮으니까 일부터 보라고 했다. 며칠 뒤 이준이 휴대전화로 그 영화의 상영 시간표를 보여 줬다.",
+  opening: ["다음 주엔 내린대요. 또 저한테 맞추다 놓치면 아깝잖아요. 이번엔 각자 편할 때 볼까요?", "다음 주엔 내린대. 또 나한테 맞추다 놓치면 아깝잖아. 이번엔 각자 편할 때 볼까?"],
+  truth: ["그날 퇴근길부터요. 극장 앞을 지나는데 딱 우리 영화가 끝날 시간이더라고요. 전화해서 아쉽다고 하고 싶었어요. 약속 미룬 사람이 저면서요.", "그날 퇴근길에. 극장 앞을 지나는데 딱 우리 영화가 끝날 시간이더라. 전화해서 아쉽다고 하고 싶었어. 약속 미룬 사람이 나면서."],
+  pushback: ["날짜 다시 알려 준다면서요. 전 같이 보려고 기다렸는데, 왜 갑자기 따로 봐요?", "날짜 다시 알려 준다며. 난 같이 보려고 기다렸는데, 왜 갑자기 따로 봐?"],
+  retort: ["……그날 제가 야근한다고 했을 때 괜찮다고 했잖아요. 진짜 괜찮았나, 나만 그 금요일이 아까웠나. 며칠 내내 그 생각을 했어요.", "……그날 내가 야근한다고 했을 때 괜찮다고 했잖아. 진짜 괜찮았나, 나만 그 금요일이 아까웠나. 며칠 내내 그 생각을 했어."],
+  mySide: ["저도 그날 보고 싶었어요. 야근하러 가는 사람 맘 쓰일까 봐 괜찮다고 한 건데, 그게 왜 따로 보자는 얘기로 돌아와요?", "나도 그날 보고 싶었어. 야근하러 가는 사람 맘 쓰일까 봐 괜찮다고 한 건데, 그게 왜 따로 보자는 얘기로 돌아와?"],
+  walkAway: ["……그만해요. 저 지금 얼마나 아쉬웠냐고 묻고 싶거든요. 제가 약속 미뤄 놓고 할 소리는 아니잖아요.", "……그만하자. 나 지금 얼마나 아쉬웠냐고 묻고 싶거든. 내가 약속 미뤄 놓고 할 소리는 아니잖아."],
+  playerExitReply: ["……네. 오늘은 갈게요. 시간표 보여 주면 금방 얘기가 될 줄 알았는데.", "……응. 오늘은 갈게. 시간표 보여 주면 금방 얘기가 될 줄 알았는데."],
+  silentAction: "이준이 주머니에서 휴대전화를 꺼냈다가, 화면을 켜기도 전에 도로 넣었다. 이번엔 내 얼굴을 보고 입을 열었다.",
+  afterNpcExit: ["며칠 동안 전화 오면 무슨 말 할지만 생각했어요. 그만하자고 한 건 저면서. ……그날 보고 싶었어요. 오늘도 그렇고요.", "며칠 동안 전화 오면 무슨 말 할지만 생각했어. 그만하자고 한 건 나면서. ……그날 보고 싶었어. 오늘도 그렇고."],
+  afterPlayerExit: ["집에 가서 제일 마음에 걸린 게 뭔지 알아요? 기다려 준 사람한테 제가 먼저 따로 보자고 한 거예요. 미안해요.", "집에 가서 제일 마음에 걸린 게 뭔지 알아? 기다려 준 사람한테 내가 먼저 따로 보자고 한 거야. 미안해."],
+  early: ["저도 그날 얘길 꺼내고 싶었어요. 다시 날짜를 잡자는 말을 적었다 지웠다 했거든요. 그게 뭐 그렇게 어려운 말이라고.", "나도 그날 얘길 꺼내고 싶었어. 다시 날짜 잡자는 말을 적었다 지웠다 했거든. 그게 뭐 그렇게 어려운 말이라고."],
+  repair: ["저는 같이 보고 싶어요. 아직 걸려 있으면 그 영화 보고, 내려갔으면 우리 저녁 먹을래요? 금요일에 제일 아까웠던 건 못 만난 거였어요.", "난 같이 보고 싶어. 아직 걸려 있으면 그 영화 보고, 내려갔으면 우리 저녁 먹을래? 금요일에 제일 아까웠던 건 못 만난 거였어."],
+  answer: ["같이 봐요. 영화 놓치면 저녁은 제가 고를게요. 저도 그날 얼굴 좀 보려고 했어요.", "같이 보자. 영화 놓치면 저녁은 내가 고를게. 나도 그날 네 얼굴 좀 보려고 했어."],
+  unresolved: ["……네. 그럼 오늘은 이것만 말할게요. 금요일에 기다려 줘서 고마웠어요. 그 말이 많이 늦었네요.", "……응. 그럼 오늘은 이것만 말할게. 금요일에 기다려 줘서 고마웠어. 그 말이 많이 늦었네."]
  },
  "강도윤": {
   setup: "도윤은 집에 도착하면 으레 전화를 걸었다. 어젯밤엔 벨이 울리지 않았다. 가게 일이 고됐나 싶어서 오늘도 피곤하면 일찍 자라고 했더니, 도윤이 대뜸 어제는 몇 시에 잤느냐고 물었다.",
@@ -2799,6 +2799,25 @@ const everydayArgumentScenes = {
  }
 };
 
+// v0.195 saves can already be partway through the original two-ticket scene.
+const ijunUnsharedTickets = {
+  setup: "이준이 영화 예매 내역을 보여 줬다. 좌석은 두 개였다. 내가 화면을 내려다보는 동안 이준이 먼저 휴대전화를 주머니에 넣었다.",
+  opening: ["저, 같이 가자고 한 적도 없으면서 표부터 보여 줬네요. 미안해요. 그날 제가 같이 보고 싶었어요.", "나, 같이 가자고 한 적도 없으면서 표부터 보여 줬네. 미안해. 그날 내가 같이 보고 싶었어."],
+  truth: ["옆자리에 외투를 놓는데 그제야 민망했어요. 같이 보자고 한마디 하는 게 왜 그렇게 어려웠을까요.", "옆자리에 외투를 놓는데 그제야 민망했어. 같이 보자고 한마디 하는 게 왜 그렇게 어려웠을까."],
+  pushback: ["혼자 보고 싶을 때 가끔 가는 데라면서요. 두 자리 잡은 건 지금 알았어요.", "혼자 보고 싶을 때 가끔 가는 데라며. 두 자리 잡은 건 지금 알았어."],
+  retort: ["맞아요. 저 혼자 기대한 걸 예매 내역까지 꺼내서 보여 줬네요.", "맞아. 나 혼자 기대한 걸 예매 내역까지 꺼내서 보여 줬네."],
+  mySide: ["나도 같이 보고 싶었어요. 근데 지나간 표를 오늘 보여 주면, 나는 가고 싶단 말도 못 해 보고 약속 안 지킨 사람이 되잖아요.", "나도 같이 보고 싶었어. 근데 지나간 표를 오늘 보여 주면, 나는 가고 싶단 말도 못 해 보고 약속 안 지킨 사람이 되잖아."],
+  walkAway: ["…표는 제가 산 거잖아요. 오늘 얘기는 여기서 그만하면 안 돼요? 제가 좀 부끄러워서요.", "…표는 내가 산 거잖아. 오늘 얘기는 여기서 그만하면 안 돼? 내가 좀 부끄러워서."],
+  playerExitReply: ["네. 쉬어요. 표 산 건 제 선택인데 괜히 마음 불편하게 했네요.", "응. 쉬어. 표 산 건 내 선택인데 괜히 마음 불편하게 했네."],
+  silentAction: "이준은 두 손을 외투 주머니에 넣고 서 있었다. 잠깐 뜸을 들이더니 영화 제목도 꺼내기 전에 사과부터 했다.",
+  afterNpcExit: ["미안해요. 같이 가자고도 안 해 놓고 섭섭한 티를 냈잖아요. 그러고 제가 먼저 그만하자고 해 버렸고요.", "미안해. 같이 가자고도 안 해 놓고 섭섭한 티를 냈잖아. 그러고 내가 먼저 그만하자고 해 버렸고."],
+  afterPlayerExit: ["미안해요. 같이 보자고 한 적도 없는데 지나간 표까지 보여 줬잖아요. 답을 받아야겠다고 찾아온 건 아니에요. 그건 꼭 사과하고 싶었어요.", "미안해. 같이 보자고 한 적도 없는데 지나간 표까지 보여 줬잖아. 답을 받아야겠다고 찾아온 건 아니야. 그건 꼭 사과하고 싶었어."],
+  early: ["제가 먼저 사과하려고 했어요. 말없이 끊은 표를 내밀었으니 얼마나 황당했겠어요. 미안해요.", "내가 먼저 사과하려고 했어. 말없이 끊은 표를 내밀었으니 얼마나 황당했겠어. 미안해."],
+  repair: ["다음 영화 같이 볼래요? 보고 나오면 뭐가 제일 별로였는지도 듣고 싶어요. 이번엔 대답 듣고 표 끊을게요.", "다음 영화 같이 볼래? 보고 나오면 뭐가 제일 별로였는지도 듣고 싶어. 이번엔 대답 듣고 표 끊을게."],
+  answer: ["같이 봐요. 전 뒷자리가 좋아요. 엔딩 자막 끝날 때까지 앉아 있다 나와요, 우리.", "같이 보자. 난 뒷자리가 좋아. 엔딩 자막 끝날 때까지 앉아 있다 나오자, 우리."],
+  unresolved: ["네. 들어 줘서 고마워요. 먼저 연락 준다고 한 말, 기억할게요.", "응. 들어 줘서 고마워. 먼저 연락 준다고 한 말, 기억할게."]
+ };
+
 function everydayIssue(p){
  const issue=state?.sim?.couple?.[p]?.issue?.active;
  return state?.sim?.romance?.[p]==='dating'&&issue?.kind==='everyday'?issue:null;
@@ -2841,7 +2860,7 @@ function everydayArgumentGate(){
  });
  if(!p)return false;
  const c=coupleRecord(p),r=coupleIssueRecord(p);
- (c.seen??={}).everydayArgument=true;
+ (c.seen??={}).everydayArgument=p==='서이준'?2:true;
  v.lastEverydayOpening=day;
  r.last=day;r.active={kind:'everyday',day,status:'opening'};
  startEverydayConversation(p,r.active,'opening');
@@ -2869,7 +2888,8 @@ function everydayArgumentPhone(p,root){
 }
 
 function renderEverydayArgument(ev){
- const v=initSim(),p=ev.person,o=ev.everydayArgument,s=everydayArgumentScenes[p],x=everydayIssue(p);
+ const v=initSim(),p=ev.person,o=ev.everydayArgument,x=everydayIssue(p);
+ const s=p==='서이준'&&coupleRecord(p).seen?.everydayArgument!==2?ijunUnsharedTickets:everydayArgumentScenes[p];
  const day=ev.day,pc=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
  const my=(a,b)=>pc?b:a;
  const live=()=>v.activeEvent===ev&&vIsDating(p)&&x&&everydayIssue(p)===x&&x.day===o.issueDay;

@@ -55,6 +55,9 @@
 #storyScene #log{position:relative;min-width:0;min-height:90px;max-height:clamp(168px,30vh,268px);padding:12px 14px;overflow:auto;overscroll-behavior-y:contain;scrollbar-width:thin;background:#234036;color:#f8faf5}
 #log .bubble{margin:0 0 7px;padding:6px 8px;overflow-wrap:anywhere;word-break:normal;line-height:1.6}
 #log .bubble[data-voice="npc"]{background:#ffffff0c;color:#fff}
+#log .bubble.has-expression{display:grid;grid-template-columns:36px minmax(0,1fr);column-gap:9px;align-items:start}
+#log .dialogue-expression{display:block;grid-column:1;grid-row:1/3;width:36px;height:40.5px;border-radius:7px;background-repeat:no-repeat;background-size:500% 100%}
+#log .has-expression strong,#log .has-expression .dialogue-text{grid-column:2}
 #log .bubble strong{color:#d5e9c6;font-size:12px;margin-bottom:3px}
 #log .bubble[data-voice="narration"]{background:transparent;color:#e0eae1;font-size:14px}
 #log .bubble[data-voice="narration"] strong{display:none}
@@ -99,7 +102,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.211</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.212</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -3218,6 +3221,9 @@ function renderEverydayArgument(ev){
  const s=p==='서이준'&&coupleRecord(p).seen?.everydayArgument!==2?ijunUnsharedTickets:everydayArgumentScenes[p];
  const day=ev.day,pc=speechRegisterIndex(p,'player',day),npc=speechRegisterIndex(p,'npc',day);
  const my=(a,b)=>pc?b:a;
+ const portrait=argumentPortraits[p];
+ const reply=(line,beat)=>add(p,line,false,false,portrait?.[beat]);
+
  const live=()=>v.activeEvent===ev&&vIsDating(p)&&x&&everydayIssue(p)===x&&x.day===o.issueDay;
  const refresh=()=>{save();renderChoiceEvent();renderSim()};
  const done=()=>{
@@ -3278,10 +3284,10 @@ function renderEverydayArgument(ev){
   return;
  }
  if(o.mode==='opening'){
-  add('이야기',s.setup);add(p,s.opening[npc]);
-  if(o.pushed){add(state.name,s.pushback[pc],true);add(p,s.retort[npc])}
-  if(o.outcome==='player'){add(state.name,leave,true);add(p,s.playerExitReply[npc]);done();return}
-  if(o.outcome==='npc'){add(p,s.walkAway[npc]);done();return}
+  add('이야기',s.setup);reply(s.opening[npc],'opening');
+  if(o.pushed){add(state.name,s.pushback[pc],true);reply(s.retort[npc],'retort')}
+  if(o.outcome==='player'){add(state.name,leave,true);reply(s.playerExitReply[npc],'truth');done();return}
+  if(o.outcome==='npc'){reply(s.walkAway[npc],'walkAway');done();return}
   if(!o.step){
    choose(s.pushback[pc],()=>{o.pushed=true;o.step='heated'});
    choose(listen,()=>{o.step='talk';o.playerLine=listen});
@@ -3296,26 +3302,26 @@ function renderEverydayArgument(ev){
   }
   add(state.name,o.playerLine,true);
   if(o.pushed)add(state.name,s.mySide[pc],true);
-  else add(p,s.truth[npc]);
+  else reply(s.truth[npc],'truth');
  }else{
   if(o.mode==='silent'){
    add('이야기','먼저 얼굴을 보자는 연락이 왔다. 집을 나서니 골목 어귀에 익숙한 얼굴이 보였다.');
    add('이야기',s.silentAction);
-   add(p,s[o.exit==='npc'?'afterNpcExit':'afterPlayerExit'][npc]);
+   reply(s[o.exit==='npc'?'afterNpcExit':'afterPlayerExit'][npc],'early');
   }else{
    const lead=o.mode==='contacted'?'그날 이후 서로 말은 주고받았지만, 정작 서운했던 얘기는 이제야 나왔다.':
     o.metHere?'발을 멈추고 그날 못 한 이야기를 꺼냈다.':'먼저 연락해서 만났다. 마주 보고 앉아 그날 이야기를 꺼냈다.';
-   add('이야기',lead);add(p,s.early[npc]);
+   add('이야기',lead);reply(s.early[npc],'early');
   }
   if(o.exit&&!o.resumed&&renderArgumentAftermath(ev,'everyday',o.issueDay,!o.outcome,false,o.mode!=='silent'))return;
  }
  if(o.heardMySide){
   add(state.name,s.mySide[pc],true);
-  add(p,doorstepVoices[p].listen[npc]);
+  reply(doorstepVoices[p].listen[npc],'listen');
  }
- add(p,s.repair[npc]);
+ reply(s.repair[npc],'repair');
  if(o.outcome==='repaired'){add(state.name,accept,true);done();return}
- if(o.outcome==='space'){add(state.name,needTime,true);add(p,s.unresolved[npc]);done();return}
+ if(o.outcome==='space'){add(state.name,needTime,true);reply(s.unresolved[npc],'unresolved');done();return}
  choose(accept,settle);
  if(o.mode!=='opening'&&!o.heardMySide&&!x.toldMySide){
   choose(s.mySide[pc],()=>{x.toldMySide=true;o.heardMySide=true;o.step='heard'});
@@ -4534,7 +4540,14 @@ function endDating(p,reason,notify=true){const v=initSim();if(v.romance[p]!=='da
 function eligibleOffer(p,day){const v=initSim(),a=romanceProfiles[p],o=romanceNetwork().offers[p],past=aftermathRecord(p);if(v.romance[p]==='dating'||friendshipRecord(p).bond||v.confessions[p]==='declined'||past||!(romanceReady(p)||(v.affection[p]>=90&&v.personalEvents[p]&&dateHistory(p).length>=3&&socialRecord(p).interest>=7))||!socialRecord(p).contact||socialRecord(p).interest<3||Math.max(flirtRecord(p).interest,socialRecord(p).interest)<a[1]||touchContext(p,day).conflicted)return false;if(o&&o.status!=='held')return false;if(o?.status==='held')return day>=o.retryDay;return day>=Math.max(75,Math.round(a[0]*.65))&&(v.storyProgress?.[p]?.day||0)<=day-3}
 function confessionGate(){const v=initSim(),n=romanceNetwork();if(v.day<75||v.day>=365||[299,300].includes(v.day)||n.lastOffer===v.day)return false;const p=people.filter(q=>eligibleOffer(q,v.day)).sort((a,b)=>romanceProfiles[a][0]-romanceProfiles[b][0]||v.affection[b]-v.affection[a])[0];if(!p)return false;n.lastOffer=v.day;v.activeEvent={person:p,place:'park',day:v.day,description:p+'에게서 따로 만나 이야기하고 싶다는 연락이 왔다.',newConfession:true};v.weekEnd=null;save();renderChoiceEvent();return true}
 function holdOffer(p){romanceNetwork().offers[p]={status:'held',retryDay:initSim().day+7}}
-function renderNewConfession(ev){const v=initSim(),p=ev.person,a=romanceProfiles[p],o=ev.offerState||(ev.offerState={stage:'ask',previous:lovers().slice()});$('progress').textContent='고백 · '+p;add(p,a[3]);if(o.stage==='done'){for(const [who,line] of o.lines||[])add(who,line,who===state.name);choiceButton('일정 계속하기',finishEvent);return}
+const confessionPortraits={
+ '공재희':{opening:'불안',accepted:'웃음',declined:'불안',held:'당황'},
+ '임하나':{opening:'부끄러움',accepted:'미소',declined:'걱정',held:'당황'},
+ '백지한':{opening:'진지',accepted:'기본',declined:'진지',held:'생각 중'}
+};
+function renderNewConfession(ev){const v=initSim(),p=ev.person,a=romanceProfiles[p],o=ev.offerState||(ev.offerState={stage:'ask',previous:lovers().slice()});$('progress').textContent='고백 · '+p;const portrait=confessionPortraits[p];add(p,a[3],false,false,portrait?.opening);if(o.stage==='done'){
+ const outcome=['accepted','secret','switch'].includes(o.kind)?'accepted':o.kind;
+ for(const [who,line] of o.lines||[])add(who,line,who===state.name,false,who===p?portrait?.[outcome]:undefined);choiceButton('일정 계속하기',finishEvent);return}
 const complete=(kind,lines)=>{o.stage='done';o.kind=kind;o.lines=lines;save();renderChoiceEvent();renderSim()};
 if(o.stage==='ask'){choiceButton(o.previous.length?'저도 마음이 있어요. 관계에 대해 이야기하고 싶어요.':'저도 좋아해요. 우리 사귀어요.',()=>{if(o.previous.length){o.stage='choose';save();renderChoiceEvent()}else{beginDating(p);complete('accepted',[[state.name,'저도 좋아해요. 우리 사귀어요.'],[p,christmasLines[p][3]]])}});choiceButton('미안해요. 마음을 받아들일 수 없어요.',()=>{v.confessions[p]='declined';romanceNetwork().offers[p]={status:'declined'};aftermathStart(p,v.day,'고백에 대한 거절',null);complete('declined',[[state.name,'미안해요.'],[p,aftermathVoices[p].l[0]]])});choiceButton('조금 생각할 시간을 줘요.',()=>{holdOffer(p);complete('held',[[state.name,'조금 생각할 시간을 줘요.'],[p,npcAutonomyVoices[p][4]]])});return}
 const olds=o.previous.filter(q=>vIsDating(q)&&q!==p);
@@ -5011,7 +5024,7 @@ function beginAftermath(candidates,lover,day){for(const p of candidates)if(p!==l
 function tellRelationship(p){const v=initSim(),lover=currentLover();if(!lover||lovers().includes(p))return false;const a=aftermathRecord(p),soc=socialRecord(p),t=phoneData().threads[p]||(phoneData().threads[p]=[]);if(soc.knownLover===lover)return false;soc.knownLover=lover;t.push({day:v.day,booking:true,playerLine:lover+'와 교제하고 있어요.',npcLine:aftermathVoices[p].l[0],reply:1});if(a)a.known=lover;else if(aftermathEligible(p))aftermathStart(p,v.day,'교제 소식을 직접 들음',lover);remember(p,'relationship:known',lover+'와 교제한다는 사실을 들음');save();return true}
 function aftermathNight(day){for(const p of people){const a=aftermathRecord(p);if(!a||a.status!=='cooling'||day<a.readyDay)continue;a.status='ready';const s=socialRecord(p);if(s.contact){const t=phoneData().threads[p]||(phoneData().threads[p]=[]);t.push({day,booking:true,playerLine:'',npcLine:aftermathVoices[p].l[2],reply:1})}}}
 function aftermathControls(p,root){const v=initSim(),lover=currentLover(),soc=socialRecord(p),a=aftermathRecord(p);if(lover&&!lovers().includes(p)&&soc.knownLover!==lover){const b=document.createElement('button');b.className='secondary';b.textContent='교제 중이라는 사실을 이야기하기';b.onclick=()=>{tellRelationship(p);renderPhone();renderSim();syncSchedule()};root.append(b)}if(a&&a.status!=='friend'){const b=document.createElement('button');b.className='secondary';b.textContent=a.status==='ready'?'다시 편하게 이야기하기':'마음을 정리하는 중';b.disabled=a.status!=='ready'||!!v.running||!!v.activeEvent||v.finished;b.onclick=()=>{if(v.running||v.activeEvent||a.status!=='ready')return;v.activeEvent={person:p,place:'home',day:v.day,description:'다시 이야기를 나눌 시간이 되었다.',aftermath:true};save();renderChoiceEvent()};root.append(b)}}
-function renderAftermath(ev){const v=initSim(),p=ev.person,a=aftermathRecord(p),l=aftermathVoices[p].l;if(!ev.aftermathStage){ev.aftermathStage=a.status;save()}$('progress').textContent='마음의 정리 · '+aftermathVoices[p].mode;if(ev.aftermathStage==='cooling'){add('이야기',l[1]);add(p,l[0]);choiceButton('가볍게 인사하고 자리를 비킨다',finishEvent);return}add(p,l[3]);if(ev.aftermathAnswer){add(state.name,ev.aftermathAnswer.label,true);add(p,ev.aftermathAnswer.reply);
+function renderAftermath(ev){const v=initSim(),p=ev.person,a=aftermathRecord(p),l=aftermathVoices[p].l;if(!ev.aftermathStage){ev.aftermathStage=a.status;save()}$('progress').textContent='마음의 정리 · '+aftermathVoices[p].mode;if(ev.aftermathStage==='cooling'){add('이야기',l[1]);add(p,l[0],false,false,argumentPortraits[p]?.unresolved);choiceButton('가볍게 인사하고 자리를 비킨다',finishEvent);return}add(p,l[3],false,false,argumentPortraits[p]?.early);if(ev.aftermathAnswer){add(state.name,ev.aftermathAnswer.label,true);add(p,ev.aftermathAnswer.reply,false,false,ev.aftermathAnswer.friend?confessionPortraits[p]?.accepted:argumentPortraits[p]?.unresolved);
  if(ev.aftermathAnswer.friend&&v.romance[p]==='ended'&&exRecord(p)&&!exRecord(p).friendAddressMode){
   add('이야기','친구로 지내면서 서로 어떻게 말하고 부를지 정하기로 했다.');
   exFriendAddressButtons(ev);return;
@@ -10686,14 +10699,38 @@ function storyLine(who,text,me,typed,ev){
  }
  return chatSpacing(text);
 }
-function add(who,text,me=false,typed=false){
+const dialoguePortraits={
+ '공재희':{file:'jaehee',frames:['기본','웃음','당황','짜증','불안']},
+ '임하나':{file:'hana',frames:['기본','미소','당황','걱정','부끄러움']},
+ '백지한':{file:'jihan',frames:['기본','농담','당황','생각 중','진지']}
+};
+const argumentPortraits={
+ '공재희':{opening:'불안',retort:'짜증',truth:'불안',walkAway:'짜증',early:'불안',listen:'당황',repair:'기본',unresolved:'불안'},
+ '임하나':{opening:'걱정',retort:'당황',truth:'걱정',walkAway:'걱정',early:'걱정',listen:'기본',repair:'기본',unresolved:'걱정'},
+ '백지한':{opening:'진지',retort:'진지',truth:'진지',walkAway:'진지',early:'생각 중',listen:'생각 중',repair:'진지',unresolved:'생각 중'}
+};
+function dialogueExpression(who,label){
+ const data=dialoguePortraits[who],frame=data?.frames.indexOf(label);
+ if(frame===undefined||frame<0)return null;
+ const face=document.createElement('span');
+ face.className='dialogue-expression';
+ face.setAttribute('role','img');
+ face.setAttribute('aria-label',who+' · '+label);
+ face.style.backgroundImage='url("assets/expressions/'+data.file+'.webp")';
+ face.style.backgroundPosition=(frame*25)+'% 0';
+ return face;
+}
+function add(who,text,me=false,typed=false,expression){
  const ev=state?.sim?.activeEvent,log=$('log');
  text=storyLine(who,text,me,typed,ev);
  const npc=!me&&people.includes(who);
  if(npc&&!(ev?.carePerson||/^DAY \d+ 일정 결과/.test(ev?.description||'')))setStoryStanding(who);
  const el=document.createElement('div');
  el.dataset.voice=me?'player':npc?'npc':who==='이야기'?'narration':'system';
- el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.textContent=text;el.append(title,body);log.append(el);log.scrollTop=log.scrollHeight}
+ el.className='bubble'+(me?' me':'');const title=document.createElement('strong');title.textContent=who;const body=document.createElement('span');body.className='dialogue-text';body.textContent=text;
+ const face=npc&&dialogueExpression(who,expression);
+ if(face){el.classList.add('has-expression');el.append(face)}
+ el.append(title,body);log.append(el);log.scrollTop=log.scrollHeight}
 const introReplies=[
 [['서이준','“아, 죄송합니다. 바로 옮길게요.”',2],['서이준','“...그러네요. 죄송합니다.”',0],['서이준','“그런 농담은 별로 안 좋아합니다.”',-3]],
 [['백지한','“네. 이준이 형도 제가 중개해 드렸거든요.”',2],['백지한','“입주 전에 확인했지만, 불편한 곳이 있으면 바로 연락 주세요.”',1],['백지한','“하하, 시작부터 인상이 강렬했겠는데요?”',2]],

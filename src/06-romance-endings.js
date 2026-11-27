@@ -1010,6 +1010,31 @@ function renderGroupDate(ev){
   add(state.name,ev.groupDateAnswer,true);
   if(scene&&ev.groupOutingEnding)add('이야기',ev.groupOutingEnding);
   for(const w of partners)add(w,scene?ev.multiReplies[w]:formatSpeech(w,ev.multiReplies[w],'npc'));
+  if(ev.venue==='우리 집 홈데이트'){
+   const o=ev.groupHomeAfter||(ev.groupHomeAfter={});
+   if(o.answer){
+    add('이야기',o.answer);
+    for(const w of partners)if(o.replies?.[w])add(w,formatSpeech(w,o.replies[w],'npc',undefined,day));
+    choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
+   }
+   add('이야기','영화가 끝나고도 아무도 먼저 일어나지 않았다. 창밖은 어느새 어두워져 있었다.');
+   const choose=(kind)=>{
+    if(!live()||o.answer||!partners.every(vIsDating)||!bothConsented(p,q))return;
+    o.replies={};
+    const willing=partners.every(w=>d.individual[w].jealous<5&&!touchContext(w,day).conflicted);
+    if(kind==='hug'&&willing){
+     o.answer='두 사람에게 팔을 벌리자 잠깐 눈이 마주쳤다. 양옆에서 따뜻한 어깨가 닿았다. 셋은 한동안 그렇게 소파에 앉아 있었다.';
+     for(const w of partners){o.replies[w]=w==='한시우'?'아, 이러면 집에 가기 싫어지잖아요!':w==='차유리'?'조금만 더 이렇게 있을까요?':'조금 더 같이 있어요.';feel(w,{security:1});}
+    }else if(kind==='stay'&&willing){
+     o.answer='두 사람에게 오늘 더 머물고 싶은지 물었다. 각자 편한 잠자리를 정하고 담요를 나눠 가졌다. 늦은 밤까지 이야기를 나누다가 불을 껐다.';
+     for(const w of partners){o.replies[w]=w==='한시우'?'좋아요! 내일 아침은 제가 챙길게요.':w==='차유리'?'좋아요. 대신 내일 일정은 각자 확인해요.':'오늘은 조금 더 같이 있고 싶어요.';feel(w,{security:1});}
+    }else{o.answer=kind==='end'?'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.':'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}
+    save();renderChoiceEvent();renderSim();
+   };
+   choiceButton('두 사람에게 함께 안아도 좋을지 묻는다',()=>choose('hug'));
+   choiceButton('오늘 셋이 함께 묵을지 물어본다',()=>choose('stay'));
+   choiceButton('오늘은 여기서 헤어진다',()=>choose('end'));return;
+  }
   choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
  }
  const options=scene?[

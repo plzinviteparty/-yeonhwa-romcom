@@ -12,6 +12,7 @@ if(!ev.voiceMoment){const stage=relationshipVoiceStage(p);if(!['normal','friend'
  const daily=approvedDailyBeat(ev);
  if(daily){
   add(p,dailySpeech(ev,'npc',daily.opening,'before'),false,false,'기본',true);
+  if(daily.afterOpening)add('이야기',daily.afterOpening,false,false,undefined,true);
   return;
  }
  let line=ev.voiceMoment;

@@ -3119,7 +3119,33 @@ function renderAlleyDate(ev,p){
  });
 }
 
-function renderExtraDate(ev){const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p],steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',nextMeetReply(p,ev.day??v.day,2)];const lines=[x[0],x[6],'슬슬 집에 돌아갈 시간이었다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',nextMeetReply(p,ev.day??v.day,3),3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){if(i===1&&renderDateSpark(ev,venue,[p],n===1&&!ev.answered))return;add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}if(i===0&&n===1&&renderMatchingOffer(ev,p))return}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
+function renderWorkshopCup(ev){
+ const cup=ev.workshopCup,beat=approvedDailyTalks['차유리']['05'];
+ add('이야기','유리가 공방 진열대에 놓인 컵 하나를 집어 들었다.');
+ add(ev.person,dailySpeech(ev,'npc',beat.opening),false,false,'기본',true);
+ const selected=beat.choices.find(choice=>choice.label===cup.answer);
+ if(selected){
+  renderApprovedAnswer(ev,selected,dailySpeech(ev,'player',selected.label));
+  return false;
+ }
+ for(const choice of beat.choices){
+  choiceButton(dailySpeech(ev,'player',choice.label),()=>{
+   const v=initSim();
+   if(v.activeEvent!==ev||cup.answer||ev.answered)return;
+   cup.answer=choice.label;
+   v.affection[ev.person]=Math.min(999,(v.affection[ev.person]||0)+2);
+   save();renderChoiceEvent();renderSim();
+  });
+ }
+ return true;
+}
+function renderExtraDate(ev){
+ const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p];
+ // Decide once on arrival. Ongoing dates from older saves keep their original choices.
+ if(!ev.dateSteps&&p==='차유리'&&venue===approvedDailyTalks[p]['05'].dateVenue&&
+    relationshipTier(p)>=2&&['normal','flirt'].includes(relationshipVoiceStage(p))&&!unresolvedOutingConflict(p)&&
+    dateHistory(p).filter(visit=>visit.venue===venue).length%2===0)ev.workshopCup={};
+ const steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',nextMeetReply(p,ev.day??v.day,2)];const lines=[x[0],x[6],'슬슬 집에 돌아갈 시간이었다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',nextMeetReply(p,ev.day??v.day,3),3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){if(i===1&&ev.workshopCup&&renderWorkshopCup(ev))return;if(i===1&&renderDateSpark(ev,venue,[p],n===1&&!ev.answered))return;add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}if(i===0&&n===1&&renderMatchingOffer(ev,p))return}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
  if(n===2)offerAlleyWalk(ev,p,opts[n]);
  for(const [label,reply,delta,route] of opts[n])choiceButton(label,()=>{
   if(v.activeEvent!==ev||ev.answered||steps.length!==n)return;

@@ -363,11 +363,11 @@ function dailyBeatKeys(ev,stage){
  const place=campusMeeting(ev)?'campus':ev.place;
  if(p==='임하나'&&place==='arcade'||p==='유지안'&&!['dance','river'].includes(place))return [];
  const matches=Object.entries(talks).filter(([,beat])=>{
-  if(beat.stage!==(dating?'dating':'growing')||beat.place&&beat.place!==place)return false;
+  if(beat.deferred||beat.dateVenue||beat.stage!==(dating?'dating':'growing')||beat.place&&beat.place!==place)return false;
   return !beat.sunnyMorning||((ev.slot??initSim().slot)===0&&weatherFor(ev.day??initSim().day).name==='맑음');
  });
  // Give each location-specific conversation a turn before general topics.
- return matches.sort((a,b)=>Number(!!b[1].place)-Number(!!a[1].place)).map(([id])=>'daily:'+id);
+ return matches.sort((a,b)=>Number(!!b[1].place)-Number(!!a[1].place)||Number(a[0])-Number(b[0])).map(([id])=>'daily:'+id);
 }
 function chooseMeetingBeat(ev,p){
  if(ev.meetingBeat||ev.answered||ev.selected||ev.abruptDeparture)return;
@@ -745,13 +745,16 @@ function dailyChoice(ev,label){
 function renderDailyAnswer(ev){
  const choice=dailyChoice(ev,ev.selected);
  if(!choice)return false;
+ renderApprovedAnswer(ev,choice,openingAnswerLabel(ev,choice.label));
+ return true;
+}
+function renderApprovedAnswer(ev,choice,playerLine){
  if(choice.action)add('이야기',choice.label,false,false,undefined,true);
- else add(state.name,openingAnswerLabel(ev,choice.label),true,false,undefined,true);
+ else add(state.name,playerLine,true,false,undefined,true);
  for(const [speaker,line] of choice.reply){
   if(speaker==='narration')add('이야기',line,false,false,undefined,true);
   else add(ev.person,dailySpeech(ev,'npc',line),false,false,undefined,true);
  }
- return true;
 }
 function openingAnswerLabel(ev,label){
  const choice=dailyChoice(ev,label);

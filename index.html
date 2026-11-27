@@ -87,7 +87,8 @@
 .year-colophon>p{line-height:1.95;max-width:35em}
 .year-credits{margin:30px 0 22px;padding:24px 0;border-block:1px solid #607767}
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.184-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+#suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.185-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -6326,11 +6327,144 @@ function renderCrushMeeting(ev){const v=initSim(),o=ev.crushMeeting,p=o.lover,q=
 function speechOfferReady(p,job){if(!p||!speechOffers[p]||job)return false;const v=initSim(),a=memoryFor(p).address,t=['한시우','공재희','유지안'].includes(p)?2:3;return !!(v.running&&socialRecord(p).contact&&relationshipTier(p)>=t&&!unresolvedOutingConflict(p)&&!a.offerDay&&!a.playerSpeech&&!a.npcSpeech)}
 function addressFollowupReady(ev){if(!ev||!ev.person||ev.speechOffer||ev.nicknameScene||ev.contactFollowup||ev.jobEvent||ev.group||ev.groupPartners||ev.triangle||ev.crossIntro||ev.crossDeferred||ev.conflictStage||ev.aftermath||ev.coupleIssue||ev.crushMeeting||ev.breakup||ev.npcBreakup||ev.exTalk||ev.leftEncounter||Number(ev.delta||0)<0)return false;return speechOfferReady(ev.person,false)}
 function friendlyAddress(p,side,mode){const profile=npcProfiles[p],age=Number(state.age),name=state.name.slice(-2),npcName=p.slice(1);if(side==='npc'){if(age>profile.age)return seniorAddress(profile.gender,state.gender);return mode==='반말'?vocative(name):name+' 씨'}if(profile.age>age)return seniorAddress(state.gender,profile.gender);return mode==='반말'?vocative(npcName):npcName+' 씨'}
-function renderSpeechOffer(ev){const v=initSim(),p=ev.person,a=memoryFor(p).address,lines=speechOffers[p];$('progress').textContent='관계의 변화 · 말투와 호칭';add(p,ev.speechOpening||(ev.speechOpening=speechOfferLine(p)));if(ev.answered){add(state.name,ev.selected,true);add(p,ev.response);choiceButton('일정 계속하기',finishEvent);return}
-if(!ev.speechDraft){const options=[['우리 둘 다 말 놓아요.','반말','반말',lines[1]],['저만 편하게 말해도 될까요?','반말','존댓말','네. 편하게 말해요.'],['먼저 편하게 말해 줘요.','존댓말','반말','그래. 편하게 말할게.'],['존댓말은 유지하고 호칭만 바꿔요.','존댓말','존댓말','좋아요. 어떻게 부르면 좋을까요?'],['지금처럼 존댓말이 좋아요.','존댓말','존댓말','좋아요. 지금처럼 이야기해요.']];for(const [label,ps,ns,reply] of options)choiceButton(label,()=>{if(ev.speechDraft)return;ev.speechDraft={label,ps,ns,reply};save();renderChoiceEvent()});return}
-const d=ev.speechDraft;add(state.name,d.label,true);add(p,d.reply);const keep=d.label==='지금처럼 존댓말이 좋아요.';const pn=document.createElement('input'),nn=document.createElement('input');pn.placeholder='내가 상대를 부르는 호칭';nn.placeholder='상대가 나를 부르는 호칭';pn.value=keep?playerCall(p):friendlyAddress(p,'player',d.ps);nn.value=keep?addressPlayer(p):friendlyAddress(p,'npc',d.ns);pn.maxLength=20;nn.maxLength=20;$('suggest').append(pn,nn);
-function agree(change){if(ev.answered)return;stampPhoneSpeech();a.playerSpeech=d.ps;a.npcSpeech=d.ns;a.offerDay=v.day;if(change){a.playerToNpc=pn.value.trim().slice(0,20)||playerCall(p);a.npcToPlayer=nn.value.trim().slice(0,20)||addressPlayer(p)}ev.answered=true;ev.selected=d.label+(change?' 호칭은 '+a.playerToNpc+' / '+a.npcToPlayer+'로 해요.':'');ev.response=d.reply;remember(p,'speech:agreement',d.ps+' / '+d.ns);writeJournal(p+' · 말투와 호칭 합의');save();renderChoiceEvent();renderSim()}
-if(!keep)choiceButton('이 호칭으로 부르기로 한다',()=>agree(true));choiceButton('기존 호칭 유지하기',()=>agree(false));choiceButton('다시 생각해 보기',()=>{delete ev.speechDraft;save();renderChoiceEvent()})}
+function ageGapAddressVoice(p, term, mode){
+ const casual=mode==='반말';
+ const asTitle=term+(term==='형'?'이어도':'여도');
+ const echoed=term+(term==='형'?'이요?':'요?');
+ switch(p){
+  case '강도윤':
+   return {
+    reaction:casual?'……내가 '+asTitle+' 되나? 우리 나이 차가 꽤 나잖아. 근데 나 지금 왜 웃고 있지?':'……제가 '+asTitle+' 돼요? 우리 나이 차가 꽤 나잖아요. 근데 저 지금 왜 웃고 있죠?',
+    accept:casual?'응. 그렇게 불러 줘. 다음엔 나도 안 웃고 대답해 볼게.':'네. 그렇게 불러 줘요. 다음엔 저도 안 웃고 대답해 볼게요.',
+    joke:casual?'아저씨? 아, 그건 조금 서운한데. 아까 걸로 하자. 그렇게 불러 주면 나 진짜 좋아할 것 같아.':'아저씨요? 아, 그건 조금 서운한데요. 아까 걸로 해요. 그렇게 불러 주면 저 진짜 좋아할 것 같아요.',
+    withdraw:casual?'그럼 편한 대로 불러. 물어봐 줘서 고마워.':'그럼 편한 대로 불러요. 물어봐 줘서 고마워요.'
+   };
+  case '정태오':
+   return {
+    reaction:casual?term+'? ……잠깐. 우리 몇 살 차이인지 나도 모르게 다시 셌어. 솔직히 좀 쑥스럽다.':term+' 말입니까? ……제가 몇 살 위인지 새삼 세어 봤습니다. 솔직히 좀 쑥스럽습니다.',
+    accept:casual?'그래. 그렇게 불러 줘. 이번엔 바로 대답할게.':'그렇게 불러 주시면 좋겠습니다. 이번에는 바로 대답하겠습니다.',
+    joke:casual?'……그게 더 서먹한데. 아까 부르려던 대로 불러 줘. 나도 익숙해져 볼게.':'……그쪽이 더 서먹합니다. 아까 부르려던 대로 불러 주십시오. 저도 익숙해져 보겠습니다.',
+    withdraw:casual?'알겠어. 지금처럼 불러 줘. 난 그것도 좋아.':'알겠습니다. 지금처럼 불러 주십시오. 저도 그게 편합니다.'
+   };
+  case '차유리':
+   return {
+    reaction:casual?term+'? 좋아. 근데 나이 차 난다고 내가 맨날 어른스러울 줄 알면 곤란해. 나 가끔 먼저 삐져.':echoed+' 좋아요. 근데 나이 차 난다고 제가 맨날 어른스러울 줄 알면 곤란해요. 저 가끔 먼저 삐져요.',
+    accept:casual?'그럼 됐어. 한번 불러 봐. 내가 어떻게 대답하나 나도 궁금해.':'그럼 됐어요. 한번 불러 봐요. 제가 어떻게 대답하나 저도 궁금해요.',
+    withdraw:casual?'그러자. 익숙한 호칭 듣는 것도 난 좋아.':'그러죠. 익숙한 호칭 듣는 것도 전 좋아요.'
+   };
+  case '오세린':
+   return {
+    reaction:casual?term+'? 그럼. 우리 몇 살 차이인지 새삼 셀 필요 있어? 네가 편하게 부를 수 있으면 나도 좋아.':echoed+' 그럼요. 우리 몇 살 차이인지 새삼 셀 필요 있나요? 편하게 부를 수 있으면 저도 좋아요.',
+    accept:casual?'응. 다음에 만나면 멀리서도 불러 줘. 내가 먼저 돌아볼게.':'네. 다음에 만나면 멀리서도 불러 줘요. 제가 먼저 돌아볼게요.',
+    withdraw:casual?'응, 그럼 원래대로 하자. 어떤 게 편한지 들려줘서 고마워.':'네, 그럼 원래대로 해요. 어떤 게 편한지 들려줘서 고마워요.'
+   };
+  case '백지한':
+   return {
+    reaction:casual?'내가 '+asTitle+' 되나? 아, 양심이 좀 찔리는데. 듣기 좋아서 더 그래.':'제가 '+asTitle+' 돼요? 아, 양심이 좀 찔리는데요. 듣기 좋아서 더 그래요.',
+    accept:casual?'그럼 한 번만 더 불러 줘. 이번엔 내 얼굴 보고.':'그럼 한 번만 더 불러 줘요. 이번엔 제 얼굴 보고.',
+    joke:casual?'그 사이에 갑자기 나이를 몇 살이나 더 먹은 거야? 난 아까 게 더 좋은데.':'그 사이에 갑자기 나이를 몇 살이나 더 먹은 거예요? 전 아까 게 더 좋은데요.',
+    withdraw:casual?'그래. 편한 대로 불러 줘. 아까 잠깐 좋았던 건 내 몫이지.':'그래요. 편한 대로 불러 줘요. 아까 잠깐 좋았던 건 제 몫이죠.'
+   };
+  default:
+   return {
+    reaction:casual?'내가 '+asTitle+' 돼? 우리 나이 차 생각하면 좀 뜻밖이라서.':'제가 '+asTitle+' 돼요? 우리 나이 차 생각하면 좀 뜻밖이라서요.',
+    accept:casual?'응, 그렇게 불러 줘.':'네, 그렇게 불러 줘요.',
+    withdraw:casual?'그럼 지금처럼 부르자.':'그럼 지금처럼 불러요.'
+   };
+ }
+}
+
+function proposedSeniorTerm(p,call){
+ const profile=npcProfiles[p];
+ if(!profile||!Number.isFinite(Number(state.age))||profile.age-Number(state.age)<10)return '';
+ const word=call.replace(/\s+/gu,'');
+ const terms=profile.gender==='남'?['오빠','형']:['언니','누나'];
+ const names=['',p,p.slice(1),p+'이',p.slice(1)+'이'];
+ return terms.find(term=>names.some(name=>word===name+term))||'';
+}
+function renderSpeechOffer(ev){
+ const v=initSim(),p=ev.person,address=memoryFor(p).address;
+ $('progress').textContent='관계의 변화 · 말투와 호칭';
+ add(p,ev.speechOpening||(ev.speechOpening=speechOfferLine(p)));
+ const draft=ev.speechDraft,proposal=ev.addressProposal;
+ if(ev.answered&&!proposal){
+  add(state.name,ev.selected,true);add(p,ev.response);
+  choiceButton('일정 계속하기',finishEvent);return;
+ }
+ if(!draft){
+  const options=[
+   ['우리 둘 다 말 놓아요.','반말','반말',speechOffers[p][1]],
+   ['저만 편하게 말해도 될까요?','반말','존댓말','네. 편하게 말해요.'],
+   ['먼저 편하게 말해 줘요.','존댓말','반말','그래. 편하게 말할게.'],
+   ['존댓말은 유지하고 호칭만 바꿔요.','존댓말','존댓말','좋아요. 어떻게 부르면 좋을까요?'],
+   ['지금처럼 존댓말이 좋아요.','존댓말','존댓말','좋아요. 지금처럼 이야기해요.']
+  ];
+  for(const [label,ps,ns,reply] of options)choiceButton(label,()=>{
+   if(ev.speechDraft||ev.answered)return;
+   ev.speechDraft={label,ps,ns,reply};save();renderChoiceEvent();
+  });
+  return;
+ }
+ add(state.name,draft.label,true);add(p,draft.reply);
+ function agree(playerTerm,npcTerm,selected,response){
+  if(ev.answered||v.activeEvent!==ev)return;
+  stampPhoneSpeech();
+  address.playerSpeech=draft.ps;address.npcSpeech=draft.ns;address.offerDay=v.day;
+  if(playerTerm)address.playerToNpc=playerTerm;
+  if(npcTerm)address.npcToPlayer=npcTerm;
+  ev.answered=true;ev.selected=selected;ev.response=response;
+  remember(p,'speech:agreement',draft.ps+' / '+draft.ns);
+  writeJournal(p+' · 말투와 호칭 합의');save();renderChoiceEvent();renderSim();
+ }
+ if(proposal){
+  const {term,playerTerm,npcTerm}=proposal;
+  const casual=draft.ps==='반말',as=playerTerm+(term==='형'?'이라고':'라고');
+  const voice=ageGapAddressVoice(p,term,draft.ns);
+  add(state.name,as+(casual?' 불러도 돼?':' 불러도 돼요?'),true);
+  add(p,voice.reaction);
+  if(ev.answered){
+   add(state.name,ev.selected,true);add(p,ev.response);
+   choiceButton('일정 계속하기',finishEvent);return;
+  }
+  function replyOption(kind,label,fn){
+   choiceButton(label,()=>{
+    if(v.activeEvent===ev&&!ev.answered&&ev.addressProposal===proposal)fn();
+   });
+   $('suggest').lastElementChild.dataset.addressReply=kind;
+  }
+  const accept=as+(casual?' 부르고 싶어.':' 부르고 싶어요.');
+  const withdraw=casual?'그럼 지금처럼 부를게.':'그럼 지금처럼 부를게요.';
+  replyOption('accept',accept,()=>agree(playerTerm,npcTerm,accept,voice.accept));
+  if(voice.joke){
+   const joke=casual?'아저씨도 이상하지 않아?':'아저씨도 이상하지 않아요?';
+   replyOption('joke',joke,()=>agree(playerTerm,npcTerm,joke,voice.joke));
+  }
+  replyOption('withdraw',withdraw,()=>agree(null,npcTerm,withdraw,voice.withdraw));
+  replyOption('edit','다른 호칭 제안하기',()=>{delete ev.addressProposal;save();renderChoiceEvent()});
+  return;
+ }
+ const keep=draft.label==='지금처럼 존댓말이 좋아요.';
+ function input(label,value){
+  const field=document.createElement('label'),el=document.createElement('input');
+  field.className='address-field';field.textContent=label;
+  el.placeholder=label;el.value=value;el.maxLength=20;
+  field.append(el);$('suggest').append(field);return el;
+ }
+ const player=input('내가 상대를 부르는 호칭',draft.playerTerm??(keep?playerCall(p):friendlyAddress(p,'player',draft.ps)));
+ const npc=input('상대가 나를 부르는 호칭',draft.npcTerm??(keep?addressPlayer(p):friendlyAddress(p,'npc',draft.ns)));
+ if(!keep)choiceButton('이 호칭으로 부르기로 한다',()=>{
+  if(ev.answered||ev.addressProposal||v.activeEvent!==ev)return;
+  const playerTerm=player.value.trim()||playerCall(p),npcTerm=npc.value.trim()||addressPlayer(p);
+  const term=proposedSeniorTerm(p,playerTerm);
+  if(term&&playerTerm!==playerCall(p)){
+   draft.playerTerm=playerTerm;draft.npcTerm=npcTerm;
+   ev.addressProposal={term,playerTerm,npcTerm};save();renderChoiceEvent();return;
+  }
+  agree(playerTerm,npcTerm,draft.label+' 호칭은 '+playerTerm+' / '+npcTerm+'로 해요.',draft.reply);
+ });
+ choiceButton('기존 호칭 유지하기',()=>agree(null,null,draft.label,draft.reply));
+ choiceButton('다시 생각해 보기',()=>{delete ev.speechDraft;save();renderChoiceEvent()});
+}
 
 const speechPairs={'서이준':{"…요즘 우리 얘기할 시간이 별로 없잖아요. 다른 사람이랑 나갔다는 얘기 듣고 나도 좀 같이 걷고 싶었어요.": "…요즘 나랑은 얘기할 시간이 별로 없잖아. 다른 사람이랑 나갔다는 얘기 들으니까, 나도 같이 좀 걷고 싶었어.", "요즘 얼굴 보기 힘드네요. 보고 싶다고 연락하려다가, 바쁜데 괜히 귀찮게 하나 싶어서 말았어요.": "요즘 얼굴 보기 힘드네. 보고 싶다고 연락하려다가, 바쁜데 괜히 귀찮게 하나 싶어서 말았어.", "…그럼 다음엔 먼저 물어볼게요. 괜히 혼자 짐작했네요.": "…그럼 다음엔 먼저 물어볼게. 괜히 혼자 짐작했네.", "…그날은 그냥 보고 싶다고 하면 됐는데 괜히 쏘아붙였어요. 미안해요.": "…그날은 내가 보고 싶다는 말만 하면 됐는데, 괜히 말부터 날이 섰어. 미안해.", "…그래요. 얘기하고 싶어지면 연락해 줘요.": "…그래. 얘기하고 싶어지면 연락해 줘.",'…우리 굳이 계속 존댓말 해야 하나요? 불편하면 그대로 쓰고요.':'…우리 이제 좀 편하게 말할까?','조용해서 좋네요. 둘이 걸어도 생각보다 안 시끄럽고.':'조용해서 좋네. 둘이 걸어도 생각보다 안 시끄럽고.'},'강도윤':{'이렇게 앉아서 이야기하니까 좋네요.':'이렇게 앉아서 이야기하니까 좋네.'},'한시우':{'히히. 같이 있으니까 시간 진짜 빨리 가네요.':'히히. 같이 있으니까 시간 진짜 빨리 간다!'},'백지한':{'오늘은 손 잡고 걸어도 되죠?':'오늘은 손 잡고 걸어도 되지?','좋다. 이제 좀 데이트하는 기분이네요.':'좋다. 이제 좀 데이트하는 기분이네.'},'임하나':{'……저, 오늘은 제가 먼저 잡고 싶어요.':'……나, 오늘은 내가 먼저 잡고 싶어.'},'차유리':{'저기까지 손 잡고 걸을래요? 그냥 그러고 싶어서.':'저기까지 손 잡고 걸을래? 그냥 그러고 싶어서.'},'오세린':{'함께 걸어도 될까요? 조금 더 가까이요.':'같이 걸어도 될까? 조금 더 가까이.'},'정태오':{'길이 위험해서가 아닙니다만… 손을 잡아도 되겠습니까?':'길이 위험해서가 아니라… 손을 잡아도 될까?'},'유지안':{'같이 뛰어갈래요? 손 잡고!':'같이 뛰어갈래? 손 잡고!'},'공재희':{'님 손 줘 봐요. 그냥 잡고 싶음ㅋㅋ':'손 줘 봐ㅋㅋ 그냥 잡고 싶음'}};
 const outingPlayerVariants={'한시우':{'승부 말고 나랑 놀러 온 거 아니었어요?':{'장난기':['아니, 저 보러 온 거 아니었어요? 승부욕 뭐예요ㅋㅋ','아니, 나 보러 온 거 아니었어? 승부욕 뭐야ㅋㅋ'],'다정함':['저는 같이 노는 것만으로도 좋아요.','난 같이 노는 것만으로도 좋아.'],'솔직함':['저한테도 좀 집중해 줘요.','나한테도 좀 집중해 줘.'],'신중함':['혹시 다른 게임도 같이 해 볼래요?','우리 다른 게임도 같이 해 볼까?']}}};
@@ -6894,7 +7028,7 @@ function save(){try{if(state){stampPhoneSpeech();albumData();}localStorage.setIt
 function chatSpacing(s){return typeof s==='string'?s.replace(/([가-힣a-zA-Z0-9!?.,…]) *([ㅋㅎㅠㅜ]{2,})/g,'$1 $2'):s}
 function vocative(name){const n=name.charCodeAt(name.length-1);return name+((n>=44032&&n<=55203&&(n-44032)%28!==0)?'아':'야')}
 function playerCall(p){const a=memoryFor(p).address;return a.playerToNpc||((a.playerSpeech==='반말')&&npcProfiles[p].age<=Number(state.age)?vocative(p.slice(1)):p.slice(1)+' 씨')}
-function speechOfferLine(p){const a=memoryFor(p).address,older=Number(state.age)>npcProfiles[p].age,gap=Math.abs(Number(state.age)-npcProfiles[p].age);if(p==='한시우'&&older)return '근데 '+(a.npcToPlayer||state.name+' 씨')+', 저한테 언제까지 존댓말 할 거예요? 우리 이제 꽤 친하지 않나?';if(p==='임하나'&&older)return '저… 나이 차이도 있는데, 혹시 제가 말을 놓아도 괜찮을까요?';if(gap>=10)return '나이 차이가 좀 있기는 하지만, '+speechOffers[p][0];return speechOffers[p][0]}
+function speechOfferLine(p){const a=memoryFor(p).address,older=Number(state.age)>npcProfiles[p].age,gap=Math.abs(Number(state.age)-npcProfiles[p].age);if(p==='한시우'&&older)return '근데 '+(a.npcToPlayer||state.name+' 씨')+', 저한테 언제까지 존댓말 할 거예요? 우리 이제 꽤 친하지 않나?';if(p==='임하나'&&older)return '저… 나이 차이도 있는데, 혹시 제가 말을 놓아도 괜찮을까요?';if(older&&gap>=10)return '나이 차이가 좀 있기는 하지만, '+speechOffers[p][0];return speechOffers[p][0]}
 
 const doyunCasual={
 '제가 먼저 연락해도 괜찮아요? 바쁠 때 방해했나 싶어서요.':'내가 먼저 연락해도 괜찮아? 바쁠 때 방해했나 싶어서.',

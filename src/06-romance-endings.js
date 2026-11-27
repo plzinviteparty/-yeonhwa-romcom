@@ -701,6 +701,7 @@ function agreedOutingPartners(p){
  return vIsDating(p)?lovers().filter(q=>p!==q&&bothConsented(p,q)):[];
 }
 const groupInviteActivities={
+ '우리 집 홈데이트':['우리 집에서 같이 놀래요?','우리 집에서 같이 놀래?'],
  '연화천 산책':['연화천 걸을래요?','연화천 걸을래?'],
  '디저트 카페':['디저트 카페 갈래요?','디저트 카페 갈래?'],
  '오락실':['오락실에서 놀래요?','오락실에서 놀래?'],
@@ -723,11 +724,11 @@ function groupOutingControls(p,root,others){
  const v=initSim();
  if(!others.length||v.running||v.activeEvent||v.finished)return;
  const wrap=document.createElement('details'),title=document.createElement('summary');
- wrap.id='multiOutingInvite';title.textContent='셋이 함께하는 외출 제안하기';wrap.append(title);root.append(wrap);
+ wrap.id='multiOutingInvite';title.textContent='셋이 함께하는 데이트 제안하기';wrap.append(title);root.append(wrap);
  const guest=bookingSelect(wrap,'같이 갈 연인'),venue=bookingSelect(wrap,'장소');
  for(const q of others)bookingOption(guest,q,q);
  for(const place of groupOutingVenues)bookingOption(venue,place,place);
- const send=document.createElement('button');send.type='button';send.className='secondary';send.textContent='셋이 가자고 제안하기';
+ const send=document.createElement('button');send.type='button';send.className='secondary';send.textContent='셋이 만나자고 제안하기';
  const status=bookingAvailabilityNote(wrap,'');
  const pick=bookingPicker(wrap,v.day+1,Math.min(364,v.day+14),day=>groupBookingSlots([p,guest.value],day),available=>{
   send.disabled=!available;status.hidden=false;
@@ -837,6 +838,21 @@ const groupTripSparkScenes={
 };
 
 const groupOutingScenes={
+ '우리 집 홈데이트':{
+  place:'home',
+  arrival:'현관에 신발 세 켤레가 나란히 놓였다. 소파에는 담요와 쿠션을, 식탁에는 간식과 게임기를 준비해 두었다.',
+  suggestions:{
+   '강도윤':['간식은 제가 준비할게요. 두 분은 영화 골라 봐요.','간식은 내가 준비할게. 둘은 영화 골라 봐.'],
+   '한시우':['셋이 할 수 있는 게임 가져왔어요! 꼴찌가 설거지하기 어때요?','셋이 할 수 있는 게임 가져왔어! 꼴찌가 설거지하기 어때?'],
+   '차유리':['쿠션 하나만 더 가져올까요? 셋이 앉기에는 좁겠어요.','쿠션 하나만 더 가져올까? 셋이 앉기에는 좁겠어.'],
+   '유지안':['저도 요리할래요! 앞치마 남는 거 있어요?','나도 요리할래! 앞치마 남는 거 있어?'],
+   '오세린':['오늘은 느긋하게 영화 한 편 볼까요?','오늘은 느긋하게 영화 한 편 볼까?']
+  },
+  focus:p=>nameWith(p)+' 소파에 나란히 앉아 손을 잡는다',
+  shared:'셋이 간식을 만들고 게임을 한 뒤 영화를 본다',
+  space:'각자 편한 자리에 앉아 하고 싶은 일을 한다',
+  ending:['잡은 손을 담요 아래로 끌어당겼다. 다른 연인은 리모컨을 들고 어느 영화를 볼지 물었다.','주방에서 간식을 만들고 게임기를 번갈아 잡았다. 영화가 시작되자 소파 양옆의 쿠션이 내 쪽으로 조금씩 밀려왔다.','각자 편한 자리를 찾아 앉았다. 간식 접시가 비어 갈 때마다 서로에게 한입씩 권했다.']
+ },
  '연화천 산책':{
   place:'river',
   arrival:'다리 아래로 내려가니 물가를 따르는 길과 벤치 쪽으로 돌아가는 길이 갈라졌다.',

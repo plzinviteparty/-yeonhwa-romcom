@@ -1015,6 +1015,15 @@ function renderGroupDate(ev){
    if(o.answer){
     add('이야기',o.answer);
     for(const w of partners)if(o.replies?.[w])add(w,formatSpeech(w,o.replies[w],'npc',undefined,day));
+    if(o.stayed&&!o.morning){
+     choiceButton('다음 날 아침',()=>{if(!live()||o.morning)return;o.morning=true;save();renderChoiceEvent()});return;
+    }
+    if(o.morning){
+     add('이야기','아침 햇살이 커튼 사이로 들어왔다. 부엌에서 접시 부딪치는 소리가 났다.');
+     const morning={'한시우':'토스트 조금 탔는데요! 탄 쪽은 제가 먹을게요.','차유리':'커피 내려 놨어요. 식기 전에 와요.','강도윤':'아침은 간단하게 준비했어요. 같이 먹어요.','오세린':'잘 잤어요? 오늘은 천천히 시작해요.','유지안':'아침 먹고 다 같이 사진 찍을까요?'};
+     for(const w of partners)add(w,formatSpeech(w,morning[w]||'잘 잤어요? 아침 같이 먹어요.','npc',undefined,day));
+     add('이야기','셋이 식탁에 둘러앉아 오늘의 일정을 이야기했다.');
+    }
     choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
    }
    add('이야기','영화가 끝나고도 아무도 먼저 일어나지 않았다. 창밖은 어느새 어두워져 있었다.');
@@ -1026,6 +1035,7 @@ function renderGroupDate(ev){
      o.answer='두 사람에게 팔을 벌리자 잠깐 눈이 마주쳤다. 양옆에서 따뜻한 어깨가 닿았다. 셋은 한동안 그렇게 소파에 앉아 있었다.';
      for(const w of partners){o.replies[w]=w==='한시우'?'아, 이러면 집에 가기 싫어지잖아요!':w==='차유리'?'조금만 더 이렇게 있을까요?':'조금 더 같이 있어요.';feel(w,{security:1});}
     }else if(kind==='stay'&&willing){
+     o.stayed=true;
      o.answer='두 사람에게 오늘 더 머물고 싶은지 물었다. 각자 편한 잠자리를 정하고 담요를 나눠 가졌다. 늦은 밤까지 이야기를 나누다가 불을 껐다.';
      for(const w of partners){o.replies[w]=w==='한시우'?'좋아요! 내일 아침은 제가 챙길게요.':w==='차유리'?'좋아요. 대신 내일 일정은 각자 확인해요.':'오늘은 조금 더 같이 있고 싶어요.';feel(w,{security:1});}
     }else{o.answer=kind==='end'?'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.':'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}

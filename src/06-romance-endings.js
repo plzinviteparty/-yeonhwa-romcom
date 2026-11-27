@@ -1214,15 +1214,27 @@ const friendCheckTexts={
   ["오래 입던 외투 주머니에서 작년 영화표가 나왔어요. 내용은 하나도 기억 안 나는데 극장까지 뛰어간 건 기억나요.","","어떤 영화였는데요?","표가 접혀서 제목도 반밖에 안 보여요. 괜히 다시 보고 싶어지네요.","다음엔 여유 있게 가요.","좋아요. 이번에는 예고편도 놓치지 말기로 해요."],
  ],
  공재희:[
-  ["방송 안 켜는 날이라 먹을 거 주문했어요. 문 앞에 놓인 줄 모르고 알림만 기다리다가 다 식혔어요.","","뭐 시켰어요?","떡볶이요. 다시 데우려다가 튀김부터 다 먹었어요.","다음엔 벨 눌러 달라고 해요.","맞아요. 맨날 방송 중일까 봐 조용히 놔 달라고 했는데, 쉬는 날은 바꿔야겠어요."],
-  ["인형 정리하다가 같은 얼굴이 세 개 나왔어요. 처음엔 하나만 뽑고 나오려고 했는데.","","어쩌다 세 개나 됐어요?","첫 번째 뽑고 나니까 다음 것도 금방 될 것 같았어요. 그때 나왔어야 했는데.","하나는 누구 주면 되겠네요.","좋아요. 다음에 만나면 셋 중에 제일 맘에 드는 얼굴 골라요."],
+  ["아 진짜ㅋㅋ 오늘 휴방이라 떡볶이 시켰는데 문 앞에 온 줄도 몰랐어요. 다 식었어… ㅠㅠ","","뭐 시켰어요?","떡볶이랑 튀김! 다음엔 같이 먹을래요?","다음엔 벨 눌러 달라고 해요.","맞다ㅋㅋ 휴방인데 왜 무음으로 해 놨지?"],
+  ["헐ㅋㅋ 인형 정리했는데 똑같은 애가 세 마리나 있어요!","","어쩌다 세 개나 됐어요?","너무 잘 뽑히는 거 있죠? 어떻게 그냥 지나쳐요ㅋㅋ","하나는 누구 주면 되겠네요.","모야모야? 갖고 싶은 거예요? 다음에 만나면 골라요ㅎㅎ"],
+  ["오늘 강의 끝나고 딸기 우유 샀어요. 두 개 살걸ㅠㅠ","","왜 두 개요?","같이 마시면 좋잖아요. 다음엔 같이 사요!","딸기 우유 좋아해요?","웅, 달달한 거 좋아해요ㅎㅎ"],
+  ["오늘 방송에서 게임 이겼어요!! 칭찬 좀 해 줘요ㅋㅋ","","잘했어요!","히힛. 기분 좋다!","무슨 게임이었어요?","FPS요! 다음에 보여 줄게요."],
+  ["핑크색 머리핀 샀는데 생각보다 너무 커요ㅋㅋ","","잘 어울릴 것 같은데요?","모야, 아직 보지도 않았잖아요!ㅎㅎ","다음에 보여 줘요.","좋아요! 못 본 척하면 안 돼요ㅋㅋ"],
+  ["오늘 뭐 했어요? 나 이제 좀 한가해요ㅎㅎ","","오늘은 좀 바빴어요.","헐 고생했어요. 맛있는 거 먹고 쉬어요!","별일 없었어요.","그럼 다음에 같이 놀아요. 별일 하나 만들게ㅋㅋ"],
+  ["지금 간식 고르는 중인데 추천 좀 해 줘요!","","젤리 어때요?","오 좋다ㅋㅋ 하나 집었어요.","초콜릿 어때요?","좋아요. 오늘은 달달한 걸로 결정!"],
+  ["오늘 기분 어때요? 그냥 궁금해서 톡했어요.","","좋아요.","다행이다ㅎㅎ 나도 기분 좋아졌어요.","조금 피곤해요.","아이고ㅠㅠ 오늘은 푹 쉬어요."],
  ],
 };
 function friendCheckMessage(p,day,thread){
  const pool=p==='차유리'?yuriFriendTexts:friendCheckTexts[p];
  const prefix=p==='차유리'?'friend:yuri:':'friend:topic:';
  const last=thread.findLast(m=>m.contextKey?.startsWith(prefix));
- const index=last?(Number(last.contextKey.split(':')[2])+1)%pool.length:day%pool.length;
+ let index=last?(Number(last.contextKey.split(':')[2])+1)%pool.length:day%pool.length;
+ if(p==='공재희'){
+ const used=new Set(thread.filter(m=>m.contextKey?.startsWith(prefix)).map(m=>Number(m.contextKey.split(':')[2])));
+ const fresh=pool.map((_,i)=>i).filter(i=>!used.has(i));
+ const candidates=fresh.length?fresh:[5,6,7].filter(i=>i!==Number(last?.contextKey.split(':')[2]));
+ index=candidates[day%candidates.length];
+ }
  return {contextKey:prefix+index+':'+day,friendMessage:true,script:pool[index].slice()};
 }
 function friendPhone(p,day,t){if(!friendAvailable(p))return null;const r=friendshipRecord(p),z=socialRecord(p),a=friendshipVoices[p];if(z.friendship<2||day-(r.lastMessage||0)<8)return null;const last=r.outings[r.outings.length-1];if(last&&day-last.day<=3&&day>last.day){r.lastMessage=day;return {contextKey:'friend:after:'+last.day,friendMessage:true,script:[a[2],'지난번처럼 편하게 시간 보내요.','좋았어요. 또 놀아요.',a[4],'요즘 어떻게 지내요?',a[3]]}}if(day-(z.lastSeen||0)>=5){r.lastMessage=day;return friendCheckMessage(p,day,t)}return null}

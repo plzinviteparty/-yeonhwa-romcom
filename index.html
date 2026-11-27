@@ -89,7 +89,7 @@
 .year-credits h4{color:#cfdbc4;font-size:13px;font-weight:500}.year-fin{display:block;text-align:center;font:700 26px/1.4 'Batang',serif;margin:28px 0 0}
 #suggest .address-field{display:block;flex:1 1 100%;margin:0;font-size:13px;color:#46594b}#suggest .address-field input{display:block;margin-top:3px;color:#29352e;font-size:16px}
 #pairItemsPanel{margin:1rem 0;padding:.85rem 1rem;border:1px solid #d5ded6;border-radius:14px}#pairItemsPanel h3{margin:0}#pairItemsHint{margin:.4rem 0}.pair-item-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border-top:1px solid #d5ded6;padding:.65rem 0}.pair-item-row:last-child{padding-bottom:0}.pair-item-row small{display:block;margin-top:.2rem}.pair-item-row button{flex:none;width:auto;margin:0;padding:.55rem .75rem}
-</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.193-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
+</style></head><body><div class="wrap"><header><small>꿈도 사랑도 아직 미정 · 생활 육성 시연 v0.194-dev</small><h1>연화동 생활일지</h1><button id="helpOpen" class="secondary" type="button">? 플레이 도움말</button></header><dialog id="helpDialog" aria-labelledby="helpTitle"><small id="helpStep"></small><h2 id="helpTitle"></h2><div id="helpBody"></div><div class="row"><button id="helpPrev" class="secondary" type="button">이전</button><button id="helpNext" type="button">다음</button></div><button id="helpClose" class="secondary" type="button">닫기</button></dialog>
 <section id="setup"><h2>연화동에 오신 걸 환영합니다</h2><p class="muted">이사 온 주민의 정보를 설정해 주세요. 모두 성인 캐릭터입니다.</p><label for="name">이름</label><input id="name" value="김유진" maxlength="24"><label for="age">나이</label><input id="age" type="number" min="20" max="40" value="27"><label for="birthday">생일 (월-일)</label><input id="birthday" placeholder="예: 06-02" maxlength="5"><label for="job">직업</label><select id="job"><option>회사원</option><option>프리랜서</option><option>취업 준비생</option><option>대학생</option><option>기타</option></select><p id="jobGuide" class="muted"></p><p class="muted">성격과 과거는 플레이 중 선택을 통해 조금씩 만들어집니다.</p><button id="start" type="button">이사 시작하기</button><p id="setupError" class="error" role="alert"></p></section>
 <section id="game" class="hide"><div id="autosaveWarning" class="bubble hide" role="alert"><strong>현재 진행을 자동 저장할 수 없어요.</strong><span>새로고침하기 전에 지금 열린 회차를 파일로 저장해 주세요.</span><button type="button" id="autosaveDownload" class="secondary">현재 진행 .sav 저장</button></div><div class="meta"><div><b id="where">연화빌라</b><div class="status" id="clock"></div></div><div class="status" id="progress"></div></div><nav class="tabs" aria-label="게임 메뉴"><button class="secondary active" data-tab="life">생활</button><button class="secondary" data-tab="planner">일정표</button><button class="secondary" data-tab="map">동네</button><button class="secondary" data-tab="growth">성장</button><button class="secondary" data-tab="relations">관계</button><button class="secondary" data-tab="phone" id="phoneTab">휴대전화</button><button class="secondary" data-tab="story">이야기</button><button class="secondary" data-tab="album">앨범</button></nav>
 <div id="intro" class="panel"><h2>🌸 프롤로그 · 새로운 시작</h2><div class="bubble" id="introText"></div><button id="introNext" type="button">계속하기</button></div><div id="life" class="panel active"><button type="button" id="yearReopen" hidden>365일 결산 다시 보기</button><div id="seasonBanner" class="season-banner" aria-live="polite"></div><div id="simStats" class="stat-card"></div></div><div id="planner" class="panel"><div class="stat-card"><h2>주간 일정표</h2><div id="weekPreview" class="week-grid"></div><div class="planner-title">오전 / 낮 / 오후 / 저녁</div><div class="row" id="schedule"></div><button id="runDay" type="button">오늘 일정 실행 · 다음 날로</button><div id="weekControls"><label for="planDay">편성할 날짜</label><select id="planDay"></select><button id="copyWeek" class="secondary" type="button">선택한 일정을 남은 7일에 복사</button><button id="runWeek" type="button">7일 일정 실행</button><button id="stopWeek" class="secondary hide" type="button">오늘까지만 진행</button></div></div><section class="stat-card"><h2>확정된 약속</h2><div id="upcomingBookings"></div></section></div>
@@ -260,7 +260,9 @@ function renderSharedHomeEvening(ev,p){
  const alternatives=['rest','goodnight'].map(key=>({label:endings[key][0],onPick(){if(!ev.coupleChapter&&!o.evening&&!o.intimacy?.kiss)o.evening=key}}));
  return renderHomeKissChoices(ev,p,o,'player',alternatives,'sharedHome');
 }
-function renderSharedLife(ev){const v=initSim(),p=ev.person,o=ev.sharedLife,a=sharedLifeVoices[p],k=o.kind,dating=vIsDating(p);$('progress').textContent=sharedLifeKinds[k];add('이야기',k==='shopping'?'나란히 장바구니를 들고 진열대를 둘러봤다.':k==='cooking'?'앞치마를 두르고 함께 저녁을 준비했다.':'저녁에 초인종이 울렸다. 현관에서 인사를 나누고 '+nameWith(p)+' 나란히 소파에 앉았다.');if(k==='home'){if((ev.pairItemQuestion||!o.answer)&&renderPairItemQuestion(ev,p))return;householdVisit(ev,p)}add(p,a[{shopping:0,cooking:1,home:2}[k]]);if(o.answer){add(k==='home'?'이야기':state.name,o.answer,k!=='home');add(p,o.reply);
+function renderSharedLife(ev){const v=initSim(),p=ev.person,o=ev.sharedLife,a=sharedLifeVoices[p],k=o.kind,dating=vIsDating(p);$('progress').textContent=sharedLifeKinds[k];add('이야기',k==='shopping'?'나란히 장바구니를 들고 진열대를 둘러봤다.':k==='cooking'?'앞치마를 두르고 함께 저녁을 준비했다.':'저녁에 초인종이 울렸다. 현관에서 인사를 나누고 '+nameWith(p)+' 나란히 소파에 앉았다.');if(k==='home'){if((ev.pairItemQuestion||!o.answer)&&renderPairItemQuestion(ev,p))return;householdVisit(ev,p)}
+ if(dating&&renderDateSpark(ev,sharedLifeKinds[k],[p],!o.answer))return;
+ add(p,a[{shopping:0,cooking:1,home:2}[k]]);if(o.answer){add(k==='home'?'이야기':state.name,o.answer,k!=='home');add(p,o.reply);
  if(relationshipVoices[p].slice(2,4).includes(o.reply)){
   add(p,friendStoryLine(takeFriendTopic(o,p),p,ev.day??v.day));
  }if(k==='home'){if(renderSharedHomeEvening(ev,p))return;if(o.evening==='overnight'){choiceButton('일정 계속하기',finishEvent);return}}if(renderPartnerComfort(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);choiceButton('일정 계속하기',finishEvent);return}const opts=k==='shopping'?['서로 먹고 싶은 것을 하나씩 고른다','필요한 것만 사서 돌아간다']:k==='cooking'?['함께 맛을 보며 완성한다','각자 잘하는 일을 나누어 맡는다']:['각자 좋아하는 것을 하며 함께 쉰다',dating?'가까이 앉아도 괜찮을지 물어본다':'서로 좋아하는 취미를 소개한다'];for(const label of opts)choiceButton(label,()=>{if(o.answer)return;o.answer=label;o.reply=relationshipVoice(p,dating?'steady':'friend')||npcVoice[p][0];if(k==='shopping'){const r=household();r.stock.grain++;r.stock.veg++;r.stock.fruit++}if(k==='cooking'){v.skills.생활력++;v.energy=Math.min(100,v.energy+10)}healthRecord().fatigue=Math.max(0,healthRecord().fatigue-5);socialRecord(p).lastTogether=v.day;socialRecord(p).lastSeen=v.day;v.affection[p]=Math.min(999,v.affection[p]+2);if(dating)feel(p,{security:2});else{socialRecord(p).friendship+=2;friendshipRecord(p).outings.push({day:v.day,venue:sharedLifeKinds[k],choice:label})}remember(p,'sharedLife:'+k+':'+v.day,label);writeJournal(p+' · '+sharedLifeKinds[k]);save();renderChoiceEvent();renderSim()})}
@@ -588,6 +590,9 @@ function renderTrip(ev){
    add(q,sharedMorning&&addressTurn(q,day)%3===0?spokenCall(q,'npc',day,line):line);
   }
   if(sharedMorning)add('이야기',trip.loveNight?loveNightScene(p,trip.loveNight,trip.loveRoute).morning:scene.description);
+  // The evening scene also exists on late departures. Day two is a separate event.
+  if(soloLodge&&i===scenes.length-2&&vIsDating(p)&&
+   renderDateSpark(ev,seasonalTripData[index][0],[p],step===i&&!decision&&!o.answer))return;
   if(atLodge&&o.lodging){
    add(state.name,lodge.reply[player],true);add(p,lodge.answer[npc]);
    if(o.lodging==='close'){
@@ -3707,6 +3712,57 @@ function multiDiscussionControls(p,root){
 }
 function renderMultiDiscussion(ev){const v=initSim(),p=ev.person,o=ev.multiDiscussion,q=o.other,a=multiVoice(p);$('progress').textContent='각자의 관계, 각자의 마음';if(o.answer){add(p,o.opening);add(state.name,o.answer.label,true);add(p,o.answer.reply);choiceButton('일정 계속하기',finishEvent);return}if(!bothConsented(p,q)){choiceButton('일정 계속하기',finishEvent);return}const d=multiState(p,q),z=d.individual[p];o.opening=o.opening||(z.need?a[5]:a[4]);add(p,o.opening);const opts=[['둘만의 시간도 함께 정하고 서로의 마음을 말해요.',0],['지금은 조금 쉬면서 생각할 시간을 가져요.',1],['이 관계가 편하지 않다면 다시 선택해도 돼요.',2]];for(const [label,i] of opts)choiceButton(label,()=>{if(o.answer)return;let reply=i===0?a[6]:i===1?a[3]:romanceProfiles[p][4];if(i===0){z.jealous=clampMulti(z.jealous-4);z.missed=0;z.need=z.jealous>=5;z.lastDiscussion=v.day;feel(p,{security:2});}else if(i===2){if(z.need&&z.jealous>=8){endDating(p,'다자연애 합의 철회');reply=romanceProfiles[p][6]}else{reply=a[6];z.jealous=clampMulti(z.jealous-1);z.need=z.jealous>=5}}o.answer={label,reply};d.history.push({day:v.day,kind:'discussion',person:p,choice:i});remember(p,'multi:discussion:'+v.day,label+' / '+reply);save();renderChoiceEvent();renderSim()})}
 
+const groupTripSparkScenes={
+ '단체·연화천 산책':{
+  moment:'다리 밑을 벗어나자 발밑에 세 사람의 그림자가 나란히 섰다. 내가 두 손으로 반쪽짜리 하트를 하나씩 만들어 보이자 양옆에서 손이 올라왔다. 발밑에 작은 하트가 두 개 생겼다.',
+  warm:'두 사람과 보폭을 맞춰 하트 그림자를 조금 더 데려간다',
+  after:'한 박자씩 어긋날 때마다 손끝을 맞추느라 걸음이 느려졌다. 길이 휘어 그림자가 흩어진 뒤에도 두 사람은 내 양옆에 바짝 붙어 걸었다.',
+  ease:'서로의 그림자에 손을 흔들어 인사하고 다시 물가를 따라 걸었다.'
+ },
+ '단체·디저트 카페':{
+  moment:'진열장 앞에서 작은 시식용 타르트를 맛봤다. 양옆에서 내 쪽으로 시식 접시 두 개가 나란히 들어왔다. 둘 다 자기가 먹어 본 것 중 제일 맛있는 한 입을 남겨 둔 거였다.',
+  warm:'내 몫도 둘로 나눠 서로의 한 입을 바꿔 먹는다',
+  after:'서로 골라 준 조각을 먹는 동안엔 아무도 진열장을 보지 않았다. 내 입꼬리가 올라가자 기다렸다는 듯 양옆에서도 웃음이 터졌다.',
+  ease:'세 가지 맛을 나란히 놓고 손가락으로 각자 가장 마음에 드는 걸 가리켰다.'
+ },
+ '단체·오락실':{
+  moment:'게임기 옆 사진 부스에 셋이 겨우 들어갔다. 첫 셔터가 너무 빨리 터졌다. 화면을 보니 가운데 선 나는 정면을, 양옆의 두 사람은 나를 보고 있었다.',
+  warm:'이번에는 양옆으로 팔을 벌려 다 같이 한 컷 더 찍는다',
+  after:'두 사람이 동시에 내 쪽으로 기울었다. 사진 아래엔 내 어깨에 나란히 얹힌 손 두 개까지 찍혔다. 마지막 사진이 나온 뒤에도 셋은 한참 부스를 비우지 못했다.',
+  ease:'다음 사진은 셋 다 렌즈를 보고 우스꽝스러운 표정을 짓기로 했다.'
+ },
+ '단체·서점':{
+  moment:'서점 한쪽에 종이 책갈피와 여러 색 끈이 놓여 있었다. 내게 어울릴 색을 골라 달랬더니 한 사람은 내 옷깃을, 다른 한 사람은 내 소매 끝을 보고 있었다. 저마다 눈여겨본 곳이 달랐다.',
+  warm:'두 사람이 고른 끈을 한 가닥씩 받아 책갈피에 묶는다',
+  after:'둘이 제 몫의 끈 끝을 하나씩 잡아 주고 내가 매듭을 지었다. 두 색이 나란히 흔들렸다. 내가 책갈피를 손바닥에 올려 보이자 두 사람 모두 제 색부터 손끝으로 살짝 짚었다.',
+  ease:'고른 끈들을 책갈피 옆에 나란히 놓았다. 서로 어떤 색을 좋아하는지 알게 됐다.'
+ },
+ '벚꽃 소도시 여행':{
+  moment:'꽃등 아래로 벚나무 가지가 낮게 늘어져 있었다. 가지를 피하려고 둘 다 같은 쪽으로 고개를 기울였다. 눈앞에 꽃잎 대신 웃음을 참는 얼굴이 있었다.',
+  warm:'고개를 바로 들기 전에 가만히 눈을 맞춘다',
+  after:'상대가 먼저 웃는 바람에 나도 따라 웃었다. 가지 아래를 다 지나온 뒤에도 우리는 조금 전처럼 서로를 향해 고개를 기울인 채 걸었다.',
+  ease:'내가 먼저 한 걸음 비켜섰다. 둘이 차례차례 가지 밑을 지나갔다.'
+ },
+ '여름 바다 여행':{
+  moment:'모래에 쓰던 글씨를 파도가 한꺼번에 덮었다. 물을 피해 뒤로 뛰다가 두 손이 엉겁결에 맞물렸다. 발등을 덮었던 물이 다 빠지고도 손끝에는 힘이 남아 있었다.',
+  warm:'잡힌 손을 한 번 더 꼭 쥔다',
+  after:'손바닥에 꼭 같은 힘이 돌아왔다. 다음 물결이 밀려왔을 때는 한 사람이 먼저 뛰고 다른 사람이 따라 뛰었다. 이번엔 손을 놓칠 일이 없었다.',
+  ease:'마주 웃고 손을 놓았다. 물이 닿지 않는 자리를 골라 모래에 글씨를 다시 썼다.'
+ },
+ '가을 단풍 여행':{
+  moment:'가방 지퍼에 새빨간 단풍잎 하나가 낀 걸 발견했다. 내가 빼 주려 고개를 숙이자 상대도 무슨 일인가 들여다봤다. 이마가 톡 부딪혔다. 둘이 꼭 같은 자리를 문질렀다.',
+  warm:'단풍잎을 건네며 부딪힌 이마를 조금 더 가까이에서 살핀다',
+  after:'상대도 내 이마가 빨개졌나 보려고 고개를 기울였다. 이번엔 부딪히지 않을 만큼만, 딱 그만큼만 거리를 남겼다. 손에 쥐고 있던 단풍잎이 바스락거렸다.',
+  ease:'빠져나온 잎을 보여 주며 웃었다. 지퍼는 이제 걸리는 데 없이 잘 열렸다.'
+ },
+ '겨울 온천 여행':{
+  moment:'여관 창문에 김이 잔뜩 서렸다. 눈이 얼마나 왔나 보려고 나란히 동그라미를 닦았다. 유리에 바짝 얼굴을 대니 눈밭보다 창에 비친 상대의 눈이 먼저 보였다. 그쪽도 나를 보고 있었다.',
+  warm:'창에 비친 눈을 보다가 천천히 고개를 돌린다',
+  after:'고개를 돌리니 바로 옆에서도 이쪽을 돌아봤다. 코끝이 닿을 만큼 가까웠다. 다시 창을 봤을 때는 둘이 닦아 놓은 동그라미가 벌써 입김에 뿌옇게 흐려져 있었다.',
+  ease:'동그라미 둘을 손가락으로 이어 안경을 그렸다. 그 너머로 소복이 쌓인 눈이 보였다.'
+ }
+};
+
 const groupOutingScenes={
  '연화천 산책':{
   place:'river',
@@ -3859,6 +3915,8 @@ function renderGroupDate(ev){
   else if(before.affinity<0)add('이야기','두 사람 사이에는 짧은 침묵이 자주 흘렀다. 서로의 속도를 살피고 있었다.');
   for(const w of partners){const l=multiVoice(w);add('이야기',l[0]);add(w,formatSpeech(w,before.jealous[w]>=3?l[1]:romanceProfiles[w][8],'npc'))}
  }
+ const sparkVenue='단체·'+(scene?ev.venue:'연화천 산책');
+ if(renderDateSpark(ev,sparkVenue,partners,!ev.groupDateAnswer))return;
  if(ev.groupDateAnswer){
   add(state.name,ev.groupDateAnswer,true);
   if(scene&&ev.groupOutingEnding)add('이야기',ev.groupOutingEnding);
@@ -6873,9 +6931,10 @@ function renderHomeDate(ev){const v=initSim(),p=ev.person,f=flirtRecord(p);if(ev
  ev.chapterOffered=chapterEveningSlot(ev)&&nextCoupleChapter(p,v.day)>=0;
  ev.homeScene=f.seen.home5&&v.day-f.seen.home4>=14?4:f.seen.home4?5:f.seen.home3?4:f.seen.home2?3:(f.seen.home1||dateHistory(p).some(x=>x.venue==='홈데이트'&&x.day<v.day)?2:1);save()}
  if(ev.homeScene!==3&&(ev.pairItemQuestion||!ev.answered&&!ev.coupleChapter)&&renderPairItemQuestion(ev,p))return;
- if(ev.chapterOffered&&!ev.answered){
+ if(ev.chapterOffered&&!ev.answered&&(ev.coupleChapter||chapterEveningSlot(ev)&&nextCoupleChapter(p,v.day)>=0)){
   const host=ev.homeScene===3?'npc':'player';
   add('이야기',host==='npc'?p+'의 집 앞에 도착해 초인종을 눌렀다. 문이 열리자 익숙한 얼굴이 보였다.':'초인종이 울렸다. 문을 열고 연인의 겉옷을 받아 걸었다.');
+  if(renderDateSpark(ev,'홈데이트',[p],!ev.coupleChapter))return;
   if(renderCoupleChapter(ev,p,host,finishEvent))return;
   if(chapterOffer(ev,p,()=>ev.chapterOffered&&!ev.answered&&chapterEveningSlot(ev))){
    choiceButton('평소처럼 홈데이트를 보낸다',()=>{
@@ -6889,7 +6948,9 @@ function renderHomeDate(ev){const v=initSim(),p=ev.person,f=flirtRecord(p);if(ev
  if(!ev.answered&&ev.homeScene===4&&p==='서이준'&&a[2]==='……아까부터 신경 쓰이는 게 있는데. 입 맞춰 봐도 돼요?'){
   a[1]=homeRomanceAfter[p][0];a[2]=homeRomanceAfter[p][1];
  }
- $('progress').textContent='홈데이트 · '+a[0];add('이야기',ev.homeScene===3?'초대를 받아 '+p+'의 집에 방문했다.':'약속한 시간에 현관문을 열자 '+p+'의 얼굴이 보였다.');householdVisit(ev,p);if(!ev.answered&&renderMatchingOffer(ev,p))return;add('이야기',a[1]);add(p,a[2]);if(ev.answered){add(state.name,ev.selected,true);if(ev.homeTouchText)add('이야기',ev.homeTouchText);if(ev.response)add(p,ev.response);
+ $('progress').textContent='홈데이트 · '+a[0];add('이야기',ev.homeScene===3?'초대를 받아 '+p+'의 집에 방문했다.':'약속한 시간에 현관문을 열자 '+p+'의 얼굴이 보였다.');householdVisit(ev,p);if(!ev.answered&&renderMatchingOffer(ev,p))return;
+ if(renderDateSpark(ev,'홈데이트',[p],!ev.answered))return;
+ add('이야기',a[1]);add(p,a[2]);if(ev.answered){add(state.name,ev.selected,true);if(ev.homeTouchText)add('이야기',ev.homeTouchText);if(ev.response)add(p,ev.response);
  if(a[5]&&ev.selected===a[6]&&!romanceBonusFields.some(key=>ev[key])){choiceButton('일정 계속하기',finishEvent);return}
  if((ev.selected===a[3]||ev.homeScene===3)&&!ev.overnight&&!ev.homeEvening?.intimacy?.kiss&&renderHomeExtension(ev,p))return;
  if(ev.extendedEvening===true&&ev.homeEvening?.intimacy?.kiss)add('이야기','함께 저녁을 먹고 난 뒤, 둘이 다시 나란히 앉았다.');
@@ -6907,6 +6968,204 @@ function renderHomeDate(ev){const v=initSim(),p=ev.person,f=flirtRecord(p);if(ev
  ev.homeTouchText=warm&&a[5]&&!chooseKiss?homeTouchText(p,ev.homeScene,a[5]):'';
  ev.dateSteps=[{label,reply:ev.response,narration:ev.homeTouchText}];f.seen['home'+ev.homeScene]=v.day;
  if(ev.homeScene===4&&!a[5]){if(warm)feel(p,{security:2});remember(p,'home:quiet:'+v.day,label+' / '+reply)}else if(warm){if((ev.homeScene===2||ev.homeScene===4||ev.homeScene===5)&&a[5]&&!chooseKiss)f.touches.push({day:v.day,type:a[5],scene:'home'+ev.homeScene});flirtRecord(p).interest+=2;v.affection[p]=Math.min(999,v.affection[p]+2)}recordDate(ev,'홈데이트');save();renderChoiceEvent();renderSim()})}
+
+const dateSparkScenes={
+ '영화관':{
+  moment:'상영관이 어두컴컴했다. 화면을 본 채 팝콘을 집으려는데 손등 위로 따뜻한 손이 포개졌다. 둘 다 화들짝 손을 빼는 바람에 팝콘 한 알이 내 무릎으로 튀었다. 옆자리에서도 숨을 삼키는 소리가 났다. 손을 무릎에 얹고도 가슴이 콩콩 뛰었다.',
+  warm:'주워 든 팝콘 한 알을 보여 주며 눈을 맞춘다',
+  after:'스크린에 환한 장면이 떠서 서로의 표정이 잠깐 보였다. 둘이 동시에 웃음을 참았다. 다음 장면이 한참 지나도록 손등이 따뜻했다.',
+  ease:'팝콘 통을 가운데에 내려놓았다. 잠시 뒤부터는 한 사람씩 번갈아 손을 뻗었다.'
+ },
+ '디저트 투어':{
+  moment:'접시 옆에 놓인 작은 포장지를 펼치니 하트 모양 설탕 장식이 반으로 갈라져 있었다. 도윤이 자기 접시에서 나머지 반쪽을 들어 보였다. 둘이 조각을 맞대자 비뚤비뚤한 하트가 딱 맞았다.',
+  warm:'도윤 쪽으로 하트를 살며시 밀어 준다',
+  after:'도윤이 빈 접시 한가운데 하트를 옮겨 담았다. 다른 건 금세 맛보면서 그것만은 아까운지 한참을 두고 봤다.',
+  ease:'반쪽씩 자기 접시에 올렸다. 도윤은 디저트 옆에 세워 놓고 모양을 살폈다.'
+ },
+ '오락실':{
+  moment:'두더지 잡기 기계에 나란히 섰다. 마지막 두더지를 겨냥한 망치 두 개가 공중에서 톡 부딪혔다. 종료음이 났는데도 망치 끝을 맞댄 채 서로를 봤다.',
+  warm:'망치 끝으로 가볍게 하이파이브한다',
+  after:'맞은편 망치가 내 쪽을 톡 받아 줬다. 둘이 눈을 맞추고 웃고 나서야 점수판을 봤다. 마지막 두더지는 결국 놓쳤다.',
+  ease:'둘이 망치를 내려놓고 점수를 확인했다. 마지막 한 마리가 아까웠다.'
+ },
+ '근교 나들이':{
+  moment:'길이 두 갈래로 나뉘자 태오가 접이식 지도를 폈다. 바람이 불어 한쪽 귀퉁이를 붙들었더니, 지도에 가려져 있던 태오의 얼굴이 바로 눈앞에 나타났다.',
+  warm:'지도 너머로 빼꼼히 다시 눈을 맞춘다',
+  after:'태오가 지도의 높이를 조금 낮췄다. 길을 다 찾고 나서도 입가에 걸린 웃음은 한동안 그대로였다.',
+  ease:'나는 지도 끝을 잡고 태오는 다음 갈림길을 짚었다. 방향을 확인하고 다시 출발했다.'
+ },
+ '전시회':{
+  moment:'작은 영상 작품 앞에 나란히 섰다. 화면이 검게 바뀐 순간 유리에 내 얼굴을 바라보던 옆얼굴이 비쳤다. 내가 돌아보자 그 눈이 황급히 자막으로 향했다.',
+  warm:'다음에 화면이 어두워질 때 살짝 웃어 보인다',
+  after:'이번에는 눈이 마주쳐도 서로 시선을 피하지 않았다. 유리에 비친 두 얼굴이 나란히 웃다가 다음 장면의 빛 속으로 사라졌다.',
+  ease:'다음 자막을 읽으며 영상을 마저 봤다. 끝나고 나란히 다음 작품으로 넘어갔다.'
+ },
+ '아쿠아리움':{
+  moment:'머리 위로 가오리가 지나갔다. 둘이 동시에 올려다보다가 균형을 잡느라 어깨를 살짝 맞댔다. 물결 무늬가 옆얼굴을 지나가는 게 보일 만큼 가까웠다.',
+  warm:'다시 지나올 때까지 어깨를 나란히 두고 기다린다',
+  after:'커다란 지느러미가 돌아오자 이번에는 둘 다 고개를 아주 조금만 들었다. 팔을 타고 전해 오는 웃음이 가오리보다 먼저 느껴졌다.',
+  ease:'나란히 한 발 뒤로 물러나 수조 전체를 올려다봤다. 가오리가 천천히 한 바퀴 더 돌았다.'
+ },
+ '놀이공원':{
+  moment:'회전목마의 거울 기둥이 돌아갈 때마다 지안 얼굴이 보였다 사라졌다. 세 번째로 눈이 마주쳤을 때 지안이 기둥 뒤에서 나만 보게 작은 손하트를 만들었다.',
+  warm:'다음 거울에 비칠 때 손하트로 답한다',
+  after:'지안이 웃느라 하트를 만든 손을 펴 버렸다. 한 바퀴 돌아 다시 보였을 땐 아까보다 훨씬 큰 하트를 그리고 있었다.',
+  ease:'마주 보며 손을 흔들었다. 음악이 느려지자 지안이 먼저 내릴 준비를 했다.'
+ },
+ '서점':{
+  moment:'서가 양쪽에서 책을 훑었다. 한 권을 뽑으니 책등만 하게 난 틈으로 눈이 딱 마주쳤다. 하필 주변이 조용해서 터지려는 웃음을 삼켜야 했다.',
+  warm:'책을 살짝 밀었다가 다시 눈만 내민다',
+  after:'건너편 눈도 아직 거기 있었다. 둘 다 책으로 입을 가렸지만 가늘게 접힌 눈까지 숨기진 못했다.',
+  ease:'책을 반듯하게 꽂아 두고 서가 끝에서 다시 만났다.'
+ },
+ '고양이 산책':{
+  moment:'골목에 앉은 고양이에게 손가락 하나를 내밀었다. 이준도 같은 생각이었는지 손 두 개가 나란히 고양이 코앞에 멈췄다. 고양이는 우리 손에는 관심도 없이 그 사이로 꼬리만 쓱 통과시켰다.',
+  warm:'나란히 남은 두 손을 가리키며 웃는다',
+  after:'이준이 입술을 꾹 깨물더니 결국 따라 웃었다. 고양이한테 나란히 퇴짜 맞은 얘기를 하느라 골목 하나를 다 걸었다.',
+  ease:'고양이가 놀라지 않게 손을 거뒀다. 둘이 길을 비켜 주자 고양이는 느긋하게 지나갔다.'
+ },
+ '시장 구경':{
+  moment:'가게 처마를 지날 때 종이 장식이 내 머리카락에 걸렸다. 옆에서 장식을 살짝 들어 주는 손이 보였다. 고개를 빼고 돌아보니 내 머리 위에 팔을 든 채였다.',
+  warm:'올려다보며 작은 목소리로 고맙다고 한다',
+  after:'가까이에서 눈이 마주쳤다. 시끌시끌한 장터에서 작게 한 말이 또렷이 닿았는지, 팔을 내리던 얼굴에 웃음이 번졌다.',
+  ease:'고개를 숙여 처마를 빠져나왔다. 뒤따라오는 사람에게도 장식이 걸리지 않게 들어 줬다.'
+ },
+ '연화천 산책':{
+  moment:'물가에 늘어진 우리 그림자 사이로 작은 물새가 지나갔다. 새를 가리키려고 팔을 들었더니 실제로는 떨어져 있는 두 손이 물 위에서는 꼭 맞잡은 것처럼 보였다.',
+  warm:'그림자 속 손을 그대로 둔 채 옆을 바라본다',
+  after:'상대도 그림자를 보고 있었다. 손끝을 조금 움직여 내 그림자에 새끼손가락을 걸어 왔다. 물결에 그림자가 흐려질 때까지 둘이 그대로 섰다.',
+  ease:'물새가 지나간 쪽을 천천히 따라 걸었다. 우리 그림자도 보폭에 맞춰 물 위로 길어졌다.'
+ },
+ '보드게임 카페':{
+  moment:'굴린 주사위가 테이블 아래로 떨어졌다. 시우와 동시에 고개를 숙였다가 코끝이 닿기 직전에 멈췄다. 주사위는 벌써 멎었는데 둘 다 어디 있는지 한 번에 찾지 못했다.',
+  warm:'주사위를 찾아 시우 손바닥에 올려 준다',
+  after:'시우가 눈을 마주친 채 주사위를 굴렸다. 말까지 몇 칸 옮겨야 하는지 놓쳐서 결국 둘이 같이 눈금을 다시 셌다.',
+  ease:'주사위가 있는 곳을 짚어 주고 먼저 몸을 일으켰다. 시우가 주워 와 다음 차례를 이어 갔다.'
+ },
+ '수영장':{
+  moment:'휴게실 창에 비친 내 머리에서 물방울 하나가 뚝 떨어졌다. 태오가 제 수건으로 자기 귀 뒤를 톡톡 두드려 보였다. 나도 거울처럼 따라 닦자 그 딱딱하던 입꼬리가 올라갔다.',
+  warm:'이번엔 내가 먼저 반대쪽 귀를 톡톡 두드린다',
+  after:'태오도 얼결에 반대쪽을 따라 닦았다. 장난인 걸 눈치챈 뒤에도 방금 그 웃음은 숨기지 않았다.',
+  ease:'수건으로 남은 물기를 마저 닦았다. 창 너머로 다음 레인의 출발 신호가 들렸다.'
+ },
+ '건축 산책':{
+  moment:'지한이 오래된 건물의 둥근 아치 아래에서 발을 멈췄다. 한쪽 끝에서 속삭인 내 말이 천장을 타고 맞은편에 닿았다. 지한이 바로 귓가에 들린 것처럼 고개를 돌렸다.',
+  warm:'건너편에서 들릴 만큼만 지한의 이름을 부른다',
+  after:'지한은 내 쪽을 보며 아까보다 한결 작은 소리로 내 이름을 불렀다. 아치 아래를 벗어난 뒤에도 귓가가 간질거렸다.',
+  ease:'손뼉을 한 번 쳐 울림을 들어 봤다. 지한과 나란히 바깥으로 나왔다.'
+ },
+ '레스토랑':{
+  moment:'테이블 위 작은 촛불이 흔들렸다. 식당 안의 다른 소리 사이로 지한이 무슨 말을 했는데 끝이 들리지 않았다. 둘이 다시 말하고 들으려고 동시에 몸을 기울이자, 꺼질 듯 흔들리는 불꽃 너머로 눈이 마주쳤다.',
+  warm:'가까워진 그대로 아까의 말을 다시 들려 달라고 한다',
+  after:'지한이 낮춘 목소리가 이번에는 또렷하게 들렸다. 짧은 얘기가 다 끝났는데도 둘 다 팔꿈치를 테이블에서 떼기까지 조금 걸렸다.',
+  ease:'촛대를 살짝 옆으로 옮겨 놓고 편하게 마주 앉았다. 아까 놓친 이야기도 다시 들었다.'
+ },
+ '디저트 카페':{
+  moment:'카운터에 설탕으로 만든 작은 새가 진열돼 있었다. 내가 몸을 숙여 새를 구경할 때마다 유리에 비친 옆얼굴도 같이 고개를 숙였다. 나중에는 새보다 서로의 움직임이 더 잘 보였다.',
+  warm:'살짝 고개를 기울여 이번에도 따라오는지 본다',
+  after:'유리에 비친 얼굴이 반대로 고개를 기울였다. 유리 속에서만 이마가 살짝 맞닿았다. 내가 먼저 웃었다.',
+  ease:'한 발 비켜 두니 설탕 날개 끝까지 잘 보였다. 구경을 마치고 자리로 돌아갔다.'
+ },
+ '소품 공방':{
+  moment:'재료를 고르다 보니 유리 손가락에 파란 안료가 묻어 있었다. 알려 주려고 손을 들었더니 내 엄지에도 꼭 같은 파란 점이 찍혀 있었다. 유리가 손끝 두 개를 번갈아 보며 웃었다.',
+  warm:'파란 엄지로 연습 종이에 도장을 찍어 나란히 남긴다',
+  after:'유리가 두 지문 아래로 조그만 다리를 그려 넣었다. 종이 위에서 파란 두 마리가 같은 방향으로 걸어갔다.',
+  ease:'마른 천을 한 장씩 나눠 손을 닦았다. 각자 고른 재료에 색이 번지지 않았다.'
+ },
+ '사진 산책':{
+  moment:'셔터 소리에 돌아보니 유리의 렌즈가 아직 내 쪽을 향해 있었다. 건물을 찍던 줄 알았는데, 유리가 화면을 슬쩍 보여 줬다. 햇빛 아래에서 웃고 있는 내 옆얼굴이었다.',
+  warm:'이번에는 렌즈가 아니라 유리를 보며 웃는다',
+  after:'유리가 카메라를 다시 들려다 그만두고 맨눈으로 마주 웃었다. 방금 표정은 사진에 담기지 않았다.',
+  ease:'어떻게 나왔는지 함께 확인하고 다음 골목으로 걸어갔다.'
+ },
+ '식물원':{
+  moment:'커다란 잎 끝에 맺힌 물방울이 세린의 손목으로 떨어졌다. 둘이 잎 아래를 올려다보자 옆 잎에서 또르르 굴러온 방울이 이번에는 내 코끝을 적셨다. 세린이 웃음을 참느라 눈을 감았다.',
+  warm:'젖은 코끝을 가리키며 세린에게도 보여 준다',
+  after:'세린이 제 손목을 내 코 옆에 대 보는 시늉을 했다. 어느 쪽 물방울이 더 큰지 재는 모양이었다. 잎 아래에서 빠져나오고도 한참, 서로 쳐다볼 때마다 또 웃음이 났다.',
+  ease:'물방울이 떨어지는 자리에서 나란히 비켜섰다. 잎사귀 밑 작은 이름표를 천천히 읽었다.'
+ },
+ '노래방':{
+  moment:'익숙한 후렴이 나오자 둘 다 박자를 놓치고 한 박자 늦게 같은 가사를 불렀다. 마이크에 두 목소리가 꼭 붙어 들렸다. 다음 소절로 넘어갔는데도 서로를 보느라 입을 여는 사람이 없었다.',
+  warm:'후렴이 돌아오자 눈을 맞추고 같이 부른다',
+  after:'이번에는 딱 맞았다. 점수가 뜨기도 전에 기분이 좋아져 둘이 서로에게 먼저 박수를 쳤다.',
+  ease:'화면을 짚어 다음 소절이 시작되는 자리를 보여 줬다. 놓쳤던 노래가 다시 이어졌다.'
+ },
+ '홈데이트':{
+  moment:'집 안으로 걸음을 옮기다 슬리퍼 한 짝이 살짝 벗겨졌다. 발로 끌어오려는데 상대도 슬리퍼 코를 밀어 줘서, 푹신한 두 발끝이 톡 부딪혔다. 잠깐 서로의 발만 내려다봤다.',
+  warm:'슬리퍼 코로 가볍게 한 번 더 인사한다',
+  after:'맞은편 슬리퍼도 톡, 조심스럽게 인사를 돌려줬다. 서로 고개를 들고 나서야 우리 둘 다 웃고 있던 걸 알았다.',
+  ease:'슬리퍼를 바로 신었다. 이제 됐다는 뜻으로 발끝을 들어 보이고 안으로 들어갔다.'
+ }
+};
+
+const everydayDateSparkScenes={
+ '함께 장보기':{
+  moment:'계산대 위에 딸기 우유 두 개가 나란히 올라왔다. 나는 하나만 담았는데. 옆에서 다른 하나를 집어 내 쪽에 놓았다. 나도 내 몫을 슬쩍 밀어줬다. 둘 다 건네주려고 담았던 거였다.',
+  warm:'빨대를 하나씩 꽂아 건배하자고 내민다',
+  after:'가게 앞에서 우유 팩 두 개가 톡 부딪혔다. 집까지 들고 갈 짐이 있었는데도, 둘이 그 자리에 서서 빨대 끝에서 빈 소리가 날 때까지 마셨다.',
+  ease:'우유를 하나씩 나눠 장바구니에 담았다. 집에 가자마자 냉장고에 넣기로 했다.'
+ },
+ '함께 요리하기':{
+  moment:'앞치마 끈이 풀려서 등을 돌리고 양 끝을 내밀었다. 잠깐 뒤 등에 톡, 매듭이 닿았다. 돌아보니 연인도 등을 돌려 제 앞치마 끈을 내밀고 있었다.',
+  warm:'내 등에 묶인 것처럼 작은 리본을 묶어 준다',
+  after:'나란히 서서 까만 오븐 문을 들여다봤다. 일부러 등을 돌려 보이니 똑같이 생긴 리본 두 개가 비쳤다. 타이머가 울리고 나서야 둘 다 웃으며 몸을 돌렸다.',
+  ease:'풀리지 않게 매듭을 지어 줬다. 나란히 손을 씻고 도마 앞으로 돌아갔다.'
+ },
+ '집에서 함께 쉬기':{
+  moment:'소파에서 담요를 덮고 한참 책장을 넘겼다. 발이 시릴까 싶어 담요를 옆으로 슬쩍 밀었더니 금세 내 무릎 위로 돌아왔다. 고개를 들자 저쪽에서도 담요 끝을 쥔 채 나를 보고 있었다.',
+  warm:'담요 한 장으로 충분할 만큼 옆으로 다가앉는다',
+  after:'담요 아래로 따뜻한 발등이 살짝 닿았다. 책장을 다시 폈는데도 둘 다 같은 페이지에 오래 머물렀다.',
+  ease:'담요를 가로로 길게 펴서 두 사람 무릎 위에 덮었다. 이제 누구 발도 시리지 않았다.'
+ }
+};
+const cinemaSparkReplies={
+ '서이준':['…방금 뭐라고 했는지 들었어요? 자막을 놓쳐서.','…방금 뭐라고 했는지 들었어? 자막을 놓쳐서.'],
+ '공재희':['아, 웃으면 안 되는데. 나 지금 영화 끝날 때까지 옆에 못 보겠어요.','아, 웃으면 안 되는데. 나 지금 영화 끝날 때까지 옆에 못 보겠어.'],
+ '한시우':['와, 나 팝콘 먹다가 이렇게 긴장한 거 처음이에요.','와, 나 팝콘 먹다가 이렇게 긴장한 거 처음이야.']
+};
+function renderDateSpark(ev,venue,companions,canStart){
+ const scene=dateSparkScenes[venue]||groupTripSparkScenes[venue]||everydayDateSparkScenes[venue];
+ if(!scene)return false;
+ const v=initSim(),day=ev.day??v.day;
+ const eligible=()=>{
+  if(ev.groupPartners&&(!companions.every(vIsDating)||!bothConsented(...companions)))return false;
+  if((ev.tripScene||ev.sharedLife||venue==='홈데이트')&&!companions.every(vIsDating))return false;
+  return companions.every(p=>people.includes(p)&&v.romance[p]!=='ended'&&!platonicOnly(p)&&!touchContext(p,day,true).conflicted&&!relationshipRecall(p,day).distance);
+ };
+ if(!Object.hasOwn(ev,'dateSpark')){
+  if(!canStart)return false;
+  ev.dateSpark=eligible()&&Math.random()<0.35?{venue,people:[...companions]}:null;
+  save();
+ }
+ const spark=ev.dateSpark;
+ if(!spark||spark.venue!==venue)return false;
+ add('이야기',scene.moment);
+ if(spark.choice){
+  add('이야기',spark.choice==='warm'?scene.after:scene.ease);
+  if(spark.choice==='warm'){
+   const p=spark.people[0],reply=venue==='영화관'&&cinemaSparkReplies[p];
+   if(reply)add(p,reply[speechRegisterIndex(p,'npc',day)]);
+   const gains=spark.people.map((person,i)=>spark.gains[i]>0?person+' 호감도 +'+spark.gains[i]:null).filter(Boolean);
+   if(gains.length)add('시스템',gains.join(' · '));
+  }
+  return false;
+ }
+ for(const [choice,label] of [['warm',scene.warm],['ease','가볍게 웃고 넘어간다']]){
+  choiceButton(label,()=>{
+   if(v.activeEvent!==ev||v.day!==day||ev.dateSpark!==spark||spark.choice)return;
+   if(!eligible()){ev.dateSpark=null;save();renderChoiceEvent();renderSim();return}
+   spark.choice=choice;
+   spark.gains=spark.people.map(p=>{
+    if(spark.choice==='ease')return 0;
+    const before=v.affection[p]||0;
+    v.affection[p]=Math.min(999,before+2);
+    return v.affection[p]-before;
+   });
+   save();renderChoiceEvent();renderSim();
+  });
+ }
+ return true;
+}
 
 function dateVenue(p,venue){if(venue==='홈데이트')return venue;return [dateLines[p][0],...extraDatePlaces[p]].includes(venue)?venue:dateLines[p][0]}
 const venueDialogues={"공재희|노래방": ["재희가 소파에 앉자마자 리모컨을 집어 들었다.", "첫 곡 뭐 불러요? 제가 고르면 시작부터 고음인데.", "그럼 재희 씨부터 불러요.", "아, 제 목부터 풀라고요? 좋아요. 딱 한 소절만 봐줘요ㅋㅋ", "둘이 아는 노래부터 골라요.", "좋아요. 후렴은 같이 불러요. 혼자 두기 없기!", "마지막 한 곡을 남겨 두고 재희가 마이크를 건넸다.", "마지막 곡은 뭐 할까요? 이번엔 제가 코러스 넣을래요.", "아까 같이 부른 곡 한 번 더 해요.", "좋아요. 아까 놓친 부분도 이번엔 맞춰 봐요."], "공재희|영화관": ["상영 시간표 앞에서 재희가 포스터 두 장을 번갈아 봤다.", "이거 둘 다 예고편 봤는데요. 하나는 진짜 무서울 것 같아요.", "무서운 걸로 봐요.", "좋아요. 저 놀라도 옆에서 웃기 없어요ㅋㅋ", "오늘은 가볍게 웃을 수 있는 게 좋아요.", "그럼 이걸로 해요. 끝나고 제일 웃긴 장면 하나씩 고르기.", "상영관을 나오자 재희가 빈 팝콘 통을 내려다봤다.", "영화에 집중했는데 이거 언제 다 먹었지?", "저도 모르겠어요. 다음엔 큰 걸로 사요.", "좋아요. 다음엔 맛도 반반으로 골라요."],"서이준|서점":["서이준이 책등을 훑다가 한 권을 꺼냈다.","서로 읽을 책을 골라 보는 건 어떻습니까?","이준 씨가 읽을 책을 골라 볼게요.","제 취향을 어떻게 보셨을지 궁금하군요.","각자 읽고 싶은 책을 찾아요.","그것도 좋겠습니다.","서이준이 계산을 마친 책을 가방에 넣었다.","다 읽으면 감상을 들려드리겠습니다.","저도 읽고 이야기해 드릴게요.","그럼 다음에 이야기할 거리가 생기겠군요."],"서이준|고양이 산책":["골목 처마 아래 고양이가 웅크리고 있었다.","어, 오늘은 안 도망가네요.","이준 씨를 알아보는 것 같아요.","제가 이맘때 밥 주러 오거든요. 발소리를 외웠나 봐요.","놀라지 않게 여기서 볼까요?","그래요. 여기 있으면 먼저 올지도 몰라요.","고양이가 서이준의 신발 옆에 다가와 앉았다.","……제 신발 옆에 앉은 건 오늘이 처음이에요.","이준 씨가 잘 돌봐 줘서겠죠.","…그런가. 내일도 여기서 기다려 봐야겠네요."],"강도윤|시장 구경":["시장 골목에서 호떡 굽는 냄새가 났다.","호떡 하나 사서 나눠 먹을까요?","좋아요. 반씩 나눠 먹어요.","뜨거우니까 잠깐만요. 제가 반으로 나눌게요.","조금 더 둘러보고 먹을래요.","좋죠. 저쪽에도 맛있는 게 많거든요.","강도윤이 시장의 작은 찻집 앞에서 걸음을 멈췄다.","이런 작은 가게도 참 좋네요. 주인 취향이 그대로 보여서요.","도윤 씨만의 가게도 보고 싶어요.","하하. 그렇게 말씀하시면 정말 욕심이 생기는데요."],"강도윤|연화천 산책":["강변을 따라 걷다가 빈 벤치를 발견했다.","잠깐 앉았다 갈까요?","좋아요. 도윤 씨도 좀 쉬어요.","오늘은 제가 쉬어도 되는 날인가 봐요. 하하.","조금 더 걷고 싶어요.","그럼 저도 보폭 맞출게요.","강 건너로 불빛이 하나둘 켜졌다.","이렇게 아무것도 안 해도 시간이 잘 가네요.","저는 이런 시간도 좋아요.","……저도요. 요즘 들어 더 그런 것 같아요."],"한시우|보드게임 카페":["테이블에 카드와 말이 펼쳐졌다.","이번엔 저도 처음 하는 게임으로 골라요!","좋아요. 실력으로 승부해요.","오예! 봐주기 없는 거예요!","규칙 쉬운 걸로 골라요.","오케이. 설명부터 같이 읽죠!","한시우가 점수판을 들여다보다 웃음을 터뜨렸다.","이거 생각보다 머리 많이 쓰는데요?","다음에 다시 승부해요.","약속! 다음에는 전략 짜 올 거예요."],"한시우|영화관":["상영 시간표 앞에 섰다.","액션이랑 코미디 중에 뭐 볼래요?","액션 영화요.","오, 시원하게 터지는 걸로 가죠!","코미디가 좋아요.","좋아요! 웃다가 팝콘 쏟지 말기!","상영관에서 나와 영화 이야기를 나눴다.","저 마지막 장면은 예상 못 했어요.","같이 보니까 더 재밌었어요.","히히, 그럼 다음 영화도 같이 봐요!"],"정태오|수영장":["수영을 마치고 휴게실에 앉았다.","무리하지는 않으셨습니까?","괜찮아요. 덕분에 즐거웠어요.","다행입니다. 수분도 충분히 보충하십시오.","조금 피곤하네요.","그럼 여기서 충분히 쉬고 가시죠.","정태오가 물병을 건넸다.","운동은 꾸준히 하는 편이 좋습니다.","다음에도 같이 수영해요.","좋습니다. 일정을 맞춰 보겠습니다."],"정태오|시장 구경":["시장 골목에 따뜻한 어묵 국물 냄새가 퍼졌다.","간단히 요기하고 가시겠습니까?","어묵 먹고 싶어요.","좋습니다. 제가 주문하겠습니다.","조금 더 둘러볼게요.","알겠습니다. 천천히 보시죠.","정태오가 장바구니를 들어 주었다.","필요한 물건은 다 사셨습니까?","네. 같이 와서 편했어요.","그렇다면 다행입니다."],"백지한|건축 산책":["오래된 건물의 외벽을 올려다보았다.","저 건물 창문 배치가 꽤 재미있죠?","어떤 점이 재미있는 거예요?","빛이 들어오는 방향을 보세요. 내부 동선도 짐작할 수 있거든요.","저는 외벽 색이 마음에 들어요.","그 색을 고른 이유도 궁금해지네요.","백지한이 건물의 작은 장식까지 가리켜 보였다.","이런 걸 보면 아직도 설계하던 때가 생각나요.","지한 씨가 설계한 건물도 보고 싶어요.","그건 좀 쑥스러운데. 언젠가 보여 드릴게요."],"백지한|레스토랑":["메뉴판을 사이에 두고 마주 앉았다.","오늘은 뭘 드시고 싶어요?","서로 다른 메뉴를 골라 나눠 먹어요.","좋죠. 취향도 알아보고 일석이조네요.","각자 먹고 싶은 걸 주문해요.","그럼 오늘의 선택을 존중하겠습니다.","식사를 마치고 백지한이 물잔을 내려놓았다.","오늘 식당은 마음에 들었어요?","다음엔 제가 식당을 골라 볼게요.","오, 그럼 기대하고 있을게요."],"임하나|서점":["임하나가 소설 코너 앞에서 걸음을 멈췄다.","혹시 요즘 재미있게 읽은 책 있어요?","하나 씨에게 추천해 주고 싶은 책이 있어요.","정말요? 제목 적어 둘게요.","오늘 같이 찾아볼까요?","네. 그러면 좋겠어요.","임하나가 책 한 권을 품에 안았다.","오랜만에 제 책을 사는 것 같아요.","읽고 나서 이야기해 줘요.","……네. 꼭 그럴게요."],"임하나|디저트 카페":["진열장에 작은 케이크들이 놓여 있었다.","서로 다른 걸 골라서 나눠 먹을까요?","좋아요. 하나 씨는 뭐가 좋아요?","저는 딸기요. 같이 먹으면 더 맛있겠죠?","각자 좋아하는 걸 먹어요.","네. 그럼 저는 딸기로 할게요.","임하나가 빈 접시를 보며 작게 웃었다.","오늘은 시간 걱정 없이 먹어서 좋았어요.","가끔은 이렇게 쉬어도 돼요.","……그렇게 해 볼게요."],"차유리|소품 공방":["작업대에 여러 색의 재료가 놓여 있었다.","서로 어울리는 색을 골라 볼까요?","좋아요. 유리 씨 색부터 골라 볼게요.","오, 제 이미지가 어떤지 궁금한데요?","각자 마음에 드는 색으로 만들어요.","좋죠. 완성하면 비교해 봐요.","두 사람이 완성한 소품을 나란히 놓았다.","같은 재료인데 완전히 다르네요.","그래서 더 재밌어요.","맞아요. 각자 취향이 보여서 좋네요."],"차유리|사진 산책":["골목에 오후 햇빛이 길게 들어왔다.","여기서 사진 한 장 남길까요?","좋아요. 같이 찍어요.","그럼 타이머 맞출게요.","풍경만 찍고 싶어요.","좋아요. 구도부터 잡아 봐요.","차유리가 카메라 화면을 확인했다.","이 사진은 색감이 마음에 드네요.","나중에 사진 보내 주세요.","보정해서 보내 줄게요."],"오세린|식물원":["온실 안에 초록빛 잎이 가득했다.","마음에 드는 식물을 하나 골라 볼래요?","저 작은 꽃이 좋아요.","어머, 가까이서 보면 더 예쁘네요.","잎이 큰 식물이 좋아요.","싱그럽죠. 저도 저런 잎을 좋아해요.","온실을 나와 벤치에 앉았다.","여기 오면 마음이 느긋해지는 것 같아요.","다음에도 함께 쉬러 와요.","네. 그런 약속이라면 언제든 좋죠."],"오세린|디저트 카페":["진열장에 작은 케이크들이 놓여 있었다.","서로 다른 걸 골라서 나눠 먹을까요?","좋아요. 세린 씨는 뭐 드실래요?","으음, 저는 치즈케이크가 좋겠어요.","오늘은 차만 마실래요.","네. 따뜻한 차도 좋죠.","오세린이 찻잔을 내려놓았다.","이렇게 여유롭게 이야기하니 좋네요.","저도 마음이 편해져요.","어머, 오늘 잘 나왔네요."],"유지안|노래방":["노래 목록을 펼쳤다.","첫 곡은 뭐로 할까요?","신나는 곡으로 같이 불러요.","예쓰! 마이크 하나씩 잡아요!","지안 씨가 먼저 불러 주세요.","오케이! 분위기부터 띄워 볼게요.","마지막 곡이 끝나고 화면에 점수가 떴다.","와, 시간 진짜 빨리 간다!","다음엔 듀엣곡도 준비해 와요.","좋죠! 연습해 올게요!"],"유지안|연화천 산책":["강변 산책로에 바람이 불었다.","오늘은 뛰지 말고 걸어 볼까요?","좋아요. 이야기하면서 걸어요.","와우, 오늘은 수다 모드네요!","조금 뛰어도 괜찮아요.","그럼 저 다리까지만 가볍게 뛰어요!","강변의 가로등이 켜졌다.","이렇게 천천히 걷는 것도 좋네요.","다음에도 같이 걸어요.","예쓰! 다음에는 다른 길도 가 봐요!"]};
@@ -7083,7 +7342,7 @@ function renderAlleyDate(ev,p){
  });
 }
 
-function renderExtraDate(ev){const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p],steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',npcVoice[p][2]];const lines=[x[0],x[6],'슬슬 집에 돌아갈 시간이었다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',npcVoice[p][2],3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}if(i===0&&n===1&&renderMatchingOffer(ev,p))return}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
+function renderExtraDate(ev){const v=initSim(),p=ev.person,venue=ev.venue,a=extraDateScenes[venue],r=extraDateReplies[p],steps=ev.dateSteps||(ev.dateSteps=[]),n=steps.length;const hist=dateHistory(p);$('progress').textContent=venue+' · '+Math.min(n+1,3)+'/3';dateRecall(p,ev);const x=venueDialogues[p+'|'+venue]||[a?.[0]||venue+'에 도착했다.',a?.[1]||'어디부터 둘러볼까요?','좋아요. 같이 해요.',r[0],'오늘은 여유롭게 즐겨요.',r[1],'함께 시간을 보내다 보니 헤어질 시간이 가까워졌다.',r[2],'다음에 또 같이 와요.',npcVoice[p][2]];const lines=[x[0],x[6],'슬슬 집에 돌아갈 시간이었다.'];const opts=[[[x[2],x[3],3],[x[4],x[5],1]],[[x[8],x[9],3],['오늘 함께 와서 좋았어요.',npcVoice[p][1],1]],[['다음에도 같이 나와요.',npcVoice[p][2],3],['조심히 들어가세요.',npcVoice[p][0],1]]];for(let i=0;i<=Math.min(n,2);i++){if(i===1&&renderDateSpark(ev,venue,[p],n===1&&!ev.answered))return;add('이야기',lines[i]);if(i===0)add(p,x[1]);if(i===1)add(p,x[7]);if(steps[i]){add(state.name,steps[i].label,true);add(p,steps[i].reply)}if(i===0&&n===1&&renderMatchingOffer(ev,p))return}if(ev.answered||n>=3){if(renderDateTriangle(ev,p))return;if(ev.alleyDate){renderAlleyDate(ev,p);return}if(renderPartnerComfort(ev,p))return;if(renderSpringRain(ev,p))return;if(renderSeasonalDate(ev,p))return;if(renderSummerDate(ev,p))return;if(renderAutumnDate(ev,p))return;if(renderWinterDate(ev,p))return;if(renderHeartMoment(ev,p))return;if(renderFlirtOuting(ev,p))return;if(renderCoupleDate(ev,p))return;if(renderLoverAffection(ev,p))return;if(renderAfterglowMeeting(ev,p))return;if(renderRelationshipTouch(ev,p))return;if(renderCoupleHabit(ev,p))return;if(renderPlayfulCouple(ev,p))return;coupleHabitRecall(ev,p);if(renderSensoryRomance(ev,p))return;if(renderSpontaneousInvite(ev,p))return;if(renderSpontaneousVisit(ev,p))return;if(renderDateSouvenir(ev,p))return;if(renderSouvenirReaction(ev,p))return;if(renderFarewell(ev,p))return;choiceButton('일정 계속하기',finishEvent);return}
  if(n===2)offerAlleyWalk(ev,p,opts[n]);
  for(const [label,reply,delta,route] of opts[n])choiceButton(label,()=>{
   if(v.activeEvent!==ev||ev.answered||steps.length!==n)return;
@@ -7598,7 +7857,11 @@ function speechControls(p,root){const a=memoryFor(p).address,wrap=document.creat
  }
  root.append(wrap)}
 
-function renderFlirtOuting(ev,p){if(!romanceBonusAllowed(ev,'flirtOuting'))return false;const v=initSim(),f=flirtRecord(p),venue=ev.venue||dateLines[p][0];let id=ev.flirtOuting?.id; if(!id){if(!f.seen.outing1&&flirtOutingOne[p]?.[0]===venue&&f.interest>=3)id='outing1';else if(!f.seen.outing2&&flirtOutingTwo[p]?.[0]===venue&&f.interest>=6)id='outing2';else if(!f.seen.outing3&&flirtOutingThree[p]?.[0]===venue&&f.interest>=6)id='outing3';}const a=id==='outing3'?flirtOutingThree[p]:id==='outing2'?flirtOutingTwo[p]:id==='outing1'?flirtOutingOne[p]:null;if(!a)return false;if(!ev.flirtOuting){if(v.day>=300||f.seen[id])return false;ev.flirtOuting={id};save()}const o=ev.flirtOuting;if(id==='outing2'&&!o.playerLine){o.playerLine=playerHandLine(p);save()}add('이야기',a[1]);add(p,o.npcLine||(o.npcLine=a[2]));if(o.answer){add(state.name,o.answer.label,true);add(p,o.answer.reply);return false}for(const [label,reply,warm] of [[o.playerLine||outingPlayerLine(p,a[3]),a[4],true],[a[5]||'오늘 함께 와서 즐거웠어요.',a[6]||npcVoice[p][0],false]])choiceButton(label,()=>{if(o.answer)return;o.answer={label,reply};f.seen[id]=v.day;f.history.push({day:v.day,id,accepted:warm});if(warm){f.interest+=3;socialRecord(p).interest++;if(id==='outing2')f.touches.push({day:v.day,type:'손잡기',scene:id});remember(p,'flirt:'+id,a[4])}save();renderChoiceEvent();renderSim()});return true}
+function renderFlirtOuting(ev,p){if(!romanceBonusAllowed(ev,'flirtOuting'))return false;const v=initSim(),f=flirtRecord(p),venue=ev.venue||dateLines[p][0];let id=ev.flirtOuting?.id; if(!id){if(!f.seen.outing1&&flirtOutingOne[p]?.[0]===venue&&f.interest>=3)id='outing1';else if(!f.seen.outing2&&flirtOutingTwo[p]?.[0]===venue&&f.interest>=6)id='outing2';else if(!f.seen.outing3&&flirtOutingThree[p]?.[0]===venue&&f.interest>=6)id='outing3';}let a=id==='outing3'?flirtOutingThree[p]:id==='outing2'?flirtOutingTwo[p]:id==='outing1'?flirtOutingOne[p]:null;
+ if(id==='outing2'&&p==='한시우'&&Object.hasOwn(ev,'dateSpark')){
+  a=['영화관','극장을 나서자 시우가 나보다 반 발짝 앞서 걷다가 돌아섰다. 슬쩍 손바닥을 펴 보였다.','집 가는 길엔 화면 볼 일도 없잖아요. 손잡고 갈래요?','손을 잡는다.','히히. 이러면 나 일부러 좀 천천히 걷는데.'];
+ }
+ if(!a)return false;if(!ev.flirtOuting){if(v.day>=300||f.seen[id])return false;ev.flirtOuting={id};save()}const o=ev.flirtOuting;if(id==='outing2'&&!o.playerLine){o.playerLine=playerHandLine(p);save()}add('이야기',a[1]);add(p,o.npcLine||(o.npcLine=a[2]));if(o.answer){add(state.name,o.answer.label,true);add(p,o.answer.reply);return false}for(const [label,reply,warm] of [[o.playerLine||outingPlayerLine(p,a[3]),a[4],true],[a[5]||'오늘 함께 와서 즐거웠어요.',a[6]||npcVoice[p][0],false]])choiceButton(label,()=>{if(o.answer)return;o.answer={label,reply};f.seen[id]=v.day;f.history.push({day:v.day,id,accepted:warm});if(warm){f.interest+=3;socialRecord(p).interest++;if(id==='outing2')f.touches.push({day:v.day,type:'손잡기',scene:id});remember(p,'flirt:'+id,a[4])}save();renderChoiceEvent();renderSim()});return true}
 
 const mainDateReplies={"서이준":["…예매할 때부터 조금 기대했어요.","그럼 상영 시간까지만 여유 있게 움직여요.","혼자 볼 때랑은 느낌이 다르네요.","다음 영화는 직접 골라 줘요.","…오늘 같이 봐서 좋았어요."],"강도윤":["오늘은 어떤 디저트보다 이 약속이 기다려졌어요.","하하, 맛있는 것부터 찾아볼까요?","다음에는 이 맛을 가게에서도 연구해 봐야겠네요.","다음 휴일도 비워 두고 싶네요.","덕분에 손님으로 보내는 하루가 즐거웠어요."],"한시우":["오늘 최고 기록 찍을 준비 됐어요?","오케이, 일단 가볍게 한 판!","와, 아까 둘 다 당황한 거 생각하면 진짜 웃기네.","다음엔 리벤지 매치 확정이죠?","오늘 같이 게임한 거 꽤 재밌었어요!"],"백지한":["전시도 기대했지만 같이 보는 사람이 더 중요하죠.","천천히 보죠. 마음에 드는 작품 있으면 알려 줘요.","같은 작품을 보고도 다른 얘기를 할 수 있어서 좋네요.","다음엔 제가 또 데이트 코스 짜도 돼요?","오늘 표정이 꽤 오래 기억날 것 같네요."],"임하나":["저 어제부터 뭘 입을지 고민했어요.","네! 수조부터 천천히 구경해요.","저 이렇게 여유롭게 구경하는 거 정말 오랜만이에요.","다음에도 휴일을 비워 둘게요. 꼭요.","오늘 사진 보면서 한동안 기분 좋을 것 같아요."],"차유리":["오, 같이 보면 감상이 좀 달라지겠다.","좋아요. 각자 끌리는 작품부터 봐요.","오늘 본 색 조합은 작업할 때 써 보고 싶네요.","다음엔 제가 재밌는 전시 찾아 볼게요.","오늘 눈이 즐거웠어요. 같이 와서 더 좋았고."],"오세린":["오늘은 물고기들처럼 느긋하게 지내고 싶네요.","으음, 발길 닿는 대로 가 볼까요?","수조 앞에 오래 서 있으니 마음이 차분해지네요.","다음에도 이런 조용한 시간을 함께 보내요.","오늘은 집에 가서도 마음이 편안할 것 같아요."],"정태오":["오늘은 근무 일정도 미리 정리해 두었습니다.","좋습니다. 무리하지 않는 일정으로 움직이시죠.","이런 풍경은 혼자 볼 때보다 오래 기억에 남겠군요.","다음 휴무가 확정되면 연락드리겠습니다.","함께해 주셔서 감사합니다. 좋은 하루였습니다."],"유지안":["와! 오늘 놀이기구 몇 개 탈 수 있을까?","좋아요! 일단 지도부터 보자!","아까 그거 탈 때 표정 진짜 웃겼는데!","다음엔 못 탄 놀이기구 싹 타요!","오늘 완전 잘 놀았다! 집 가면 바로 뻗겠어요."],"공재희":["헐 드디어 오락실! 오늘 큰 인형 하나 뽑자 ㅋㅋ","웅! 일단 기계 구경부터 ㄱㄱ","아까 그거 진짜 아깝지 않았어요? ㅡㅡ","웅! 담엔 내가 더 큰 거 뽑아 줄게요.","아 오늘 개재밌었음 ㅋㅋ 집 가기 아깝다."]};
 const springDateScenes={"서이준":["이준이 바람에 날린 꽃잎을 바라보다 걸음을 멈췄다.","…이 길에 이렇게 꽃이 많았나요. 평소엔 그냥 지나쳤는데.","조금 더 걸어요. 같이 보고 싶어요.","…네. 오늘은 지름길로 가지 말죠.","그럼 역까지 곧장 가요. 꽃은 충분히 봤으니까."],"강도윤":["도윤이 벚나무 아래에서 휴대전화를 꺼냈다.","가게에만 있었더니 꽃이 이렇게 핀 줄도 몰랐네요. 사진 한 장 찍어 드릴까요?","우리 둘이 같이 찍어요.","하하. 그럼 저도 오늘의 기념사진에 들어가는 거네요.","그럼 모카 산책할 때 한 장 찍어 둬야겠어요."],"한시우":["시우가 바람에 흩날리는 꽃잎을 향해 손을 뻗었다.","와, 이거 잡으면 소원 이루어진다던데. 진짜인가?","우리 둘 다 하나씩 잡아 봐요.","잡았다! 소원은 비밀이에요. 말하면 안 이루어질 것 같아서.","아, 맞다. 그냥 보는 것도 예쁘네요."],"백지한":["지한이 당신의 머리 위에 내려앉은 꽃잎을 발견했다.","꽃잎 붙었는데, 떼어 줘도 돼요?","네. 부탁해요.","가만히 있어 봐요. …됐어요. 하나 더 붙었으면 좋겠는데.","아, 오른쪽 머리 위예요. 거기."],"임하나":["하나가 벚꽃이 만개한 길 앞에서 발걸음을 늦췄다.","학교 다닐 때도 꽃구경은 제대로 못 했거든요. 오늘은 조금 더 봐도 될까요?","오늘은 시간 신경 쓰지 말고 구경해요.","네…… 저 오늘 정말 여유로운 사람이 된 것 같아요.","네. 그래도 오늘 잠깐 볼 수 있어서 좋았어요."],"차유리":["유리가 꽃잎이 쌓인 보도블록을 내려다보았다.","분홍색이랑 회색이 이렇게 잘 어울리네. 사진 찍고 가도 돼요?","나도 마음에 드는 색을 찾아 볼래요.","오, 서로 찍은 사진 비교해 봐요. 재밌겠다.","좋아요. 이 구도만 찍고 갈게요."],"오세린":["세린이 꽃이 핀 가지 아래에서 고개를 들었다.","어머, 벌써 이렇게 피었네요. 병원 앞 나무는 아직 봉오리던데.","여기 잠깐 앉아서 봄을 즐겨요.","으음, 아무것도 하지 않는 시간도 참 좋네요.","네. 다음에 병원 앞 나무가 피면 알려 드릴게요."],"정태오":["태오가 꽃구경 나온 사람들을 피해 길 가장자리로 걸었다.","이쪽 길은 비교적 한산합니다. 조금 돌아가도 괜찮으시겠습니까?","네. 오늘은 천천히 돌아가요.","알겠습니다. 저도 오늘은 서두를 이유가 없군요.","그럼 가까운 길로 안내하겠습니다."],"유지안":["지안이 꽃잎이 날리는 모습을 보고 두 팔을 펼쳤다.","와, 여기 뮤직비디오 찍으면 완전 예쁘겠다! 영상 하나 찍어 볼래요?","좋아요. 내가 찍어 줄게요.","진짜요? 그럼 봄 한정 안무 갑니다!","앗, 그럼 눈으로만 담아야겠다!"],"공재희":["재희가 벚꽃 아래에서 휴대전화 카메라를 켰다.","헐 색감 미쳤다. 여기서 사진 찍으면 내 피드랑 딱 맞겠는데?","찍어 줄게요. 나중에 같이도 찍어요.","웅! 나 예쁘게 찍어 줘요. 같이 찍은 건 나만 갖고 있을래 ㅋㅋ","ㅇㅋ 그럼 셀카 하나만 찍고 가요."]};
@@ -7653,7 +7916,9 @@ const firstDessertStops=[
 function renderDateEvent(ev){if(platonicOnly(ev.person)){renderPlatonicDate(ev);return}if(ev.venue==='홈데이트'){renderHomeDate(ev);return}if(ev.venue&&ev.venue!==dateLines[ev.person][0]){renderExtraDate(ev);return}const v=initSim(),p=ev.person,a=dateLines[p],h=dateHeartScenes[p];ev.dateSteps=ev.dateSteps||[];const steps=ev.dateSteps;const stage=steps.length;$('progress').textContent='외출 약속 · '+a[0]+' · '+Math.min(stage+1,5)+'/5';const hist=dateHistory(p).filter(x=>x.day<ev.day);if(hist.length)dateRecall(p,ev);else add(p,meetingCall(p,ev,'npc',a[1]));if(ev.dateDisclosed)add(p,dateConfirmLines[p][1]);const scenes=[['이야기','약속 장소에서 만났다. 함께 목적지로 향하기로 했다.'],['이야기',h[0]],['이야기',a[2]],['이야기',h[4]],['이야기','이제 돌아갈 시간이다.']];const opts=[[['오늘 같이 나오길 잘했어요.','저도 오늘을 기다렸어요.',2],['편하게 즐기다 가요.','좋아요.',1]],[ [h[2],h[3],4],['괜찮아요. 조금 떨어져서 갈게요.','네. 편하게 가요.',0]],[['다음에는 제가 좋아하는 곳도 같이 가요.','좋아요. 궁금하네요.',2],['오늘 여기 오길 잘했네요.','그러게요. 즐겁네요.',1]],[['저도 조금 더 같이 있고 싶어요.',h[5],4],['오늘은 이쯤에서 돌아갈까요?','좋아요. 조심히 돌아가요.',0]],[['다음에도 둘이서 만나고 싶어요.','저도 다음 약속을 기다릴게요.',3],['오늘 즐거웠어요.','저도 즐거웠어요.',2]]];const ctx=dateContextChoices[p];opts[1][1]=[...ctx[0],0];opts[2][0]=[...ctx[3],2];opts[3]=[[...ctx[1],4],[...ctx[2],1]];const dr=mainDateReplies[p];opts[0][0][1]=dr[0];opts[0][1][1]=dr[1];opts[2][1][1]=dr[2];opts[4][0][1]=dr[3];opts[4][1][1]=dr[4];if(ev.firstDessertFrom===undefined&&p==='강도윤'&&!hist.length&&!vIsDating(p)&&!ev.answered)ev.firstDessertFrom=stage;
 const firstDessert=Number.isInteger(ev.firstDessertFrom);
  const dateLabel=(i,label)=>i===4&&label===opts[4][0][0]?meetingCall(p,ev,'player',label,'after'):label;
+const sparkStep=firstDessert?3:2;
 for(let i=0;i<=Math.min(stage,4);i++){
+  if(i===sparkStep&&renderDateSpark(ev,a[0],[p],stage===i&&!ev.answered))return;
   if(firstDessert&&i>=ev.firstDessertFrom){
     const [scene,line,choices]=firstDessertStops[i];
     add('이야기',scene);

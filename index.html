@@ -2523,6 +2523,17 @@ function renderStoryIllustration(id){
  root.hidden=!id;
  if(id)root.append(illustrationFigure(id));
 }
+function travelSceneLocation(ev){
+ const trip=ev.tripScene;
+ if(!trip)return null;
+ const season=trip.season??1;
+ const base=['벚꽃 소도시','여름 바닷가','가을 단풍 여행지','겨울 온천 마을'][season]||'여행지';
+ if(trip.stage===2)return base+' · 여행의 아침';
+ const step=trip.steps?.length||0;
+ const outdoorScenes=(trip.departureSlot??0)===3?1:2;
+ if(ev.coupleChapter||trip.lodging||trip.night||step>=outdoorScenes)return base+' · 숙소';
+ return base+(step===0?' · 도착':' · 여행 중');
+}
 function renderChoiceEvent(){setStoryStanding(null);departureTalkEvent=null;const v=initSim(),ev=v.activeEvent;if(!ev)return;
 if(ev.newConfession&&(!ev.offerState||ev.offerState.stage==='ask')&&!v.running&&dateBook()[v.day]?.trip){
  v.activeEvent=null;
@@ -2530,7 +2541,7 @@ if(ev.newConfession&&(!ev.offerState||ev.offerState.stage==='ask')&&!v.running&&
  playDay();
  return;
 }renderStoryIllustration(storyIllustration(ev,ev.day??v.day,v.slot));
-const p=ev.person,loc=locations.find(x=>x.id===ev.place);$('where').textContent=loc?loc.name:'연화동';$('clock').textContent='DAY '+v.day+' · '+dayLabels[v.slot||0]+' · '+weatherFor(v.day).icon+' '+weatherFor(v.day).name;$('progress').textContent=p?'만남 · '+p:'생활 이벤트';$('log').innerHTML='';$('suggest').innerHTML='';$('next').classList.add('hide');const opening=ev.person&&['park','river'].includes(ev.place)&&!ev.dateEvent&&!ev.summerNight&&!ev.personalStory&&!ev.group&&!ev.groupPartners&&!ev.weatherScene&&!ev.careerEvent&&!ev.birthdayParty?arrivalText(ev.place,ev.person):ev.description;
+const p=ev.person,loc=locations.find(x=>x.id===ev.place);$('where').textContent=travelSceneLocation(ev)||(loc?loc.name:'연화동');$('clock').textContent='DAY '+v.day+' · '+dayLabels[v.slot||0]+(ev.tripScene?' · 여행 중':' · '+weatherFor(v.day).icon+' '+weatherFor(v.day).name);$('progress').textContent=p?'만남 · '+p:'생활 이벤트';$('log').innerHTML='';$('suggest').innerHTML='';$('next').classList.add('hide');const opening=ev.person&&['park','river'].includes(ev.place)&&!ev.dateEvent&&!ev.summerNight&&!ev.personalStory&&!ev.group&&!ev.groupPartners&&!ev.weatherScene&&!ev.careerEvent&&!ev.birthdayParty?arrivalText(ev.place,ev.person):ev.description;
 let intro=ev.personalStory ? ev.personalStory.intro || personalStoryData[p]?.find(story=>story.title===ev.personalStory.title)?.intro || opening : opening;
 if(!ev.answered&&!ev.personalStory&&!ev.dateEvent&&familiarEncounter(p)&&intro){
  const prior=ev.place==='cafe'&&p==='강도윤'&&intro.endsWith('일을 마치자 강도윤이 카운터에서 고개를 들었다.')?'일을 마치자 강도윤이 카운터에서 고개를 들었다.':npcArrival[p];
@@ -5672,8 +5683,8 @@ const longNightScenes={
   ],
   "last": "눈을 감으니 이준이 숨을 들이쉬는 소리가 또렷했다. 내가 고개를 기울이자 이준의 입술이 잠깐 떨어졌다.",
   "accept": [
-   "…저도요. 오늘은 눈 피하지 않을게요.",
-   "…나도. 오늘은 눈 안 피할게."
+   "…좋아요. 저도 오늘은 같이 있고 싶어요.",
+   "…좋아. 나도 오늘은 같이 있고 싶어."
   ],
   "morning": "이준이 물을 한 모금 마시다가 내가 부르는 소리에 돌아봤다. 서로 간밤의 같은 순간을 떠올린 모양이었다. 먼저 눈을 피한 건 나였다.",
   "after": "사랑을 나눈 뒤에도 이준은 한동안 내 귓가에 얼굴을 묻고 있었다. 목이 마르냐고 한마디 하는데 그 다정한 쉰 목소리에 또 웃음이 났다.",

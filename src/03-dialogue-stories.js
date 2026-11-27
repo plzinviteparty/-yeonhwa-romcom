@@ -299,6 +299,10 @@ const residentMeetingTalks={
  ]
 };
 
+residentMeetingTalks['공재희'].push(["any",["아 오늘 앞머리 완전 망했어요. 근데 모자 쓰니까 좀 귀엽지 않아요?","아 오늘 앞머리 완전 망했어. 근데 모자 쓰니까 좀 귀엽지 않아?"],["귀여워요.","귀여워.","헐 진짜? 그럼 오늘은 안 벗을래요!","헐 진짜? 그럼 오늘은 안 벗을래!"],["벗어 봐요.","벗어 봐.","아 왜요오! 마음의 준비 좀 하고요.","아 왜애! 마음의 준비 좀 하고."]],
+["any",["오늘 강의에서 발표했는데 첫 문장부터 꼬였어요. 아 진짜 창피해!","오늘 강의에서 발표했는데 첫 문장부터 꼬였어. 아 진짜 창피해!"],["그래도 끝까지 했어요?","그래도 끝까지 했어?","웅, 끝나고 친구가 잘했다고 해 줬어요. 좀 살 것 같았음.","웅, 끝나고 친구가 잘했다고 해 줬어. 좀 살 것 같았음."],["수고했어요.","수고했어.","칭찬 더 해 줘요. 오늘은 좀 많이 받아야겠어.","칭찬 더 해 줘. 오늘은 좀 많이 받아야겠어."]],
+["*",["잠깐만요. 오늘 나 예쁜지 아직 말 안 했잖아요!","잠깐만. 오늘 나 예쁜지 아직 말 안 했잖아!"],["오늘도 예뻐요.","오늘도 예뻐.","히힛. 됐다! 이제 기분 좋게 놀 수 있어요.","히힛. 됐다! 이제 기분 좋게 놀 수 있어."],["직접 물어보는 거 귀엽네요.","직접 물어보는 거 귀엽네.","모야모야, 그럼 두 번 칭찬한 거죠?","모야모야, 그럼 두 번 칭찬한 거지?"]],
+["*",["오늘은 나랑 조금 더 있어 주면 안 돼요? 아까부터 보내기 싫었어요.","오늘은 나랑 조금 더 있어 주면 안 돼? 아까부터 보내기 싫었어."],["조금 더 같이 있어요.","조금 더 같이 있자.","웅! 그럼 손도 잡아 줘요.","웅! 그럼 손도 잡아 줘."],["다음에 오래 만나요.","다음에 오래 만나.","아쉽다… 그래도 다음엔 진짜 오래 있기예요.","아쉽다… 그래도 다음엔 진짜 오래 있기야."]]);
 residentMeetingTalks['임하나'].push(
  ['intro:store',['봉투 필요하세요? 아, 아직 아무것도 안 고르셨죠. 방금 앞 손님한테 못 물어보고 그대로 말이 나왔어요.','봉투 필요해? 아, 아직 아무것도 안 골랐지. 방금 앞 손님한테 못 물어보고 그대로 말이 나왔어.'],
   ['뭐 하나 고르고 다시 올게요.','뭐 하나 고르고 다시 올게.','네. 천천히 보세요. 이번엔 순서 맞춰서 물어볼게요.','응. 천천히 봐. 이번엔 순서 맞춰서 물어볼게.'],
@@ -349,7 +353,7 @@ function chooseMeetingBeat(ev,p){
  const v=initSim(),day=ev.day??v.day,stage=relationshipVoiceStage(p);
  const couple=stage==='early'||stage==='steady';
  const intro=hanaIntroMeeting(ev);
- if(!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&p==='임하나'))return;
+ if(!couple&&stage!=='flirt'&&stage!=='normal'&&!(stage==='friend'&&['임하나','공재희'].includes(p)))return;
  // Do not reinterpret an old, already offered one-off opening.
  if(!relationshipVoices[p].slice(0,10).some(x=>ev.voiceMoment===x||ev.voiceMoment.endsWith(', '+x)))return;
  const activity=ev.activity??v.running?.plan?.[v.running.slot];

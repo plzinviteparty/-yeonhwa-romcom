@@ -717,6 +717,11 @@ const groupInviteReplies={
 function groupProposalLine(p,other,day,slot,venue,second){
  const today=initSim().day,casual=speechRegisterIndex(p,'player',today),when=calendarDate(day).label+' '+dayLabels[slot]+'에 ';
  const together=other.slice(1)+(casual?'':' 씨');
+ const host=groupHomeHost(venue);
+ if(host){
+  const place=host===p?(casual?'네 집':'집'):together+' 집';
+  return when+(host===p?together+'도 불러서 셋이 ':'셋이 ')+place+(casual?'에서 만날까?':'에서 만날까요?');
+ }
  const line=when+(second?together+'하고 만나기로 했는데, 셋이 ':together+'도 불러서 셋이 ')+groupInviteActivities[venue][casual];
  return addressTurn(p,today)%4===1?spokenCall(p,'player',today,line):line;
 }
@@ -785,7 +790,7 @@ function multiDiscussionControls(p,root){
   save();renderChoiceEvent();
  };
 }
-function renderMultiDiscussion(ev){const v=initSim(),p=ev.person,o=ev.multiDiscussion,q=o.other,a=multiVoice(p);$('progress').textContent='각자의 관계, 각자의 마음';if(o.answer){add(p,o.opening);add(state.name,o.answer.label,true);add(p,o.answer.reply);choiceButton('일정 계속하기',finishEvent);return}if(!bothConsented(p,q)){choiceButton('일정 계속하기',finishEvent);return}const d=multiState(p,q),z=d.individual[p];o.opening=o.opening||(z.need?a[5]:a[4]);add(p,o.opening);const opts=[['둘만의 시간도 함께 정하고 서로의 마음을 말해요.',0],['지금은 조금 쉬면서 생각할 시간을 가져요.',1],['이 관계가 편하지 않다면 다시 선택해도 돼요.',2]];for(const [label,i] of opts)choiceButton(label,()=>{if(o.answer)return;let reply=i===0?a[6]:i===1?a[3]:romanceProfiles[p][4];if(i===0){z.jealous=clampMulti(z.jealous-4);z.missed=0;z.need=z.jealous>=5;z.lastDiscussion=v.day;feel(p,{security:2});}else if(i===2){if(z.need&&z.jealous>=8){endDating(p,'다자연애 합의 철회');reply=romanceProfiles[p][6]}else{reply=a[6];z.jealous=clampMulti(z.jealous-1);z.need=z.jealous>=5}}o.answer={label,reply};d.history.push({day:v.day,kind:'discussion',person:p,choice:i});remember(p,'multi:discussion:'+v.day,label+' / '+reply);save();renderChoiceEvent();renderSim()})}
+function renderMultiDiscussion(ev){const v=initSim(),p=ev.person,o=ev.multiDiscussion,q=o.other,a=multiVoice(p);$('progress').textContent='각자의 관계, 각자의 마음';if(o.answer){add(p,o.opening);add(state.name,o.answer.label,true);add(p,o.answer.reply);choiceButton('일정 계속하기',finishEvent);return}if(!bothConsented(p,q)){choiceButton('일정 계속하기',finishEvent);return}const d=multiState(p,q),z=d.individual[p];o.opening=o.opening||(z.homeNightConcern?'지난번 셋이 자고 갔던 날 있잖아요. '+z.homeNightConcern.other+' 쪽으로 돌아누운 걸 보고 나도 모르게 끼어들었어요. 그때는 농담처럼 말했는데, 나중에 생각해 보니 좀 서운했어요.':z.need?a[5]:a[4]);add(p,o.opening);const opts=[['둘만의 시간도 함께 정하고 서로의 마음을 말해요.',0],['지금은 조금 쉬면서 생각할 시간을 가져요.',1],['이 관계가 편하지 않다면 다시 선택해도 돼요.',2]];for(const [label,i] of opts)choiceButton(label,()=>{if(o.answer)return;let reply=i===0?a[6]:i===1?a[3]:romanceProfiles[p][4];if(i===0){z.jealous=clampMulti(z.jealous-4);z.missed=0;z.need=z.jealous>=5;z.lastDiscussion=v.day;delete z.homeNightConcern;feel(p,{security:2});}else if(i===2){if(z.need&&z.jealous>=8){endDating(p,'다자연애 합의 철회');reply=romanceProfiles[p][6]}else{reply=a[6];z.jealous=clampMulti(z.jealous-1);z.need=z.jealous>=5}}o.answer={label,reply};d.history.push({day:v.day,kind:'discussion',person:p,choice:i});remember(p,'multi:discussion:'+v.day,label+' / '+reply);save();renderChoiceEvent();renderSim()})}
 
 const groupTripSparkScenes={
  '단체·연화천 산책':{
@@ -915,10 +920,18 @@ const groupOutingScenes={
   ending:['서로 같은 줄을 보느라 두 사람의 이마가 닿을 뻔했다. 그사이 다른 한 사람은 맞은편 서가에서 책 한 권을 빼들었다.','셋이 손에 든 띠지를 차례로 읽었다. 고른 문장 세 개가 꼭 한 이야기처럼 이어져 책방 안에서 웃음을 참아야 했다.','잠시 흩어졌다 계산대 앞에서 만났다. 누구는 책을 들고, 누구는 마음에 든 책 제목만 휴대전화에 적어 왔다.']
  }
 };
-for(const host of ['강도윤','한시우','차유리','오세린','유지안']){
- const venue=host+' 집 홈데이트';
- groupInviteActivities[venue]=['같이 '+host+' 씨 집에서 놀래요?','같이 '+host+' 집에서 놀래?'];
- groupOutingScenes[venue]={...groupOutingScenes['우리 집 홈데이트'],arrival:host+'의 집에 도착했다. 집주인이 현관에서 두 사람을 맞이하고 거실로 안내했다.'};
+const groupHomeArrivals={
+ 강도윤:'도윤이가 현관문을 열어 주기도 전에 모카가 발소리를 내며 달려왔다. 도윤이는 한 손으로 목줄을 잡고 다른 손으로 두 사람 몫의 슬리퍼를 꺼냈다.',
+ 한시우:'시우가 현관에 쌓인 택배 상자를 발끝으로 밀었다. 거실 바닥에는 충전해 둔 게임 패드 세 개가 놓여 있었다.',
+ 차유리:'유리가 소파에서 색상 견본을 한 움큼 들어 올렸다. 그 아래 숨어 있던 쿠션 두 개를 털어 우리 쪽으로 던졌다.',
+ 오세린:'세린이 문을 열자 주전자에서 물이 끓는 소리가 났다. 식탁에 놓인 컵 세 개는 손잡이 모양이 하나씩 달랐다.',
+ 유지안:'지안이가 문을 활짝 열었다. 방금까지 틀어 두던 음악 소리가 들렸다. 지안이는 슬리퍼를 두 켤레 꺼내 놓고서야 음량을 줄였다.'
+};
+function groupHomeHost(venue){
+ return Object.keys(groupHomeArrivals).find(host=>venue===host+' 집 홈데이트')||null;
+}
+for(const [host,arrival] of Object.entries(groupHomeArrivals)){
+ groupOutingScenes[host+' 집 홈데이트']={...groupOutingScenes['우리 집 홈데이트'],arrival};
 }
 const groupOutingVenues=Object.keys(groupOutingScenes);
 function groupVenueAllowed(venue,group){return groupOutingVenues.includes(venue)&&(!venue.endsWith(' 집 홈데이트')||venue==='우리 집 홈데이트'||group.some(w=>venue===w+' 집 홈데이트'))}
@@ -971,9 +984,64 @@ function groupOutingVoice(p,day,pair){
 function groupOutingScene(ev){
  return ev.groupPartners.includes(ev.invitedVia)?groupOutingScenes[ev.venue]:null;
 }
+const groupNightReactions={
+ 강도윤:['……치사하게 나오네요. 나도 아직 안 잤는데.','도윤이 내 볼에 엄지를 대고 자기 쪽으로 살짝 돌렸다. 웃음이 남은 얼굴로 가까이 와서, 내가 움직일 때까지 기다렸다.'],
+ 한시우:['와, 치사하다. 나도 다 봤어.','시우가 웃음을 삼키며 이불 틈으로 내 손을 잡았다. 손을 제 쪽으로 살짝 당기고는, 돌아본 내 얼굴 바로 앞에서 멈췄다.'],
+ 차유리:['오, 치사하네. 이쪽도 봐 봐.','유리가 검지로 내 턱을 살짝 돌렸다. 눈이 마주치자 입꼬리가 올라갔다. 귀 뒤로 머리카락을 넘겨 주면서도 얼굴은 가까이 두었다.'],
+ 오세린:['으음, 조금 치사하네요. 이쪽도 봐 줄래요?','세린이 이불 위로 손을 뻗어 내 뺨을 감쌌다. 돌아보니 웃고 있었다. 엄지로 뺨을 한 번 쓸고 가만히 기다렸다.'],
+ 유지안:['치사해. 나도 여기 있잖아.','지안이가 내 손을 찾아 자기 쪽으로 끌어왔다. 눈이 마주치자 내 이마에 제 이마를 가볍게 맞댔다.']
+};
+function renderGroupHomeNight(ev,o,d,live){
+ const day=ev.day??initSim().day;
+ const [first,second]=ev.groupPartners;
+ if(!o.night){o.night={first:Math.random()<.5?first:second,noticed:Math.random()<.4};save()}
+ const night=o.night;
+ const near=night.first,other=near===first?second:first;
+ const commit=(key,value,after)=>{
+  if(!live()||night[key]!==undefined||!bothConsented(first,second))return;
+  night[key]=value;
+  if(after)after();
+  save();renderChoiceEvent();
+ };
+ add('이야기','두 사람 사이에 누웠다. 이불 밑으로 손끝이 닿아 고개를 돌리니 '+near+'이었다. 눈이 마주치자 그 손이 가만히 멈췄다.');
+ if(night.answer===undefined){
+  choiceButton('손을 맞잡고 얼굴을 가까이한다',()=>commit('answer','kiss',()=>{
+   if(!night.noticed)return;
+   const z=d.individual[other];
+   z.jealous=clampMulti(z.jealous+multiSensitivity(other));
+   if(z.jealous>=5){
+    z.need=true;
+    z.homeNightConcern={day,other:near};
+   }
+  }));
+  choiceButton('손만 잡고 눈을 감는다',()=>commit('answer','hold'));
+  choiceButton('손을 빼고 편히 눕는다',()=>commit('answer','rest'));
+  return;
+ }
+ if(night.answer==='hold')add('이야기','손바닥을 뒤집어 손을 잡았다. 이불 아래 맞닿은 온기가 차츰 익숙해졌다.');
+ if(night.answer==='rest')add('이야기','손을 빼자 상대도 손을 거두었다. 이불을 턱까지 끌어올리고 눈을 감았다.');
+ if(night.answer==='kiss'){
+  add('이야기','내가 가까이 가자 '+near+'도 몸을 기울였다. 입술이 떨어지는 순간 반대편 이불이 바스락거렸다.');
+  if(night.noticed){
+   const [tease,gesture]=groupNightReactions[other]||['치사하네요. 저도 아직 안 잤어요.','반대편에서 손이 내 뺨에 닿았다.'];
+   add(other,tease);
+   add('이야기',gesture);
+   if(night.response===undefined){
+    choiceButton('그쪽으로 돌아누워 입을 맞춘다',()=>commit('response','kiss'));
+    choiceButton('손을 가볍게 잡고 오늘은 여기까지 하자고 한다',()=>commit('response','stop'));
+    return;
+   }
+   add('이야기',night.response==='kiss'?'몸을 돌려 입을 맞췄다. 조금 전까지 잡고 있던 손이 등 뒤에서 내 손가락을 한 번 꼭 쥐었다.':'손을 가볍게 잡고 고개를 저었다. 상대는 내 손을 한 번 쥐었다가 놓았다. 셋은 이불을 고쳐 덮었다.');
+  }
+ }
+ choiceButton('다음 날 아침',()=>{
+  if(!live()||o.morning)return;
+  o.morning=true;save();renderChoiceEvent();
+ });
+}
 function renderGroupDate(ev){
  const v=initSim(),partners=ev.groupPartners,[p,q]=partners;
- const scene=groupOutingScene(ev),day=ev.day??v.day;
+ const scene=groupOutingScene(ev),day=ev.day??v.day,host=groupHomeHost(ev.venue);
  $('progress').textContent=scene?'함께하는 데이트 · '+ev.venue:'함께하는 데이트';
  if(scene)$('where').textContent=ev.venue;
  const live=()=>v.activeEvent===ev&&v.day===day;
@@ -1024,17 +1092,33 @@ function renderGroupDate(ev){
     add('이야기',o.answer);
     for(const w of partners)if(o.replies?.[w])add(w,formatSpeech(w,o.replies[w],'npc',undefined,day));
     if(o.stayed&&!o.morning){
-     choiceButton('다음 날 아침',()=>{if(!live()||o.morning)return;o.morning=true;save();renderChoiceEvent()});return;
+     renderGroupHomeNight(ev,o,d,live);return;
     }
     if(o.morning){
-     add('이야기','아침 햇살이 커튼 사이로 들어왔다. 부엌에서 접시 부딪치는 소리가 났다.');
+     $('clock').textContent='다음 날 아침 · '+calendarDate(day+1).label;
+     const homeMorning={
+      강도윤:'모카가 이불 끝에 코를 들이밀었다. 도윤이가 이름을 부르기도 전에 셋 다 눈을 떴다.',
+      한시우:'커튼 틈으로 빛이 들어와 바닥에 놓인 게임 패드 세 개를 비췄다. 시우가 엎드린 채 알람을 찾느라 손을 더듬었다.',
+      차유리:'유리가 커튼을 반만 열었다. 식탁에 아침 빛이 길게 들어오자 컵 세 개를 햇빛이 닿는 쪽으로 옮겼다.',
+      오세린:'주전자가 끓기 전에 세린이 창문을 조금 열었다. 손잡이 모양이 다른 컵 세 개가 어젯밤과 같은 자리에 놓여 있었다.',
+      유지안:'지안이가 음악을 틀려다 두 사람을 보고 음량부터 줄였다. 아주 작은 소리로 첫 소절이 흘러나왔다.'
+     };
+     add('이야기',homeMorning[host]||'아침 햇살이 커튼 사이로 들어왔다. 부엌에서 접시 부딪치는 소리가 났다.');
+     const night=o.night;
+     if(night?.answer==='kiss'&&night.response==='kiss'){
+      const other=partners.find(w=>w!==night.first);
+      add('이야기',other+'와 눈이 마주쳤다. 어젯밤 이불이 바스락거리던 순간이 떠올랐는지, 둘 다 거의 동시에 컵을 들어 웃음을 숨겼다.');
+     }else if(night?.answer==='hold'){
+      add('이야기',night.first+'의 손이 식탁 아래에서 잠깐 내 손등에 닿았다.');
+     }
      const morning={'한시우':'토스트 조금 탔는데요! 탄 쪽은 제가 먹을게요.','차유리':'커피 내려 놨어요. 식기 전에 와요.','강도윤':'아침은 간단하게 준비했어요. 같이 먹어요.','오세린':'잘 잤어요? 오늘은 천천히 시작해요.','유지안':'아침 먹고 다 같이 사진 찍을까요?'};
      for(const w of partners)add(w,formatSpeech(w,morning[w]||'잘 잤어요? 아침 같이 먹어요.','npc',undefined,day));
      add('이야기','셋이 식탁에 둘러앉아 오늘의 일정을 이야기했다.');
     }
     choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
    }
-   add('이야기','영화가 끝나고도 아무도 먼저 일어나지 않았다. 창밖은 어느새 어두워져 있었다.');
+   const evening=(ev.slot??v.slot)===3;
+   add('이야기',evening?'어느새 창밖이 어두워졌다. 셋은 거실에 앉아 있다가 하나둘 시간을 확인했다.':'슬슬 약속을 마칠 시간이 됐다. 셋은 거실에 잠시 더 앉아 있었다.');
    const choose=(kind)=>{
     if(!live()||o.answer||!partners.every(vIsDating)||!bothConsented(p,q))return;
     o.replies={};
@@ -1046,11 +1130,11 @@ function renderGroupDate(ev){
      o.stayed=true;
      o.answer='두 사람에게 오늘 더 머물고 싶은지 물었다. 각자 편한 잠자리를 정하고 담요를 나눠 가졌다. 늦은 밤까지 이야기를 나누다가 불을 껐다.';
      for(const w of partners){o.replies[w]=w==='한시우'?'좋아요! 내일 아침은 제가 챙길게요.':w==='차유리'?'좋아요. 대신 내일 일정은 각자 확인해요.':'오늘은 조금 더 같이 있고 싶어요.';feel(w,{security:1});}
-    }else{o.answer=kind==='end'?'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.':'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}
+    }else{o.answer=kind==='end'?(host?'현관에서 집주인에게 인사하고 다른 연인과 나란히 밖으로 나왔다.':'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.'):'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}
     save();renderChoiceEvent();renderSim();
    };
    choiceButton('두 사람에게 함께 안아도 좋을지 묻는다',()=>choose('hug'));
-   choiceButton('오늘 셋이 함께 묵을지 물어본다',()=>choose('stay'));
+   if(evening)choiceButton('오늘 셋이 함께 묵을지 물어본다',()=>choose('stay'));
    choiceButton('오늘은 여기서 헤어진다',()=>choose('end'));return;
   }
   choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;

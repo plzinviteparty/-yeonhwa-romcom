@@ -372,7 +372,7 @@ function tripScenes(o){
  if(departure===3)return [evening,lodging];
  return [{title:departure===2?'오후 · 도착':'낮 · 도착',description:a[1],opts:a[4]},evening,lodging];
 }
-function tripPeopleOK(ps,group){return ps.length>0&&ps.every(p=>group?closeFriend(p)&&friendAvailable(p):vIsDating(p)&&!hasBlockingCoupleIssue(p,true))}
+function tripPeopleOK(ps,group){if(group==="agreed")return ps.length===2&&ps[0]!==ps[1]&&bothConsented(...ps)&&ps.every(p=>vIsDating(p)&&!hasBlockingCoupleIssue(p,true));return ps.length>0&&ps.every(p=>group?closeFriend(p)&&friendAvailable(p):vIsDating(p)&&!hasBlockingCoupleIssue(p,true))}
 function tripDepartureSlots(ps,day,group,checkBooking=true,legacyMorning=false){
  if(!Number.isInteger(day)||day<2||day>=364||[299,300].some(d=>d===day||d===day+1)||!tripPeopleOK(ps,group))return [];
  const bookings=dateBook(),out=bookings[day],back=bookings[day+1];
@@ -391,21 +391,25 @@ function tripDepartureSlots(ps,day,group,checkBooking=true,legacyMorning=false){
   return true;
  });
 }
-function tripControls(p,root){
+function tripControls(p,root,agreed=false){
  const v=initSim();if(v.finished)return;
- const group=!vIsDating(p),wrap=document.createElement('details'),title=document.createElement('summary');
- title.textContent=group?'절친들과 1박 2일 여행':'연인과 1박 2일 여행';
+ const partners=agreed?agreedOutingPartners(p).filter(q=>v.day-coupleRecord(q).since>=20):[];
+ if(agreed&&(!partners.length||v.day-coupleRecord(p).since<20))return;
+ const group=agreed?"agreed":!vIsDating(p),wrap=document.createElement('details'),title=document.createElement('summary');
+ title.textContent=agreed?'다자연애 · 셋이 1박 2일 여행':group?'절친들과 1박 2일 여행':'연인과 1박 2일 여행';
  wrap.append(title);root.append(wrap);
- const unavailable=group?(closeFriend(p)&&friendAvailable(p)?'':'절친 관계가 되면 함께 여행할 수 있어요.'):
+ const unavailable=group===true?(closeFriend(p)&&friendAvailable(p)?'':'절친 관계가 되면 함께 여행할 수 있어요.'):
   v.day-coupleRecord(p).since<20?'교제 D+20부터 갈 수 있어요.':hasBlockingCoupleIssue(p,true)?'관계 탭에서 진행 중인 갈등을 먼저 풀어 주세요.':'';
  if(unavailable){bookingAvailabilityNote(wrap,unavailable);return}
  if(p==='임하나')bookingAvailabilityNote(wrap,'하나는 쉬는 일요일에 떠나 다음 날 오전에 돌아오는 여행을 잡을 수 있어요.');
  const checks=[];
- if(group)for(const q of people.filter(q=>q!==p&&closeFriend(q)&&friendAvailable(q))){
+ if(group===true)for(const q of people.filter(q=>q!==p&&closeFriend(q)&&friendAvailable(q))){
   const label=document.createElement('label'),c=document.createElement('input');
   c.type='checkbox';label.append(c,document.createTextNode(q+'도 초대하기'));wrap.append(label);checks.push([q,c]);
  }
- const chosen=()=>[p,...checks.filter(([,c])=>c.checked).map(([q])=>q)];
+ const guest=agreed?bookingSelect(wrap,"같이 여행할 연인"):null;
+ if(guest)for(const q of partners)bookingOption(guest,q,q);
+ const chosen=()=>guest?[p,guest.value]:[p,...checks.filter(([,c])=>c.checked).map(([q])=>q)];
  const sel=document.createElement('select'),time=document.createElement('select'),b=document.createElement('button');
  sel.setAttribute('aria-label','여행 날짜');time.setAttribute('aria-label','여행 출발 시간대');
  b.textContent='계절 여행 예약 (80,000원)';const status=bookingAvailabilityNote(wrap,'');
@@ -427,11 +431,12 @@ function tripControls(p,root){
   if(Array.from(sel.options).some(o=>o.value===previous))sel.value=previous;
   refreshTimes();
  };
+ if(guest)guest.onchange=refresh;
  for(const [,c] of checks)c.onchange=refresh;
  sel.onchange=refreshTimes;refresh();
  b.onclick=()=>{
   const day=Number(sel.value),slot=Number(time.value),qs=chosen();
-  if(v.finished||day<=v.day||!time.options.length||!tripDepartureSlots(qs,day,group).includes(slot)||v.money<80000)return;
+  if(v!==initSim()||!wrap.isConnected||v.finished||v.running||v.activeEvent||day<=v.day||!time.options.length||!tripDepartureSlots(qs,day,group).includes(slot)||v.money<80000)return;
   const id='trip:'+day+':'+qs.join('|'),season=tripSeason(day);
   const plan={p,slot,venue:tripTitle(day),trip:{id,people:qs,group,stage:1,season,flexTime:true}};
   dateBook()[day]=plan;dateBook()[day+1]={p,slot:0,venue:'여행 둘째 날',trip:{id,people:qs,group,stage:2,season}};
@@ -652,7 +657,7 @@ function renderTrip(ev){
   o.answer=labels.join(' / ');
   for(const q of o.people){
    const r=socialRecord(q);r.lastTogether=v.day;r.lastSeen=v.day;
-   if(o.group)r.friendship++;else if(vIsDating(q))feel(q,{security:2});
+   if(o.group===true)r.friendship++;else if(vIsDating(q))feel(q,{security:2});
    remember(q,'trip:'+o.id+':'+o.stage,o.answer);
   }
   if(o.stage===2&&trip)trip.status='complete';
@@ -664,11 +669,11 @@ function renderTrip(ev){
   const atLodge=soloLodge&&i===scenes.length-1;
   const decision=o.steps[i];
   const newArrival=atLodge&&(o.lodging||decision?.lodgingExit||(!decision&&!o.night?.kiss&&!o.answer));
-  const opening=newArrival?'숙소에 돌아와 가방을 내려놓았다.':sharedMorning&&!trip.loveNight?'빈 베개 옆에 손을 짚고 일어나니 창가에 선 '+p+'의 뒷모습이 보였다. 돌아보는 얼굴에 아직 잠이 조금 남아 있었다.':scene.description;
+  const opening=o.group==='agreed'&&o.stage===2?'세 사람이 짐을 한곳에 모아 놓고 창가에 앉았다. 돌아가기 전에 잠깐 더 같이 있고 싶었다.':newArrival?'숙소에 돌아와 가방을 내려놓았다.':sharedMorning&&!trip.loveNight?'빈 베개 옆에 손을 짚고 일어나니 창가에 선 '+p+'의 뒷모습이 보였다. 돌아보는 얼굴에 아직 잠이 조금 남아 있었다.':scene.description;
   add('이야기',scene.title+' — '+opening);
   const eveningArrival=o.stage===1&&o.departureSlot===3;
   for(const q of o.people){
-   const line=tripDialogue(q,index,o.stage,i+(eveningArrival?1:0),o.group);
+   const line=tripDialogue(q,index,o.stage,i+(eveningArrival?1:0),o.group===true);
    const day=ev.day??v.day;
    add(q,sharedMorning&&addressTurn(q,day)%3===0?spokenCall(q,'npc',day,line):line);
   }

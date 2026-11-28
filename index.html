@@ -502,7 +502,7 @@ function tripScenes(o){
  if(departure===3)return [evening,lodging];
  return [{title:departure===2?'오후 · 도착':'낮 · 도착',description:a[1],opts:a[4]},evening,lodging];
 }
-function tripPeopleOK(ps,group){return ps.length>0&&ps.every(p=>group?closeFriend(p)&&friendAvailable(p):vIsDating(p)&&!hasBlockingCoupleIssue(p,true))}
+function tripPeopleOK(ps,group){if(group==="agreed")return ps.length===2&&ps[0]!==ps[1]&&bothConsented(...ps)&&ps.every(p=>vIsDating(p)&&!hasBlockingCoupleIssue(p,true));return ps.length>0&&ps.every(p=>group?closeFriend(p)&&friendAvailable(p):vIsDating(p)&&!hasBlockingCoupleIssue(p,true))}
 function tripDepartureSlots(ps,day,group,checkBooking=true,legacyMorning=false){
  if(!Number.isInteger(day)||day<2||day>=364||[299,300].some(d=>d===day||d===day+1)||!tripPeopleOK(ps,group))return [];
  const bookings=dateBook(),out=bookings[day],back=bookings[day+1];
@@ -521,21 +521,25 @@ function tripDepartureSlots(ps,day,group,checkBooking=true,legacyMorning=false){
   return true;
  });
 }
-function tripControls(p,root){
+function tripControls(p,root,agreed=false){
  const v=initSim();if(v.finished)return;
- const group=!vIsDating(p),wrap=document.createElement('details'),title=document.createElement('summary');
- title.textContent=group?'절친들과 1박 2일 여행':'연인과 1박 2일 여행';
+ const partners=agreed?agreedOutingPartners(p).filter(q=>v.day-coupleRecord(q).since>=20):[];
+ if(agreed&&(!partners.length||v.day-coupleRecord(p).since<20))return;
+ const group=agreed?"agreed":!vIsDating(p),wrap=document.createElement('details'),title=document.createElement('summary');
+ title.textContent=agreed?'다자연애 · 셋이 1박 2일 여행':group?'절친들과 1박 2일 여행':'연인과 1박 2일 여행';
  wrap.append(title);root.append(wrap);
- const unavailable=group?(closeFriend(p)&&friendAvailable(p)?'':'절친 관계가 되면 함께 여행할 수 있어요.'):
+ const unavailable=group===true?(closeFriend(p)&&friendAvailable(p)?'':'절친 관계가 되면 함께 여행할 수 있어요.'):
   v.day-coupleRecord(p).since<20?'교제 D+20부터 갈 수 있어요.':hasBlockingCoupleIssue(p,true)?'관계 탭에서 진행 중인 갈등을 먼저 풀어 주세요.':'';
  if(unavailable){bookingAvailabilityNote(wrap,unavailable);return}
  if(p==='임하나')bookingAvailabilityNote(wrap,'하나는 쉬는 일요일에 떠나 다음 날 오전에 돌아오는 여행을 잡을 수 있어요.');
  const checks=[];
- if(group)for(const q of people.filter(q=>q!==p&&closeFriend(q)&&friendAvailable(q))){
+ if(group===true)for(const q of people.filter(q=>q!==p&&closeFriend(q)&&friendAvailable(q))){
   const label=document.createElement('label'),c=document.createElement('input');
   c.type='checkbox';label.append(c,document.createTextNode(q+'도 초대하기'));wrap.append(label);checks.push([q,c]);
  }
- const chosen=()=>[p,...checks.filter(([,c])=>c.checked).map(([q])=>q)];
+ const guest=agreed?bookingSelect(wrap,"같이 여행할 연인"):null;
+ if(guest)for(const q of partners)bookingOption(guest,q,q);
+ const chosen=()=>guest?[p,guest.value]:[p,...checks.filter(([,c])=>c.checked).map(([q])=>q)];
  const sel=document.createElement('select'),time=document.createElement('select'),b=document.createElement('button');
  sel.setAttribute('aria-label','여행 날짜');time.setAttribute('aria-label','여행 출발 시간대');
  b.textContent='계절 여행 예약 (80,000원)';const status=bookingAvailabilityNote(wrap,'');
@@ -557,11 +561,12 @@ function tripControls(p,root){
   if(Array.from(sel.options).some(o=>o.value===previous))sel.value=previous;
   refreshTimes();
  };
+ if(guest)guest.onchange=refresh;
  for(const [,c] of checks)c.onchange=refresh;
  sel.onchange=refreshTimes;refresh();
  b.onclick=()=>{
   const day=Number(sel.value),slot=Number(time.value),qs=chosen();
-  if(v.finished||day<=v.day||!time.options.length||!tripDepartureSlots(qs,day,group).includes(slot)||v.money<80000)return;
+  if(v!==initSim()||!wrap.isConnected||v.finished||v.running||v.activeEvent||day<=v.day||!time.options.length||!tripDepartureSlots(qs,day,group).includes(slot)||v.money<80000)return;
   const id='trip:'+day+':'+qs.join('|'),season=tripSeason(day);
   const plan={p,slot,venue:tripTitle(day),trip:{id,people:qs,group,stage:1,season,flexTime:true}};
   dateBook()[day]=plan;dateBook()[day+1]={p,slot:0,venue:'여행 둘째 날',trip:{id,people:qs,group,stage:2,season}};
@@ -782,7 +787,7 @@ function renderTrip(ev){
   o.answer=labels.join(' / ');
   for(const q of o.people){
    const r=socialRecord(q);r.lastTogether=v.day;r.lastSeen=v.day;
-   if(o.group)r.friendship++;else if(vIsDating(q))feel(q,{security:2});
+   if(o.group===true)r.friendship++;else if(vIsDating(q))feel(q,{security:2});
    remember(q,'trip:'+o.id+':'+o.stage,o.answer);
   }
   if(o.stage===2&&trip)trip.status='complete';
@@ -794,11 +799,11 @@ function renderTrip(ev){
   const atLodge=soloLodge&&i===scenes.length-1;
   const decision=o.steps[i];
   const newArrival=atLodge&&(o.lodging||decision?.lodgingExit||(!decision&&!o.night?.kiss&&!o.answer));
-  const opening=newArrival?'숙소에 돌아와 가방을 내려놓았다.':sharedMorning&&!trip.loveNight?'빈 베개 옆에 손을 짚고 일어나니 창가에 선 '+p+'의 뒷모습이 보였다. 돌아보는 얼굴에 아직 잠이 조금 남아 있었다.':scene.description;
+  const opening=o.group==='agreed'&&o.stage===2?'세 사람이 짐을 한곳에 모아 놓고 창가에 앉았다. 돌아가기 전에 잠깐 더 같이 있고 싶었다.':newArrival?'숙소에 돌아와 가방을 내려놓았다.':sharedMorning&&!trip.loveNight?'빈 베개 옆에 손을 짚고 일어나니 창가에 선 '+p+'의 뒷모습이 보였다. 돌아보는 얼굴에 아직 잠이 조금 남아 있었다.':scene.description;
   add('이야기',scene.title+' — '+opening);
   const eveningArrival=o.stage===1&&o.departureSlot===3;
   for(const q of o.people){
-   const line=tripDialogue(q,index,o.stage,i+(eveningArrival?1:0),o.group);
+   const line=tripDialogue(q,index,o.stage,i+(eveningArrival?1:0),o.group===true);
    const day=ev.day??v.day;
    add(q,sharedMorning&&addressTurn(q,day)%3===0?spokenCall(q,'npc',day,line):line);
   }
@@ -962,7 +967,7 @@ const npcArrival={"공재희":"분홍색 포인트가 들어간 검은 옷을 �
 '차유리':'창가 자리에 앉은 여자가 노트북으로 디자인 작업을 하고 있다. 화면을 확인하던 그와 눈이 마주친다.',
 '서이준':'구석 자리에 앉은 검은 머리 남자가 노트북 화면을 들여다보고 있다. 시선을 느꼈는지 고개를 들어 이쪽을 본다.',
 '유지안':'운동복 차림의 여자가 숨을 고르며 달리기를 멈춘다. 눈이 마주치자 가볍게 손을 흔든다.',
-'정태오':'짧은 머리의 남자가 운동을 마치고 물병을 챙긴다. 눈이 마주치자 고개를 살짝 숙인다.',
+'정태오':'짧은 머리의 남자가 걸음을 멈춘다. 눈이 마주치자 고개를 살짝 숙인다.',
 '백지한':'단정한 포마드 머리의 남자가 건물 도면을 정리하고 있다. 손님을 발견하고 자연스럽게 웃는다.',
 '임하나':'계산대 안쪽에서 검은 단발머리 여자가 물건을 정리하고 있다. 눈이 마주치자 조용히 인사한다.',
 '한시우':'붉은 곱슬머리 남자가 휴대전화를 내려놓는다. 이쪽을 보더니 장난스러운 표정을 짓는다.',
@@ -984,6 +989,7 @@ park:'공원 나무 아래 벤치가 놓여 있다.'
 };
 
 const familiarEncounters={
+ park:{'정태오':['순찰 중에 공원에 들른 태오가 산책로 입구에서 나를 알아보고 고개를 숙였다.','공원을 한 바퀴 돌던 태오가 벤치 앞에서 걸음을 멈췄다. 제복 소매에 낙엽 하나가 붙어 있었다.']},
  realty:{'백지한':['부동산 안쪽에서 지한이 맞은편 의자에 놓인 도면을 자기 책상으로 옮겼다. 내가 앉을 만큼 자리가 났다.','유리문 너머로 지한과 눈이 마주쳤다. 펜을 내려놓는 것과 내가 문을 여는 게 거의 동시였다.','지한은 유리창에 새로 붙인 도면을 반듯하게 펴고 있었다. 유리 너머로 알아보고 손을 흔들었다.']},
  cafe:{'강도윤':['도윤이 빈 잔을 선반에 돌려놓고 나를 반겼다. 고개를 숙여 인사하는 동안 보조개가 패였다.','도윤이 카운터 한쪽을 내 쪽으로 비워 줬다. 주문표를 쓰던 펜이 멈췄다.','도윤이 닦아 놓은 잔을 내려놓았다. 잠깐 한가해진 카운터에 마주 섰다.']}
 };
@@ -1002,7 +1008,7 @@ function arrivalText(place,person){const w=weatherFor(initSim().day).name,outdoo
  const v=initSim();
  const action=familiarEncounterLine(place,person,v.day,v.slot||0);
  return familiarEncounters[place]?.[person]?action:base+'\n\n'+action;
-}return base+(person?'\n\n'+(outdoor?(person==='강도윤'?'모카와 산책하던 강도윤이 이쪽을 바라본다.':person+'의 모습이 산책로 너머로 보인다.'):(special[place]?.[person]||npcArrival[person])):'\n\n지금은 특별히 말을 걸 만한 사람이 보이지 않는다.')}
+}return base+(person?'\n\n'+(outdoor?(place==='park'&&person==='정태오'?'제복 차림의 경찰관이 순찰 중에 공원에 들렀다. 산책로 입구를 살피던 그와 눈이 마주쳤다.':person==='강도윤'?'모카와 산책하던 강도윤이 이쪽을 바라본다.':person+'의 모습이 산책로 너머로 보인다.'):(special[place]?.[person]||npcArrival[person])):'\n\n지금은 특별히 말을 걸 만한 사람이 보이지 않는다.')}
 function encounterGreeting(p,place){const tier=relationshipTier(p),n=addressPlayer(p);if(tier===0)return '“'+personalSocialVoice[p][11]+'”';const lines={'공재희':'“'+n+', 왔어요?ㅋㅋ”','서이준':'“'+n+', 또 마주치네요.”','강도윤':place==='river'?'“'+n+'! 산책 나오셨어요?”':'“'+n+', 반가워요!”','한시우':tier>=2?'“'+n+'! 또 만났네.”':'“'+n+', 또 만났네요?”','정태오':'“'+n+', 안녕하십니까.”','백지한':'“'+n+', 오랜만이네요.”','임하나':'“'+n+'... 안녕하세요.”','차유리':'“오, '+n+'! 오늘은 어디 가는 길이에요?”','오세린':'“'+n+', 잘 지내셨어요?”','유지안':'“'+n+', 또 만났네요!”'};return lines[p]}
 
 
@@ -1010,7 +1016,7 @@ const voiceProfiles={"공재희":{"greet":["안녕하세요.","어 왔어요?","
 '서이준':{greet:['“안녕하세요. ...오늘도 나가세요?”','“왔어요? 고양이 밥 주고 들어가는 길이에요.”','“늦었네요. 기다린 건 아니고요.”'],order:['“여긴 커피 괜찮더라고요. 전 늘 같은 걸 마십니다.”'],care:['“괜찮아요? ...무리하지 마세요.”','“힘들면 말해요. 도울 수 있는 건 도울 테니까.”'],love:['“그런 말 아무한테나 하지 마세요.”','“...나한테는 해도 됩니다.”'],default:['“그렇군요. 무슨 일 있었어요?”','“그 얘기, 조금 더 해봐요.”','“...듣고 있어요.”']},
 '강도윤':{greet:['“어서 오세요! 오늘도 커피 한 잔?”','“오, 왔어요? 좋아하는 자리 비워 뒀는데.”','“이제 오나 했네. 보고 싶었거든.”'],order:['“따뜻한 아메리카노요? 좋아요. 오늘은 고소한 원두로 내려 드릴게요.”','“취향 기억해 뒀죠. 오늘도 같은 걸로?”','“내가 좋아하는 원두로 한 잔 내려 줘도 돼요?”'],care:['“무슨 일 있어요? 얘기해 봐요. 들어 줄게.”','“오늘 힘들었어요? 잠깐 여기 앉아 있어요.”'],love:['“그렇게 말하면 나 기대해도 되는 거예요?”','“나 지금 꽤 진지한데. 눈치챘어요?”'],default:['“아, 진짜요? 그다음엔요?”','“그거 재밌는데요? 좀 더 얘기해 줘요.”','“음, 그건 생각 못 했네. 어떻게 됐어요?”']},
 '한시우':{greet:['“오, 또 만났네? 우리 운명인가?”','“왔네? 오늘은 나랑 놀아 줄 거야?”','“나 기다렸지? 아니라고 하면 좀 서운한데.”'],order:['“커피? 나도 한 잔 얻어먹으면 안 돼?”'],care:['“왜 그렇게 기운이 없어? 누가 괴롭혔어?”','“야, 무리하지 마. 진짜로.”'],love:['“그거 고백이야? 나 설레도 돼?”','“평소엔 장난인데 지금은 진심이야.”'],default:['“어라, 그건 좀 의외인데?”','“그래서? 나 궁금해졌어.”','“아, 웃겨. 너 진짜 재밌다.”']},
-'정태오':{greet:['“안녕하십니까.”','“...오셨습니까. 운동하러요?”','“기다리고 있었습니다. ...우연히요.”'],order:['“물은 챙기셨습니까?”'],care:['“안색이 좋지 않습니다. 쉬십시오.”','“혼자 무리하지 마십시오. 제가 도와드리겠습니다.”'],love:['“그런 말씀을 하시면... 곤란합니다.”','“저도 같은 마음입니다.”'],default:['“그렇습니까.”','“말씀하십시오. 듣고 있습니다.”','“...그건 제가 도와드릴 수 있습니다.”']},
+'정태오':{greet:['“안녕하십니까.”','“...오셨습니까. 오늘은 좀 어떠십니까?”','“기다리고 있었습니다. ...우연히요.”'],order:['“물은 챙기셨습니까?”'],care:['“안색이 좋지 않습니다. 쉬십시오.”','“혼자 무리하지 마십시오. 제가 도와드리겠습니다.”'],love:['“그런 말씀을 하시면... 곤란합니다.”','“저도 같은 마음입니다.”'],default:['“그렇습니까.”','“말씀하십시오. 듣고 있습니다.”','“...그건 제가 도와드릴 수 있습니다.”']},
 '백지한':{greet:['“어, 우리 202호 고객님. 오늘도 반갑네요?”','“이제 고객님이라고 부르면 섭섭하려나?”','“보고 싶어서 왔다고 하면 믿을래요?”'],order:['“커피는 제가 살게요. 대신 얘기 좀 해요.”'],care:['“누가 우리 이웃님 속상하게 했어요?”','“웃어넘길 일이 아니면 말해요. 들어 줄게.”'],love:['“이거 참, 사람 헷갈리게 하시네.”','“나 원래 이런 말 잘하는데, 오늘은 좀 어렵네.”'],default:['“아, 그런 일이? 흥미로운데요.”','“그 얘기 좀 더 해봐요. 궁금해서.”','“내가 괜히 말 붙이는 것 같아요?”']},
 '임하나':{greet:['“아, 안녕하세요.”','“오늘도 오셨네요. 반가워요.”','“기다렸... 아니, 그냥 반가워서요.”'],order:['“찾으시는 거 있으세요? 제가 알려 드릴게요.”'],care:['“많이 힘드셨어요? ...저라도 들어 드릴게요.”','“무리하지 마세요. 저도 그게 쉽진 않지만요.”'],love:['“네? 저한테요? ...정말요?”','“저도 같이 있고 싶어요.”'],default:['“아, 그렇군요.”','“그랬어요? 좀 더 얘기해 주실래요?”','“저도 비슷한 적 있어요.”']},
 '차유리':{greet:['“오, 안녕! 오늘은 무슨 일이야?”','“야, 잘 왔다. 잠깐 같이 앉자.”','“드디어 왔네! 얘기할 거 쌓였어.”'],order:['“커피? 나도 마감 끝나면 같이 마실래.”'],care:['“표정 왜 그래? 무슨 일 났어?”','“야, 그건 그냥 넘길 일이 아닌데.”'],love:['“뭐야, 갑자기 설레게?”','“나 지금 좀 진심이거든.”'],default:['“헐, 진짜?”','“잠깐, 그다음은?”','“와, 그거 완전 네 얘기네.”']},
@@ -1038,7 +1044,7 @@ v.talkCount[p]=count+1;v.lastTopics[p]=intent;return response}
 
 function writeJournal(text){const v=initSim();v.journal.unshift({day:v.day,text});v.journal=v.journal.slice(0,120);save()}
 function legacyShowEvent(place,description,person){const v=initSim();v.activeEvent={place,person:person||null,day:v.day};const loc=locations.find(x=>x.id===place);const title=ev.jobEvent?ev.jobEvent[1]:loc?loc.name:'연화동';$('where').textContent=title;$('clock').textContent='DAY '+v.day+' · '+['오전','낮','오후','저녁'][v.slot||0];$('progress').textContent=person?'만남 · '+person:'생활 이벤트';$('log').innerHTML='';$('suggest').innerHTML='';add('이야기',description);if(person){const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent=person+'에게 인사하기';btn.addEventListener('click',()=>{const key='greet:'+v.day+':'+person;if(!v.topicRewards[key]){v.topicRewards[key]=true;v.affection[person]=Math.min(999,(v.affection[person]||0)+2);add(person,talkResponse(person,'안녕하세요'));add('시스템',person+' 호감도 +2')}else add(person,'“또 뵙네요.”');renderSim()});$('suggest').append(btn)}$('next').classList.add('hide');switchTab('story');writeJournal(title+' · '+description)}
-const npcProfiles=Object.freeze({'서이준':{height:181,mbti:'INTJ',age:29,gender:'남',job:'IT 보안 엔지니어',past:'전 게임 개발자',traits:'과묵하고 까칠함, 길고양이를 챙김',smoking:'연초'},'강도윤':{height:187,mbti:'ESFJ',age:32,gender:'남',job:'카페 운영',traits:'친화적',pet:'골든 리트리버 모카'},'한시우':{height:178,mbti:'ENTP',age:26,gender:'남',job:'스타썬더 프로게이머 · 대학 졸업반',education:'군 복무 및 휴학 후 복학',traits:'장난기 많음',injury:'왼쪽 손목'},'정태오':{height:185,mbti:'ISFP',age:34,gender:'남',job:'경찰관',past:'전 강력계 형사',traits:'과묵함, 수영'},'백지한':{height:183,mbti:'ESTP',age:29,gender:'남',job:'공인중개사',past:'건축 분야',traits:'능청스럽고 연애에 능숙함',hobbies:['와인','LP 수집'],smoking:'연초'},'임하나':{height:160,mbti:'ISFJ',age:25,gender:'여',job:'편의점 야간 근무 및 과외',traits:'소심하고 책임감 강함'},'차유리':{height:168,mbti:'ISTP',age:30,gender:'여',job:'프리랜서 디자이너',traits:'외향적'},'오세린':{height:156,mbti:'INFJ',age:33,gender:'여',job:'수의사',traits:'다정하고 단호함'},'공재희':{height:154,mbti:'INFP',age:22,gender:'여',job:'대학생 · 인터넷 방송인',education:'미디어 전공',traits:'인형뽑기와 FPS 게임',smoking:'연초'},'유지안':{height:173,mbti:'ENFP',age:28,gender:'여',job:'스트릿댄스 강사',past:'전 아이돌 연습생',traits:'활발함',smoking:'전자담배'}});
+const npcProfiles=Object.freeze({'서이준':{height:181,mbti:'INTJ',age:29,gender:'남',job:'IT 보안 엔지니어',past:'전 게임 개발자',traits:'과묵하고 까칠함, 길고양이를 챙김',smoking:'연초'},'강도윤':{height:187,mbti:'ESFJ',age:32,gender:'남',job:'카페 운영',traits:'친화적',pet:'골든 리트리버 모카'},'한시우':{height:178,mbti:'ENTP',age:26,gender:'남',job:'스타썬더 프로게이머 · 대학 졸업반',education:'군 복무 및 휴학 후 복학',traits:'장난기 많음',injury:'왼쪽 손목'},'정태오':{height:185,mbti:'ISFP',age:34,gender:'남',job:'경찰관',past:'전 강력계 형사',traits:'과묵함, 책임감'},'백지한':{height:183,mbti:'ESTP',age:29,gender:'남',job:'공인중개사',past:'건축 분야',traits:'능청스럽고 연애에 능숙함',hobbies:['와인','LP 수집'],smoking:'연초'},'임하나':{height:160,mbti:'ISFJ',age:25,gender:'여',job:'편의점 야간 근무 및 과외',traits:'소심하고 책임감 강함'},'차유리':{height:168,mbti:'ISTP',age:30,gender:'여',job:'프리랜서 디자이너',traits:'외향적'},'오세린':{height:156,mbti:'INFJ',age:33,gender:'여',job:'수의사',traits:'다정하고 단호함'},'공재희':{height:154,mbti:'INFP',age:22,gender:'여',job:'대학생 · 인터넷 방송인',education:'미디어 전공',traits:'인형뽑기와 FPS 게임',smoking:'연초'},'유지안':{height:173,mbti:'ENFP',age:28,gender:'여',job:'스트릿댄스 강사',past:'전 아이돌 연습생',traits:'활발함',smoking:'전자담배'}});
 function openNpcProfile(p){const x=npcProfiles[p];if(!x||document.getElementById('npcProfileDialog'))return;const d=document.createElement('dialog');d.id='npcProfileDialog';d.style.cssText='width:min(84vw,380px);box-sizing:border-box;border:1px solid #d7ded7;border-radius:18px;padding:24px;background:#faf9f5;color:#30463b';const h=document.createElement('h2');h.textContent=p;d.append(h);for(const [label,value] of [['나이',x.age+'세'],['키',x.height+' cm'],['직업',x.job],['MBTI',x.mbti],['생일',birthdayLabel(npcBirthdays[p])]]){const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #d7ded7';const a=document.createElement('span'),b=document.createElement('b');a.textContent=label;b.textContent=value;row.append(a,b);d.append(row)}const close=document.createElement('button');close.textContent='닫기';close.style.cssText='width:100%;margin-top:20px';close.onclick=()=>d.close();d.addEventListener('close',()=>d.remove());d.append(close);document.body.append(d);d.showModal()}
 const npcBirthdays={"공재희":"02-14","서이준":"01-12","강도윤":"03-22","한시우":"08-01","백지한":"10-10","정태오":"12-21","임하나":"06-10","차유리":"02-27","오세린":"04-04","유지안":"07-17"},birthdayLines={"공재희":["생일 축하해요!!","나 날짜 기억했거든요ㅋㅋ","인형 키링"],"서이준":["생일 축하해요. 오늘까지 일 생각만 하진 말고요.","기억하고 있었어요. …뭘 그렇게 놀라요?","보온 텀블러"],"강도윤":["생일 축하해요! 오늘은 맛있는 거 꼭 챙겨 먹어요.","오늘만큼은 제가 챙겨 드리고 싶네요.","수제 생일 케이크"],"한시우":["생일 축하해요! 오늘의 주인공 등장!","오늘은 게임에서 져도 봐 드릴게요. 아마도요.","오락실 캐릭터 키링"],"백지한":["생일 축하해요. 오늘 축하받을 사람이 많겠는데요?","그중에 제 축하도 조금 특별하게 기억해 주시면 좋겠네요.","향수"],"정태오":["생일 축하합니다. 오늘 하루 편안하게 보내십시오.","필요한 일이 있으면 연락 주십시오.","손목 보호대"],"임하나":["생일 축하해요. 달력에 적어 뒀어요.","...... 오늘 좋은 일이 많이 생겼으면 좋겠어요.","손편지와 쿠키"],"차유리":["생일 축하해요! 오늘은 하고 싶은 거 실컷 해 봐요.","기념으로 사진도 남겨 두면 좋겠네요.","직접 디자인한 엽서"],"오세린":["생일 축하해요. 오늘은 자신에게도 다정한 하루를 보내요.","태어나서 이렇게 만나게 된 것도 참 좋은 일이네요.","허브차 선물 세트"],"유지안":["생일 축하해요! 오늘 하루는 완전히 주인공 모드예요.","좋아하는 음악 틀고 신나게 보내요!","플레이리스트와 이어폰 파우치"]};
 function birthdayKey(day){return new Date(Date.UTC(2021,2,day)).toISOString().slice(5,10)}
@@ -1113,7 +1119,7 @@ function renderNpcLifeSupport(ev){const v=initSim(),p=ev.person,o=ev.npcLifeSupp
 function npcLifeHint(p){const v=initSim(),i=npcLifeActive(p,v.day),a=npcLifeEvents[p]?.[i];if(!a)return '';return npcLifeRecord().notices[npcLifeKey(p,i)+':start']?'현재 일정 · '+a[2]+' ('+calendarDate(npcLifeSupportDay(a)).label+' 무렵까지)':'요즘 평소와 일정이 조금 다르다.'}
 
 function npcPlace(p,d,s,day){if(day!==undefined&&npcLifeBusy(p,day,s))return null;return npcBasePlace(p,d,s)}
-function npcBasePlace(p,d,s){const weekend=d>=5;switch(p){case '서이준':return s===0?'home':s===3?(d===2?'store':weekend?'park':'home'):null;case '강도윤':return d===0?(s===3?'river':null):s===3?'river':'cafe';case '백지한':return s===3?(['cafe','park','store','cafe','park','cafe','park'][d]):d===5&&s===2?'cafe':d!==6&&s<3?'realty':null;case '정태오':return d===5&&s===2?'cafe':s===3?([1,2,5].includes(d)?'pool':[0,4].includes(d)?'park':d===6?'store':null):![2,5].includes(d)&&s<3?'police':null;case '임하나':return s===3?'store':s===2&&[1,4,6].includes(d)?'park':null;case '차유리':return s===3?([0,3,5].includes(d)?'cafe':[2,6].includes(d)?'park':null):s===2&&[1,3,5].includes(d)?'clinic':s===1||s===2?'cafe':null;case '오세린':return s===3?([0,2,5].includes(d)?'pool':[1,4].includes(d)?'cafe':'park'):d===6&&s===2?'pool':d!==6&&s<3?'clinic':null;case '유지안':return s===0?'river':d===1&&s===3?'store':d!==0&&s>=2?'dance':s===1&&d===0?'park':null;case '공재희':return s===0?null:s===1?([2,5,6].includes(d)?'cafe':null):s===2?['arcade','cafe','cafe','arcade','store','arcade','cafe'][d]:['store','pc','store','pc','store','arcade','park'][d];case '한시우':return s===3?['pc','arcade','store'][d%3]:weekend&&s===2?'pc':null;default:return null}}
+function npcBasePlace(p,d,s){const weekend=d>=5;switch(p){case '서이준':return s===0?'home':s===3?(d===2?'store':weekend?'park':'home'):null;case '강도윤':return d===0?(s===3?'river':null):s===3?'river':'cafe';case '백지한':return s===3?(['cafe','park','store','cafe','park','cafe','park'][d]):d===5&&s===2?'cafe':d!==6&&s<3?'realty':null;case '정태오':return d===5&&s===2?'cafe':s===3?([2,5].includes(d)?'pool':[0,1,4].includes(d)?'park':d===6?'store':null):![2,5].includes(d)&&s<3?'police':null;case '임하나':return s===3?'store':s===2&&[1,4,6].includes(d)?'park':null;case '차유리':return s===3?([0,3,5].includes(d)?'cafe':[2,6].includes(d)?'park':null):s===2&&[1,3,5].includes(d)?'clinic':s===1||s===2?'cafe':null;case '오세린':return s===3?([0,2,5].includes(d)?'pool':[1,4].includes(d)?'cafe':'park'):d===6&&s===2?'pool':d!==6&&s<3?'clinic':null;case '유지안':return s===0?'river':d===1&&s===3?'store':d!==0&&s>=2?'dance':s===1&&d===0?'park':null;case '공재희':return s===0?null:s===1?([2,5,6].includes(d)?'cafe':null):s===2?['arcade','cafe','cafe','arcade','store','arcade','cafe'][d]:['store','pc','store','pc','store','arcade','park'][d];case '한시우':return s===3?['pc','arcade','store'][d%3]:weekend&&s===2?'pc':null;default:return null}}
 function availablePeople(place,time){const v=initSim(),d=(v.day-1)%7,s=v.running?v.slot:({morning:0,noon:1,afternoon:2,evening:3}[time]??2);return people.filter(p=>(p!=='공재희'||v.jaeheeIntro)&&npcPlace(p,d,s,v.day)===place)}
 function meetAt(place,time){const loc=locations.find(x=>x.id===place);if(!loc)return null;const possible=availablePeople(place,time).filter(p=>people.includes(p));if(!possible.length)return null;const v=initSim();v.meetMiss=v.meetMiss||{};const pending=possible.filter(p=>socialRecord(p).reunionPending).sort((a,b)=>socialRecord(a).reunionPending.day-socialRecord(b).reunionPending.day);if(pending.length){v.met[pending[0]]=true;return pending[0]}const neglected=possible.filter(p=>v.met[p]&&!socialRecord(p).contact&&v.day-(socialRecord(p).lastSeen||(p==='공재희'?v.jaeheeIntro?.day:0)||1)>=14).sort((a,b)=>(socialRecord(a).lastSeen||0)-(socialRecord(b).lastSeen||0));if(neglected.length){v.meetMiss[place]=0;return neglected[0]}const chance=Math.min(.9,.6+(v.meetMiss[place]||0)*.15);if(Math.random()>chance){v.meetMiss[place]=(v.meetMiss[place]||0)+1;return null}v.meetMiss[place]=0;const ready=possible.filter(p=>contactReady(p)||pickPersonalStory(p,place,null,null));const pool=ready.length&&Math.random()<.72?ready:possible;const p=pool[Math.floor(Math.random()*pool.length)];v.met[p]=true;return p}
 function legacyVisitPlace(place){if(!state)return;const v=initSim();if(v.freeVisitDay===v.day){alert('오늘의 자유 방문은 이미 사용했어요. 다음 날 다시 방문해 주세요.');return}v.freeVisitDay=v.day;const time=['morning','noon','afternoon','evening'][v.slot||0];const loc=locations.find(x=>x.id===place);const person=meetAt(place,time);const desc=arrivalText(place,person);showEvent(place,desc,person);renderSim()}
@@ -3768,7 +3774,7 @@ store:{'임하나':[['야간 근무는 힘들지 않아요?','“조용할 때�
 dance:{'유지안':[['초보자도 수업을 들을 수 있나요?','“당연하죠! 처음부터 잘하는 사람이 어디 있어요.”',3],['오늘 수업은 어땠어요?','“다들 열심히 따라와 줘서 좋았어요.”',2]]},
 clinic:{'오세린':[['오늘 진료는 잘 끝났어요?','“아직 조금 남았어요. 다들 건강해졌으면 좋겠네요.”',2]],'차유리':[['병원 포스터 작업 중이에요?','“네, 병원 포스터 작업을 부탁받았어요.”',2]]},
 realty:{'백지한':[['동네에 괜찮은 가게가 있나요?','“있죠. 취향 말씀해 주시면 골라 드릴게요.”',2],['집 볼 때 가장 중요한 게 뭐예요?','“겉보다 구조죠. 고치기 어려운 것부터 봐야 해요.”',3]]},
-park:{'서이준':[['고양이가 잘 따르네요.','“밥 주는 사람은 기가 막히게 알아봐요. 얄밉게.”',3]],'임하나':[['여기서 쉬고 계셨어요?','“네. 잠깐 아무 생각 안 하려고요.”',2]]},
+park:{'정태오':[['순찰 돌다가 들르셨어요?','“예. 이 시간엔 산책 나온 분들이 많아서 한 바퀴 보고 갑니다.”',2],['순찰 중이시니 인사만 할게요.','“먼저 인사해 주셔서 감사합니다. 조심히 들어가십시오.”',1]],'서이준':[['고양이가 잘 따르네요.','“밥 주는 사람은 기가 막히게 알아봐요. 얄밉게.”',3]],'임하나':[['여기서 쉬고 계셨어요?','“네. 잠깐 아무 생각 안 하려고요.”',2]]},
 arcade:{'한시우':[['이 게임 같이 해 볼래요?','“좋아요. 봐주기 없기예요?”',3]]},
 pc:{'한시우':[['요즘 무슨 게임 즐겨요?','“요즘은 리듬 게임이요. 가볍게 즐기기 좋더라고요.”',2],['오늘은 승패 신경 쓰지 말고 놀아요.','“오, 그거 좋은데요.”',3]]}};
 const dailyTopics={"공재희":[["오늘 수업은 어땠어요?","“출석했으면 됐죠. F만 아니면 돼요ㅋㅋ”"],["요즘 무슨 게임 해요?","“FPS요. 저 에임 진짜 괜찮은데.”"],["인형 많이 모아요?","“뽑는 게 재밌는 거지. 집에 둘 데도 없어요.”"],["방송은 언제 해요?","“보통 밤에요. 낮엔 자야 돼서.”"]],
@@ -6185,7 +6191,7 @@ function nextMeetReply(p,day,salt=0){
 const developmentProjects={"글쓰기":{"skill":"창의성","stages":[[12,30,"첫 원고 완성","짧은 이야기를 끝까지 썼다. 결말까지 도달한 원고를 다시 읽어 보니 처음의 문장과는 다른 자신이 보였다."],[28,60,"작품 공개","퇴고한 원고를 독자에게 공개했다. 이제 이야기는 혼자만의 것이 아니다."],[55,100,"두 번째 작품 완성","새로운 작품까지 완성했다. 꾸준히 쓰는 일이 자신의 생활에 자리 잡았다."]]},"개발":{"skill":"기술력","stages":[[12,30,"작동하는 프로토타입","오랫동안 수정하던 프로그램이 마침내 원하는 대로 작동했다."],[28,65,"개인 프로젝트 공개","테스트와 오류 수정을 거쳐 자신이 만든 프로그램을 공개했다."],[55,105,"프로젝트 개선판","사용자 의견을 반영해 기능을 개선했다. 처음보다 더 많은 것을 스스로 해결할 수 있다."]]},"디자인":{"skill":"창의성","stages":[[12,30,"첫 디자인 시리즈","한 가지 콘셉트로 작업물을 모았다. 자신이 좋아하는 색과 형태가 조금씩 분명해졌다."],[28,60,"포트폴리오 완성","작업물의 의도와 과정을 정리해 하나의 포트폴리오를 완성했다."],[55,100,"독립 디자인 프로젝트","자신의 취향과 목적이 담긴 새로운 시리즈를 공개했다."]]},"카페 실습":{"skill":"생활력","stages":[[12,30,"나만의 레시피","반복해 연습하던 음료의 맛을 일정하게 맞출 수 있게 되었다."],[28,65,"시그니처 메뉴 개발","직접 선택한 재료와 비율로 자신만의 음료를 완성했다."],[55,105,"카페 운영 계획","메뉴와 원가, 운영 방식을 정리해 작은 가게의 운영 계획서를 만들었다."]]},"공부":{"skill":"지성","stages":[[12,40,"학습 노트 완성","배운 것을 자신의 말로 정리한 노트가 한 권 분량이 되었다."],[28,85,"심화 학습 과정 완주","처음에는 어려웠던 문제를 스스로 설명할 수 있게 되었다."],[55,145,"나만의 학습 체계","오랫동안 쌓아 온 공부 방법과 자료를 정리했다."]]},"운동":{"skill":"운동능력","stages":[[15,30,"운동 습관 만들기","몸을 움직이는 시간이 일상의 일부가 되었다."],[35,75,"나만의 운동 기록","예전보다 오래 움직일 수 있게 되었다. 자신의 속도로 기록을 쌓았다."],[65,130,"꾸준한 훈련","기록보다 컨디션을 살피며 운동을 이어 가는 방법을 익혔다."]]},"게임":{"skill":"게임숙련도","stages":[[12,30,"나만의 공략 노트","반복 플레이하며 스스로 전략을 정리했다."],[28,70,"새로운 도전 과제","오랫동안 도전하던 게임의 목표를 달성했다."],[55,120,"게임 연구 기록","다양한 전략과 플레이 방식을 비교해 자신만의 공략 기록을 완성했다."]]},"교류":{"skill":"사교성","stages":[[12,30,"동네의 익숙한 얼굴","연화동에서 인사를 나누는 사람들이 늘어났다."],[28,65,"작은 교류 모임","함께 이야기하고 서로의 관심사를 나누는 자리를 만들었다."],[55,110,"나의 생활 공동체","연애 여부와 무관하게 일상을 함께 나눌 수 있는 관계를 쌓았다."]]}};
 const careerEndingText={"employee":["나의 자리를 만들다","꾸준히 일하면서 자신의 업무를 익혔다. 안정적인 수입과 경험은 다음 해의 선택지를 넓혀 준다."],"employeeStart":["새로운 출근길","새로운 직장 생활을 시작했다. 아직 익숙하지 않은 일도 있지만 자신만의 자리를 만들어 가고 있다."],"freelance":["내 이름으로 일하다","외주 경험과 작업물을 쌓아 자신의 이름으로 일하는 기반을 마련했다."],"freelanceStart":["독립의 첫걸음","독립적으로 일하는 삶을 선택했다. 다음 해에는 수입과 작업의 균형을 더 다듬어야 한다."],"student":["배움이 쌓이는 계절","수업과 자기계발을 꾸준히 이어 갔다. 다음 학년을 준비하며 관심 분야를 조금 더 구체화했다."],"studentExplore":["아직 펼치지 않은 노트","아직 진로를 결정하지 않았지만 배움과 경험을 통해 자신에게 맞는 길을 탐색하고 있다."],"search":["다음 문을 두드리다","자기계발을 통해 다음 직업을 준비했다. 아직 취업이 확정된 것은 아니지만 보여 줄 작업물이 생겼다."],"explore":["길을 찾는 중","정해진 직업 없이 여러 가능성을 살펴보았다. 한 해의 경험은 다음 선택의 출발점이 된다."],"hobby":["나만의 세계","직업의 이름과 관계없이 자신이 좋아하는 일을 꾸준히 이어 가며 결과물을 만들었다."],"transition":["새로운 방향","익숙한 일에서 벗어나 다른 진로를 선택했다. 변화의 과정 자체가 한 해의 중요한 경험이었다."]};
 function developmentRecord(){const v=initSim();return v.development||(v.development={counts:{},completed:{},days:{},workDays:{},restDays:{},fatigueDays:{},history:[]})}
-function trackDevelopment(a,result,before){const v=initSim(),d=developmentRecord();if(!result||/부족|하지 못|대신 쉬/.test(result.note||''))return;const k=a===programmingClass?'개발':['수영','러닝','산책'].includes(a)?'운동':a==='PC방에서 게임하기'?'게임':a==='대학 수업'?'공부':a;if(developmentProjects[k]){const key=v.day+':'+v.slot+':'+a;if(d.days[key])return;d.days[key]=true;d.counts[k]=(d.counts[k]||0)+1}if(['출근','대학 수업','외주 작업','아르바이트'].includes(a)||partJobs[a]){const key=v.day+':'+a;d.workDays[key]=true}if(a==='휴식')d.restDays[v.day]=true;}
+function trackDevelopment(a,result,before){const v=initSim(),d=developmentRecord();if(!result||/부족|하지 못|대신 쉬/.test(result.note||''))return;const k=a===programmingClass?'개발':['수영','러닝','산책'].includes(a)?'운동':a==='디자인 워크숍'?'디자인':['PC방에서 게임하기','아마추어 게임 대회'].includes(a)?'게임':a==='대학 수업'?'공부':a;if(developmentProjects[k]){const key=v.day+':'+v.slot+':'+a;if(d.days[key])return;d.days[key]=true;d.counts[k]=(d.counts[k]||0)+1}if(['출근','대학 수업','외주 작업','아르바이트'].includes(a)||partJobs[a]){const key=v.day+':'+a;d.workDays[key]=true}if(a==='휴식')d.restDays[v.day]=true;}
 function developmentProgress(k){const v=initSim(),d=developmentRecord(),p=developmentProjects[k],legacy=k==='카페 실습'?v.experience.카페:v.experience[k];return Math.max(d.counts[k]||0,Number.isFinite(legacy)?legacy:0)}
 function nextDevelopmentMilestone(){const v=initSim(),d=developmentRecord();for(const [k,p] of Object.entries(developmentProjects)){const n=d.completed[k]||0,a=p.stages[n];if(a&&developmentProgress(k)>=a[0]&&(v.skills[p.skill]||0)>=a[1])return {k,n};}return null}
 function developmentGate(){const v=initSim(),m=nextDevelopmentMilestone();if(!m||v.day>=365)return false;v.activeEvent={place:'home',day:v.day,description:'꾸준히 해 온 일이 작은 결실을 맺었다.',developmentEvent:m};save();renderChoiceEvent();return true}
@@ -6196,20 +6202,32 @@ function careerEndingCode(a){switch(a.job){case '회사원':return a.work>=90?'e
 function annualCareerEnding(){const a=careerSummary(),code=careerEndingCode(a),t=careerEndingText[code],v=initSim(),d=developmentRecord();return {code,title:t[0],line:t[1],summary:a,results:d.history.map(x=>x.title),balance:a.fatigue>=20?'몸과 마음을 쉬게 하는 시간도 다음 해에는 더 필요하다.':a.rest>=60?'일과 휴식 사이에서 자신만의 리듬을 찾아 갔다.':'다음 해에도 자신에게 맞는 생활 리듬을 찾아갈 것이다.'}}
 function captureCareerEnding(ev){const e=ev.careerEnding||annualCareerEnding(),lines=[['이야기',e.title],['이야기',e.line],['이야기',e.balance],['기록','직업 '+e.summary.job+' / 완성한 자기계발 목표 '+e.summary.projects+'개 / 소지금 '+e.summary.money+'원'],...e.results.map(x=>['성취',x])];albumUnlock('ending','career:'+e.code,'',e.title,lines,ev.day||initSim().day)}
 
-const professionRoutes={"작가":["글쓰기",28,"창의성",60,"퇴고한 원고를 출판사에 제안했다.","첫 출판 계약을 맺고 작품을 출간했다."],"게임 개발자":["개발",28,"기술력",65,"개인 게임을 완성하고 테스트했다.","자신의 게임을 출시했다."],"프로게이머":["게임",55,"게임숙련도",120,"대회 준비와 경기 분석을 이어 갔다.","선발 테스트를 거쳐 팀에 합류했다."],"바리스타":["카페 실습",28,"생활력",65,"실습과 현장 경험을 쌓았다.","자신의 이름으로 커피를 내리는 바리스타가 되었다."],"제과제빵사":["제과제빵 실습",35,"생활력",70,"반죽과 굽기 실습을 이어 갔다.","관련 교육과 현장 경험을 거쳐 제과제빵 분야에서 일하게 되었다."],"물리치료사":["재활·인체 공부",35,"지성",95,"관련 학과 진학을 준비하고 재활 분야를 탐색했다.","수년 후 관련 학과 교육과 실습을 마치고 국가시험에 합격해 물리치료사 면허를 취득했다.",true],"경찰":["공직 시험 준비",40,"지성",100,"체력과 필기시험을 준비했다.","채용시험과 교육을 거쳐 경찰로 임용되었다.",true],"인테리어 디자이너":["디자인",35,"창의성",80,"공간 설계 포트폴리오를 준비했다.","공간 설계 프로젝트를 맡게 되었다."],"일러스트레이터":["디자인",35,"창의성",80,"그림을 모아 포트폴리오를 준비했다.","자신의 그림으로 작업을 의뢰받게 되었다."],"교사":["교육 공부",40,"지성",100,"교원 양성 과정 진학을 준비했다.","수년 후 교원 양성 과정과 자격 취득을 마치고 채용 절차를 거쳐 교사가 되었다.",true],"애견유치원 선생님":["반려견 돌봄 실습",20,"생활력",55,"보호소 봉사와 돌봄 실습을 통해 행동과 안전 관리에 관심을 갖게 되었다.","관련 교육과 현장 실습을 거쳐 애견유치원에서 반려견을 돌보게 되었다."],"반려동물 관련 사업가":["반려견 돌봄 실습",35,"생활력",80,"돌봄 실습과 운영 계획을 준비했다.","현장 경험과 사업 준비를 거쳐 반려동물 관련 사업을 시작했다."],"댄서·안무가":["댄스 연습",35,"운동능력",80,"춤을 연습하고 직접 안무를 만들었다.","자신의 안무로 무대에 서게 되었다."],"영상 편집자":["영상 편집 연습",35,"기술력",80,"편집 포트폴리오를 완성했다.","영상 편집 작업을 의뢰받게 되었다."],"인터넷 방송인":["방송 연습",35,"표현력",50,"콘텐츠 기획과 방송 연습을 이어 갔다.","자신의 콘텐츠를 방송하는 크리에이터가 되었다."],"콘텐츠 제작자":["영상 편집 연습",24,"기술력",55,"영상과 편집 작업 기록을 포트폴리오로 묶었다.","편집 포트폴리오를 바탕으로 콘텐츠 제작 일을 시작했다."]},professionCombos=[["물리치료사","한시우","경기를 마친 시우가 손목 보호대를 풀었다. 물리치료사 면허를 취득한 당신은 그의 손목 상태를 살피고 필요한 진료를 권했다.","오, 오늘도 손목 체크인가요? …이번엔 아프면 바로 말할게요."],["게임 개발자","서이준","이준이 당신의 완성 게임을 실행했다. 엔딩 크레딧이 올라갈 때까지 둘은 화면을 바라보았다.","…끝까지 만든 거, 진심으로 대단하다고 생각해요."],["게임 개발자","한시우","시우가 새 게임의 테스트 빌드를 켰다.","오예, 오늘은 내가 QA! 근데 진짜 재밌는데요?"],["프로게이머","한시우","서로의 경기 일정을 확인하고 응원 메시지를 보냈다.","콜! 오늘은 각자 경기에서 최선을 다하는 거예요."],["바리스타","강도윤","도윤의 독립 카페에서 각자 고른 원두를 비교했다.","하하, 이제 제가 시음 평가를 받는 차례네요."],["제과제빵사","강도윤","갓 구운 디저트와 도윤의 커피를 함께 맛봤다.","이 조합 좋네요. 각자 만든 걸 같이 맛볼 수 있어서 좋아요."],["경찰","정태오","퇴근한 두 사람은 업무와 원칙에 대해 이야기를 나눴다.","…서로의 일을 이해할 수 있다는 것이 다행입니다."],["인테리어 디자이너","백지한","지한이 평면도를 펴고 당신은 내부 공간의 스케치를 그렸다.","햇빛이 이쪽으로 들겠네요. 이렇게 그려 놓으니까 저도 살고 싶어져요."],["작가","차유리","출간을 앞둔 책의 표지 시안을 유리가 펼쳐 보였다.","오케이, 이번엔 작가님의 세계를 제대로 담아 볼게요."],["일러스트레이터","차유리","전시 공간에 각자의 그림을 걸었다.","우리 그림 완전 다르다. 그래서 더 재밌는 거지!"],["교사","임하나","학생들의 학습 방법에 대해 이야기하다 시간이 훌쩍 지났다.","저도 학생들이 원하는 걸 더 잘 들어 주고 싶어요."],["애견유치원 선생님","오세린","유치원에서 만나는 반려견들의 일상과 건강 관리에 관해 이야기를 나눴다.","아아, 아이들마다 성격이 다르죠. 건강이 걱정되면 병원에 데려와 주세요."],["애견유치원 선생님","강도윤","모카가 유치원 문 앞에서 꼬리를 흔들었다. 도윤은 모카의 준비물을 챙겨 왔다.","하하, 모카가 저보다 선생님을 더 기다리는 것 같네요."],["반려동물 관련 사업가","오세린","반려동물의 안전과 복지를 고려한 운영 방안을 의논했다.","으음, 동물들이 편안한 곳이라면 참 좋겠네요."],["댄서·안무가","유지안","공연을 마친 두 사람은 무대 뒤에서 서로의 동작을 이야기했다.","와우! 다음엔 각자 만든 안무도 보여 줘요!"],["영상 편집자","공재희","재희가 방송 영상의 편집본을 보다가 웃음을 터뜨렸다.","헐ㅋㅋ 이 장면 살린 거 개좋음. 내 영상인데도 재밌네."],["인터넷 방송인","공재희","각자의 방송을 마치고 합방을 준비했다.","웅ㅋㅋ 오늘은 둘 다 주인공임."]],professionActivities={"제과제빵 실습":"생활력","재활·인체 공부":"지성","공직 시험 준비":"지성","교육 공부":"지성","반려견 돌봄 실습":"생활력","댄스 연습":"운동능력","영상 편집 연습":"기술력","방송 연습":"표현력"};
+const professionRoutes={"작가":["글쓰기",28,"창의성",60,"퇴고한 원고를 출판사에 제안했다.","첫 출판 계약을 맺고 작품을 출간했다."],"게임 개발자":["개발",28,"기술력",65,"개인 게임을 완성하고 테스트했다.","자신의 게임을 출시했다."],"프로게이머":["게임",55,"게임숙련도",120,"대회 준비와 경기 분석을 이어 갔다.","선발 테스트를 거쳐 팀에 합류했다."],"바리스타":["카페 실습",28,"생활력",65,"실습과 현장 경험을 쌓았다.","자신의 이름으로 커피를 내리는 바리스타가 되었다."],"제과제빵사":["제과제빵 실습",35,"생활력",70,"반죽과 굽기 실습을 이어 갔다.","관련 교육과 현장 경험을 거쳐 제과제빵 분야에서 일하게 되었다."],"물리치료사":["재활·인체 공부",35,"지성",95,"관련 학과 진학을 준비하고 재활 분야를 탐색했다.","수년 후 관련 학과 교육과 실습을 마치고 국가시험에 합격해 물리치료사 면허를 취득했다.",true],"경찰":["공직 시험 준비",40,"지성",100,"체력과 필기시험을 준비했다.","채용시험과 교육을 거쳐 경찰로 임용되었다.",true],"인테리어 디자이너":["디자인",35,"창의성",80,"공간 설계 포트폴리오를 준비했다.","공간 설계 프로젝트를 맡게 되었다."],"일러스트레이터":["디자인",35,"창의성",80,"그림을 모아 포트폴리오를 준비했다.","자신의 그림으로 작업을 의뢰받게 되었다."],"교사":["교육 공부",40,"지성",100,"교원 양성 과정 진학을 준비했다.","수년 후 교원 양성 과정과 자격 취득을 마치고 채용 절차를 거쳐 교사가 되었다.",true],"애견유치원 선생님":["반려견 돌봄 실습",20,"생활력",55,"보호소 봉사와 돌봄 실습을 통해 행동과 안전 관리에 관심을 갖게 되었다.","관련 교육과 현장 실습을 거쳐 애견유치원에서 반려견을 돌보게 되었다."],"반려동물 관련 사업가":["반려견 돌봄 실습",35,"생활력",80,"돌봄 실습과 운영 계획을 준비했다.","현장 경험과 사업 준비를 거쳐 반려동물 관련 사업을 시작했다."],"댄서·안무가":["댄스 연습",35,"운동능력",80,"춤을 연습하고 직접 안무를 만들었다.","자신의 안무로 무대에 서게 되었다."],"영상 편집자":["영상 편집 연습",35,"기술력",80,"편집 포트폴리오를 완성했다.","영상 편집 작업을 의뢰받게 되었다."],"인터넷 방송인":["방송 연습",35,"표현력",50,"콘텐츠 기획과 방송 연습을 이어 갔다.","자신의 콘텐츠를 방송하는 크리에이터가 되었다."],"콘텐츠 제작자":["영상 편집 연습",24,"기술력",55,"영상과 편집 작업 기록을 포트폴리오로 묶었다.","편집 포트폴리오를 바탕으로 콘텐츠 제작 일을 시작했다."]},professionCombos=[["물리치료사","한시우","경기를 마친 시우가 손목 보호대를 풀었다. 물리치료사 면허를 취득한 당신은 그의 손목 상태를 살피고 필요한 진료를 권했다.","오, 오늘도 손목 체크인가요? …이번엔 아프면 바로 말할게요."],["게임 개발자","서이준","이준이 당신의 완성 게임을 실행했다. 엔딩 크레딧이 올라갈 때까지 둘은 화면을 바라보았다.","…끝까지 만든 거, 진심으로 대단하다고 생각해요."],["게임 개발자","한시우","시우가 새 게임의 테스트 빌드를 켰다.","오예, 오늘은 내가 QA! 근데 진짜 재밌는데요?"],["프로게이머","한시우","서로의 경기 일정을 확인하고 응원 메시지를 보냈다.","콜! 오늘은 각자 경기에서 최선을 다하는 거예요."],["바리스타","강도윤","도윤의 독립 카페에서 각자 고른 원두를 비교했다.","하하, 이제 제가 시음 평가를 받는 차례네요."],["제과제빵사","강도윤","갓 구운 디저트와 도윤의 커피를 함께 맛봤다.","이 조합 좋네요. 각자 만든 걸 같이 맛볼 수 있어서 좋아요."],["경찰","정태오","퇴근한 두 사람은 업무와 원칙에 대해 이야기를 나눴다.","…서로의 일을 이해할 수 있다는 것이 다행입니다."],["인테리어 디자이너","백지한","지한이 평면도를 펴고 당신은 내부 공간의 스케치를 그렸다.","햇빛이 이쪽으로 들겠네요. 이렇게 그려 놓으니까 저도 살고 싶어져요."],["작가","차유리","출간을 앞둔 책의 표지 시안을 유리가 펼쳐 보였다.","오케이, 이번엔 작가님의 세계를 제대로 담아 볼게요."],["일러스트레이터","차유리","전시 공간에 각자의 그림을 걸었다.","우리 그림 완전 다르다. 그래서 더 재밌는 거지!"],["교사","임하나","학생들의 학습 방법에 대해 이야기하다 시간이 훌쩍 지났다.","저도 학생들이 원하는 걸 더 잘 들어 주고 싶어요."],["애견유치원 선생님","오세린","유치원에서 만나는 반려견들의 일상과 건강 관리에 관해 이야기를 나눴다.","아아, 아이들마다 성격이 다르죠. 건강이 걱정되면 병원에 데려와 주세요."],["애견유치원 선생님","강도윤","모카가 유치원 문 앞에서 꼬리를 흔들었다. 도윤은 모카의 준비물을 챙겨 왔다.","하하, 모카가 저보다 선생님을 더 기다리는 것 같네요."],["반려동물 관련 사업가","오세린","반려동물의 안전과 복지를 고려한 운영 방안을 의논했다.","으음, 동물들이 편안한 곳이라면 참 좋겠네요."],["댄서·안무가","유지안","공연을 마친 두 사람은 무대 뒤에서 서로의 동작을 이야기했다.","와우! 다음엔 각자 만든 안무도 보여 줘요!"],["영상 편집자","공재희","재희가 방송 영상의 편집본을 보다가 웃음을 터뜨렸다.","헐ㅋㅋ 이 장면 살린 거 개좋음. 내 영상인데도 재밌네."],["인터넷 방송인","공재희","각자의 방송을 마치고 합방을 준비했다.","웅ㅋㅋ 오늘은 둘 다 주인공임."]],professionActivities={"반려동물 관찰 워크숍":"지성","공연 리허설":"표현력","학습 멘토링 워크숍":"지성","주거 계약 특강":"지성","디자인 워크숍":"창의성","아마추어 게임 대회":"게임숙련도","지역 안전 교육":"지성","제과제빵 실습":"생활력","재활·인체 공부":"지성","공직 시험 준비":"지성","교육 공부":"지성","반려견 돌봄 실습":"생활력","댄스 연습":"운동능력","영상 편집 연습":"기술력","방송 연습":"표현력"};
 const professionStories={"작가":["차유리","원고 파일을 다시 열었다. 처음에는 몇 줄에 불과했던 이야기가 제법 길어졌다.","오, 이야기 완성하면 읽어 보고 싶네요. 무슨 이야기를 하고 싶은지가 먼저죠.","퇴고하면서 마음에 들던 문장도 과감히 고쳤다. 원고를 끝까지 책임지는 일이 어떤 의미인지 알게 되었다."],"게임 개발자":["서이준","직접 만든 작은 프로그램이 화면에서 움직였다. 다른 사람도 즐길 수 있는 게임을 만들고 싶어졌다.","…일단 작게 완성해 보는 게 좋아요. 처음부터 모든 걸 만들 필요는 없으니까.","테스트 기록을 정리하고 오류를 수정했다. 마지막까지 작동하는 것을 만드는 데 집중했다."],"프로게이머":["한시우","경기 영상을 돌려 보니 반사 신경만으로는 설명할 수 없는 판단들이 눈에 들어왔다.","랭크만 올린다고 다 되는 건 아니에요. 팀이랑 호흡 맞추는 것도 진짜 중요하거든요.","연습 기록에서 반복되는 실수를 찾아냈다. 기록과 컨디션 관리에도 신경 쓰기 시작했다."],"바리스타":["강도윤","같은 원두인데도 추출 방식에 따라 향이 달라졌다.","하하, 맛을 기록해 보세요. 다음에 같은 맛을 내려면 그게 중요하거든요.","추출 조건과 손님들의 반응을 비교하며 자신만의 메뉴를 연구했다."],"제과제빵사":["강도윤","반죽이 부풀어 오르는 동안 오븐 앞에서 기다렸다.","커피랑 어울리는 디저트 하나 만들어 보면 어떨까요? 실패작은 제가 시식해 드리죠.","굽는 온도와 시간을 기록하고 실패한 반죽의 원인을 정리했다."],"물리치료사":["한시우","인체의 움직임을 설명하는 자료를 읽었다. 통증을 겪는 사람이 일상을 되찾도록 돕는 일에 관심이 생겼다.","손목 때문에 재활 받은 적 있거든요. 괜찮아졌다고 막 쓰면 또 아프더라고요. 그쪽 공부하려고요?","관련 학과와 교육 과정, 실습 및 면허 취득 경로를 알아보았다. 아직 치료를 할 수는 없지만 어떤 공부가 필요한지 분명해졌다."],"경찰":["정태오","지역 주민을 돕는 공공 업무와 그 책임에 대해 알아보았다.","권한만큼 책임도 따르는 일입니다. 어떤 경찰이 되고 싶은지 먼저 생각해 보십시오.","필기 공부와 체력 훈련을 병행하며 채용 준비 계획을 구체화했다."],"인테리어 디자이너":["백지한","평면도를 보며 공간에 따라 사람의 생활이 달라질 수 있다는 사실이 흥미로워졌다.","예쁘기만 한 집보다 실제로 살기 좋은 집이 더 어렵죠. 동선부터 생각해 봐요.","가상의 주거 공간을 설계하고 조명과 수납, 동선을 점검했다."],"일러스트레이터":["차유리","여러 장의 그림을 펼쳐 놓자 자신만의 표현이 조금씩 보이기 시작했다.","오, 이 색 조합 좋네요. 남들 잘 그리는 방식 말고 자기 취향도 끝까지 가져가요.","작품별 의도와 제작 과정을 정리하고 포트폴리오를 구성했다."],"교사":["임하나","누군가에게 어려운 내용을 설명하는 일이 생각보다 즐거웠다.","저도 과외하면서 느꼈어요. 제가 아는 것과 상대가 이해하는 건 다르더라고요.","학습자의 입장에서 자료를 구성하고 교원 양성 과정과 진학 방법을 알아보았다."],"애견유치원 선생님":["오세린","보호소에서 개마다 사람을 대하는 방식이 다르다는 것을 배웠다.","아아, 강아지마다 쉬고 싶은 순간도 다르답니다. 그 신호를 살펴보는 게 중요해요.","돌봄 실습에서 놀이와 휴식, 안전한 환경 관리의 중요성을 익혔다."],"반려동물 관련 사업가":["백지한","반려동물을 위한 공간과 서비스가 어떻게 운영되는지 알아보고 싶어졌다.","사업이라면 좋은 뜻만으로는 부족하죠. 공간이랑 운영비, 안전부터 계산해 봐요.","돌봄 경험을 바탕으로 비용과 안전, 운영 방안을 정리했다."],"댄서·안무가":["유지안","음악에 맞춰 직접 동작을 연결해 보았다.","와우! 잘 추는 것도 좋은데 자기가 왜 그렇게 움직이는지 알면 더 재밌어요.","짧은 안무를 완성하고 촬영한 영상으로 동작을 다시 확인했다."],"영상 편집자":["공재희","같은 영상도 컷을 배치하는 방식에 따라 전혀 다르게 느껴졌다.","헐ㅋㅋ 여기 잘라서 붙이니까 완전 다른 영상 됨. 편집 재밌지 않아요?","영상의 흐름과 자막, 소리의 균형을 살피며 작업물을 정리했다."],"인터넷 방송인":["공재희","어떤 콘텐츠를 꾸준히 사람들에게 보여 줄 수 있을지 고민했다.","웅ㅋㅋ 처음부터 시청자 수만 보지 마요. 본인이 재밌어야 오래 함.","방송 기획과 진행 기록을 정리하고 휴식 시간과 공개 범위를 계획했다."],"콘텐츠 제작자":["공재희","같은 영상인데 자르는 위치를 바꾸자 장면의 분위기가 달라졌다.","이 부분 살린 거 좋아요 ㅎㅎ 다음에 제 영상도 같이 편집해 볼래요?","초안과 수정본을 나란히 놓고 어떤 선택을 했는지 정리했다."]};
 function professionStoryRecord(){const r=professionRecord();return r.stories||(r.stories={})}
 function professionStage(name){return professionStoryRecord()[name]||0}
 function professionStoryCandidate(name,stage){const v=initSim(),r=professionRecord(),a=professionRoutes[name];if(!a)return false;const n=professionCount(a[0]);if(stage===0)return n>=Math.min(3,a[1])||(a[0]==='반려견 돌봄 실습'&&r.volunteerDays.length>=2);return n>=Math.ceil(a[1]/2)}
 function professionDiscoveryGate(){const v=initSim(),r=professionRecord();if(v.day>=365||v.day<15)return false;const names=r.target?[r.target]:Object.keys(professionRoutes);const name=names.find(k=>professionStage(k)<2&&(professionStage(k)===0||r.target===k)&&professionStoryCandidate(k,professionStage(k)));if(!name)return false;const stage=professionStage(name),a=professionStories[name];v.activeEvent={place:'home',day:v.day,description:stage?'준비해 온 일을 돌아보았다.':'새로운 진로에 관심이 생겼다.',professionStory:{name,stage,npc:v.met[a[0]]&&socialRecord(a[0]).contact?a[0]:null}};save();renderChoiceEvent();return true}
 function renderProfessionStory(ev){const v=initSim(),o=ev.professionStory,a=professionStories[o.name],r=professionRecord();$('progress').textContent=o.stage?'진로의 중간 지점':'진로 발견 · '+o.name;add('이야기',a[o.stage?3:1]);if(o.npc&&!o.stage)add(o.npc,a[2]);if(o.answer){add(state.name,o.answer,true);choiceButton('일정 계속하기',finishEvent);return}const opts=o.stage?['지금의 준비를 계속한다','속도를 조절하며 이어 간다']:['이 길을 목표로 삼아 보고 싶다','흥미롭지만 아직 결정하지 않는다'];for(const [i,label] of opts.entries())choiceButton(label,()=>{if(o.answer)return;o.answer=label;professionStoryRecord()[o.name]=o.stage+1;if(!o.stage&&i===0&&(!r.target||r.target===o.name)){r.target=o.name;r.history.push({day:v.day,target:o.name,source:o.npc?'주민의 이야기':'자기계발'});r.prepared=false}growInner('professionStory:'+o.name+':'+o.stage,{자기이해:2});writeJournal('진로 발견 · '+o.name+' / '+label);save();renderChoiceEvent();renderSim()})}
-function professionRemainingSlots(name){const v=initSim(),r=professionRecord(),a=professionRoutes[name];if(!a)return 0;const base=Math.max(0,a[1]-professionCount(a[0]),Math.ceil((a[3]-(v.skills[a[2]]||0))/3));return base+(a[0]==='반려견 돌봄 실습'?Math.max(0,4-r.volunteerDays.length):0)+(a[0]==='공직 시험 준비'?Math.ceil(Math.max(0,50-(v.skills.운동능력||0))/3):0)}
+function professionRequirements(name){
+ const v=initSim(),r=professionRecord(),route=professionRoutes[name];
+ if(!route)return [];
+ const [activity,count,skill,level]=route;
+ const requirements=[
+  {label:activity,current:professionCount(activity),target:count,unit:'회'},
+  {label:skill,current:v.skills[skill]||0,target:level,unit:''}
+ ];
+ if(activity==='반려견 돌봄 실습')requirements.push({label:'보호소 봉사',current:r.volunteerDays.length,target:4,unit:'일'});
+ if(activity==='공직 시험 준비')requirements.push({label:'운동능력',current:v.skills.운동능력||0,target:50,unit:''});
+ return requirements;
+}
+
 
 function professionRecord(){const v=initSim();return v.profession||(v.profession={target:null,counts:{},volunteerDays:[],history:[],prepared:false})}
 function professionCount(k){return developmentProjects[k]?developmentProgress(k):(professionRecord().counts[k]||0)}
 function professionReadyRule(a,n,skill,vol,fitness){return n>=a[1]&&skill>=a[3]&&(a[0]!=='반려견 돌봄 실습'||vol>=4)&&(a[0]!=='공직 시험 준비'||fitness>=50)}
 function professionReady(name){const v=initSim(),r=professionRecord(),a=professionRoutes[name];return !!a&&professionReadyRule(a,professionCount(a[0]),v.skills[a[2]]||0,r.volunteerDays.length,v.skills.운동능력||0)}
-function professionActivity(a){const v=initSim(),r=professionRecord(),h=healthRecord();if(a==='유기견 보호소 봉사'){if(v.slot===3||v.energy<15||r.volunteerDays.includes(v.day))return {place:'home',note:'오늘은 봉사 일정이 맞지 않아 쉬었다.',person:null};v.energy-=15;h.fatigue=Math.min(100,h.fatigue+8);r.volunteerDays.push(v.day);v.skills.생활력+=2;return {place:'park',note:'유기견 보호소 봉사 · 돌봄과 환경 정리',volunteer:true,person:null}}if(!Object.hasOwn(professionActivities,a))return null;if(a==='반려견 돌봄 실습'&&r.volunteerDays.length<2)return {place:'home',note:'보호소 봉사 2회 이후 실습 가능',person:null};if(v.energy<12)return {place:'home',note:'체력이 부족해 대신 쉬었다.',person:null};v.energy-=12;h.fatigue=Math.min(100,h.fatigue+8);const k=professionActivities[a];v.skills[k]=(v.skills[k]||0)+3;r.counts[a]=(r.counts[a]||0)+1;return {place:'home',note:a+' 완료 · '+k+' +3',person:null}}
+function professionActivity(a){const v=initSim(),r=professionRecord(),h=healthRecord();if(a==='유기견 보호소 봉사'){if(v.slot===3||v.energy<15||r.volunteerDays.includes(v.day))return {place:'home',note:'오늘은 봉사 일정이 맞지 않아 쉬었다.',person:null};v.energy-=15;h.fatigue=Math.min(100,h.fatigue+8);r.volunteerDays.push(v.day);v.skills.생활력+=2;return {place:'park',note:'유기견 보호소 봉사 · 돌봄과 환경 정리',volunteer:true,person:null}}if(!Object.hasOwn(professionActivities,a))return null;if(a==='반려견 돌봄 실습'&&r.volunteerDays.length<2)return {place:'home',note:'보호소 봉사 2회 이후 실습 가능',person:null};if(v.energy<12)return {place:'home',note:'체력이 부족해 대신 쉬었다.',person:null};v.energy-=12;h.fatigue=Math.min(100,h.fatigue+8);const k=professionActivities[a];v.skills[k]=(v.skills[k]||0)+3;r.counts[a]=(r.counts[a]||0)+1;const credit={"학습 멘토링 워크숍":"교육 공부","공연 리허설":"댄스 연습"}[a];if(credit)r.counts[credit]=(r.counts[credit]||0)+1;return {place:'home',note:a+' 완료 · '+k+' +3',person:null}}
 function volunteerGuests(){const v=initSim();if((v.day-1)%7<5)return [];return [['정태오','급여량은 목록에 맞춰 주십시오. 이쪽은 제가 정리하겠습니다.'],['강도윤','하하, 오늘은 간식보다 물그릇부터 챙겨 볼까요?'],['백지한','이쪽 울타리 상태도 확인해 볼게요. 안전이 먼저죠.']].filter(([p])=>v.met[p]&&!npcLifeBusy(p,v.day,v.slot)&&Math.random()<.55)}
 const shelterMeetLines={
  '강도윤|정태오':[
@@ -6300,8 +6318,8 @@ function renderShelterEncounter(ev){
  return true;
 }
 function renderVolunteer(ev){const v=initSim(),o=ev.volunteerEvent,n=professionRecord().volunteerDays.length;$('progress').textContent='유기견 보호소 봉사';$('where').textContent='연화동 인근 유기견 보호소';const a=n===1?['담당자가 낯선 개에게 접근하는 방법과 위생 수칙을 설명했다.','배식과 물그릇 정리를 돕는다','관찰하며 담당자의 설명을 듣는다']:n===2?['담당자가 개별 성격과 돌봄 기록을 보여 주었다. 좋아하는 것과 돌보는 일은 다르다는 걸 알게 되었다.','행동과 돌봄 기록에 관심을 갖는다','환경 정리와 급여 보조를 계속한다']:['익숙해진 보호소에서 담당자와 개별 돌봄 방법을 확인했다.','안전한 놀이와 휴식 환경을 준비한다','위생 관리와 정리 작업을 돕는다'];add('이야기',a[0]);for(const [p,line] of o.guests)add(p,line);if(o.answer){add(state.name,o.answer,true);if(n===2)add('시스템','반려견 돌봄 실습과 애견유치원 선생님 진로가 열렸다.');if(renderShelterEncounter(ev))return;choiceButton('일정 계속하기',finishEvent);return}for(const label of a.slice(1))choiceButton(label,()=>{if(o.answer)return;o.answer=label;growInner('volunteer:'+v.day,{공감능력:1,책임감:1});for(const [p] of o.guests){v.affection[p]=Math.min(999,(v.affection[p]||0)+2);socialRecord(p).friendship++}writeJournal('보호소 봉사 · '+label);save();renderChoiceEvent();renderSim()})}
-function professionPanel(root){const v=initSim(),r=professionRecord(),b=document.createElement('div');b.className='stat-card';const h=document.createElement('h2');h.textContent='꿈과 진로 · '+(r.target||'탐색 중');b.append(h);const info=document.createElement('p');info.textContent='보호소 봉사 '+r.volunteerDays.length+'일 · 반려견 돌봄 실습 '+professionCount('반려견 돌봄 실습')+'회';b.append(info);const sel=document.createElement('select');for(const name of ['',...Object.keys(professionRoutes)]){const o=document.createElement('option');o.value=name;o.textContent=name||'진로 선택';sel.append(o)}sel.value=r.target||'';const btn=document.createElement('button');btn.textContent='이 진로를 목표로 삼기';btn.disabled=v.day<15||!!v.running||!!v.activeEvent||v.finished;btn.onclick=()=>{if(!sel.value||v.running||v.activeEvent||v.finished)return;if(professionRoutes[sel.value][0]==='반려견 돌봄 실습'&&r.volunteerDays.length<2){alert('먼저 보호소 봉사에 2회 참여해 보세요.');return}if(r.target===sel.value)return;if(careerAssessments[r.target])delete assessmentRecord(r.target).bookedDay;r.target=sel.value;r.prepared=false;r.history.push({day:v.day,target:r.target});writeJournal('진로 목표 · '+r.target);save();renderSim()};b.append(sel,btn);if(r.target){const a=professionRoutes[r.target],t=document.createElement('p');t.textContent=a[0]+' '+professionCount(a[0])+'/'+a[1]+'회 · '+a[2]+' '+(v.skills[a[2]]||0)+'/'+a[3]+(a[0]==='반려견 돌봄 실습'?' · 봉사 4회':a[0]==='공직 시험 준비'?' · 운동능력 50':'')+(r.prepared?' · 진로 준비 완료':'');b.append(t);if(careerAssessments[r.target]&&!r.prepared){const record=assessmentRecord(r.target),status=document.createElement('p'),left=Math.max(0,record.retryAt-professionCount(a[0]));status.textContent=careerAssessments[r.target].title+' · '+(record.passed?'통과':left?'재도전까지 관련 활동 '+left+'회':'준비 조건 달성 후 도전');b.append(status);assessmentBookingPanel(b,r.target,status)}const eta=document.createElement('small');eta.textContent='남은 준비 활동 약 '+professionRemainingSlots(r.target)+'회 · 주 2회 기준 약 '+Math.ceil(professionRemainingSlots(r.target)/2)+'주 (이벤트 및 일정 별도)';b.append(eta);if(a[6]){const p=document.createElement('small');p.textContent='학위·자격 또는 채용 절차는 이후 에필로그에서 진행됩니다.';b.append(p)}}root.append(b)}
-function professionGate(){const v=initSim(),r=professionRecord();if(!r.target||r.prepared||!professionReady(r.target)||(careerAssessments[r.target]&&!assessmentRecord(r.target).passed)||v.day>=365)return false;v.activeEvent={place:'home',day:v.day,description:'준비해 온 진로를 구체화할 때가 되었다.',professionEvent:{name:r.target}};save();renderChoiceEvent();return true}
+function professionPanel(root){const v=initSim(),r=professionRecord(),b=document.createElement('div');b.className='stat-card';const h=document.createElement('h2');h.textContent='꿈과 진로 · '+(r.target||'탐색 중');b.append(h);const info=document.createElement('p');info.textContent='보호소 봉사 '+r.volunteerDays.length+'일 · 반려견 돌봄 실습 '+professionCount('반려견 돌봄 실습')+'회';b.append(info);const sel=document.createElement('select');for(const name of ['',...Object.keys(professionRoutes)]){const o=document.createElement('option');o.value=name;o.textContent=name||'진로 선택';sel.append(o)}sel.value=r.target||'';const btn=document.createElement('button');btn.textContent='이 진로를 목표로 삼기';btn.disabled=v.day<15||!!v.running||!!v.activeEvent||v.finished;btn.onclick=()=>{if(!sel.value||v.running||v.activeEvent||v.finished)return;if(professionRoutes[sel.value][0]==='반려견 돌봄 실습'&&r.volunteerDays.length<2){alert('먼저 보호소 봉사에 2회 참여해 보세요.');return}if(r.target===sel.value)return;if(careerAssessments[r.target])delete assessmentRecord(r.target).bookedDay;r.target=sel.value;r.prepared=false;r.history.push({day:v.day,target:r.target});writeJournal('진로 목표 · '+r.target);save();renderSim()};b.append(sel,btn);if(r.target){const requirements=document.createElement('ul');for(const item of professionRequirements(r.target)){const line=document.createElement('li');line.textContent=item.label+' '+item.current+'/'+item.target+item.unit+(item.current>=item.target?' · 충족':' · '+(item.target-item.current)+item.unit+' 부족');requirements.append(line)}b.append(requirements);if(careerAssessments[r.target]&&!r.prepared){const record=assessmentRecord(r.target),status=document.createElement('p'),left=Math.max(0,record.retryAt-professionCount(a[0]));status.textContent=careerAssessments[r.target].title+' · '+(record.passed?'통과':left?'재도전까지 관련 활동 '+left+'회':'준비 조건 달성 후 도전');b.append(status);assessmentBookingPanel(b,r.target,status)}const status=document.createElement('p');status.textContent=r.prepared?'진로 준비 완료':professionReady(r.target)&&(!careerAssessments[r.target]||assessmentRecord(r.target).passed)?'조건 충족 · 다음 일정 실행 전에 진로 선택 이벤트가 열립니다.':'올해의 마지막 일정 전까지 준비를 마쳐 보세요.';b.append(status);if(professionRoutes[r.target][6]){const p=document.createElement('small');p.textContent='학위·자격 또는 채용 절차는 이후 에필로그에서 진행됩니다.';b.append(p)}}root.append(b)}
+function professionGate(){const v=initSim(),r=professionRecord();if(!r.target||r.prepared||!professionReady(r.target)||(careerAssessments[r.target]&&!assessmentRecord(r.target).passed)||v.day>365||v.finished)return false;v.activeEvent={place:'home',day:v.day,description:'준비해 온 진로를 구체화할 때가 되었다.',professionEvent:{name:r.target}};save();renderChoiceEvent();return true}
 function renderProfession(ev){if(ev.professionEvent.assessment){renderCareerAssessment(ev);return}const o=ev.professionEvent,a=professionRoutes[o.name],r=professionRecord();$('progress').textContent='진로 · '+o.name;add('이야기',a[4]);if(o.answer){add(state.name,o.answer,true);choiceButton('일정 계속하기',finishEvent);return}for(const [label,k] of [['이 길을 계속 준비해 나간다',true],['아직 다른 길도 알아보고 싶다',false]])choiceButton(label,()=>{if(o.answer)return;o.answer=label;r.prepared=k;if(!k)r.target=null;writeJournal('진로 · '+o.name+' / '+label);save();renderChoiceEvent();renderSim()})}
 function professionEnding(){const r=professionRecord();if(!r.target)return null;const a=professionRoutes[r.target],ready=r.prepared&&professionReady(r.target);return {name:r.target,ready,line:ready?a[5]:'아직 준비를 이어 가고 있다.',later:!!a[6]}}
 function professionScene(e,p){return e?.ready?professionCombos.find(x=>x[0]===e.name&&x[1]===p)||null:null}
@@ -6699,7 +6717,7 @@ label.textContent=p;if(unread){const badge=document.createElement('small');badge
  if(!me&&(!messageGroup.lastElementChild?.classList.contains('bubble')||messageGroup.lastElementChild.classList.contains('me'))){
   const name=document.createElement('strong');name.textContent=p;b.append(phoneAvatar(p),name);
  }
- if(me)phonePlayerSpoke=true;b.append(document.createTextNode(chatSpacing(addressed)));messageGroup.append(b)}speechControls(p,thread);friendControls(p,thread);sharedLifeControls(p,thread);tripControls(p,thread);dateControls(p,thread);groupOutingControls(p,thread,agreedOutingPartners(p));coupleIssueControls(p,thread);aftermathControls(p,thread);relationshipControls(p,thread);multiDiscussionControls(p,thread);exControls(p,thread);exKeepsakeControls(p,thread);approvedSmsControl(p,thread,d);const messages=d.threads[p]||[];if(!messages.length){thread.append(document.createTextNode('아직 받은 메시지가 없어요.'));return}const messageList=document.createElement('div');messageList.className='phone-messages';thread.append(messageList);const limit=phoneHistoryLimits[p]||3;const cutoff=Math.max(0,messages.length-limit);const hidden=messages.slice(0,cutoff).filter(m=>m.reply);if(hidden.length){const more=document.createElement('button');more.className='secondary';more.style.cssText='width:100%;margin:8px 0';more.textContent='이전 메시지 더 보기 ('+hidden.length+'개 남음)';more.onclick=()=>{phoneHistoryLimits[p]=limit+3;renderPhone();const next=$('phoneThread').querySelector('[data-history-index="'+cutoff+'"]');if(next)next.scrollIntoView({block:'center'})};messageList.append(more)}for(const [index,m] of messages.entries()){if(index<cutoff&&m.reply)continue;currentMessage=m;phonePlayerSpoke=false;messageGroup=document.createElement('div');messageGroup.className='phone-message-group';messageGroup.dataset.historyIndex=index;messageList.append(messageGroup);const date=calendarDate(m.day).label;if(date!==lastDate){appendPhoneDate(messageGroup,date);lastDate=date;}if(m.smsId&&approvedSms[p]?.[m.smsId]){renderApprovedSms(p,m,messageGroup,bubble);continue}if(m.pressureReplyTo){bubble(state.name,m.playerLine,true,true);bubble(p,m.npcLine,false,true);continue}if(m.pressureBurst){renderPressureText(p,m,messageGroup,bubble);continue}if(m.jihanBond){const a=m.script;bubble(calendarDate(m.day).label+' · '+p,a[0]);if(a[1])bubble(p,a[1]);for(const f of m.followups||[])bubble(calendarDate(f.day).label+' · '+p,f.line);if(m.reply){bubble(state.name,m.jihanLabel,true);bubble(p,m.jihanReply);continue}for(const [label,k,reply,kind] of [[a[2],1,a[3],'warm'],[a[4],2,a[5],'boundary'],['지금은 조금 바빠요.',3,'…알겠어요.','avoid']]){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=k;m.jihanLabel=label;m.jihanReply=reply;jihanChange(kind,v.day);if(kind==='boundary'&&!vIsDating(p))jihanBond().mutedUntil=999;save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.npcLifeNotice){npcLifePhone(p,m,messageGroup,bubble);continue}if(m.outingQuestion){const q=m.outingQuestion.other;if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);if(m.reply){bubble(state.name,m.outingLabel,true);bubble(p,m.outingReply);continue}const opts=[['친구로 만난 거예요.','…그래요. 그 말 믿을게요.','deny'],['조금 마음이 쓰이는 사람이에요.','…솔직하게 말해 줘서 고마워요. 생각할 시간이 필요하네요.','admit'],['그 사람과 교제하고 있어요.','…지금 그게 무슨 말이에요?','reveal'],['지금은 이야기하고 싶지 않아요.','…알겠어요. 나중에 다시 이야기해요.','avoid']].filter(x=>x[2]!=='reveal'||vIsDating(q)&&secretUnknown(p,q));for(const [label,reply,kind] of opts){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=1;m.outingLabel=label;m.outingReply=reply;if(kind==='reveal'){revealOne(p,q);m.outingReply=romanceProfiles[p][7]}else if(kind==='deny')feel(p,{jealousy:-2});else {feel(p,{jealousy:2,hurt:1});noteCoupleIssue(p,v.day,'jealous',q)}save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.coupleRepair){renderRepairMessage(v,p,m,messageGroup,bubble);continue}if(m.exAfterText){renderExAfterPhone(p,m,messageGroup,bubble);continue}if(m.breakupNotice){bubble(calendarDate(m.day).label+' · '+p,m.npcLine);if(!m.reply){const b=document.createElement('button');b.className='secondary';b.textContent='메시지 확인';b.onclick=()=>{m.reply=1;save();phoneBadge();renderPhone()};messageGroup.append(b)}continue}if(m.groupInvite){bubble(state.name,m.playerLine,true,true);bubble(p,m.npcLine,false,true);continue}if(m.booking){if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,friendBookingText(p,m));continue}if(m.npcOffer){const o=m.npcOffer,a=npcAutonomyVoices[p];bubble(p,(m.calledOpening??m.npcLine)+'\n'+calendarDate(o.day).label+(Number.isInteger(o.slot)?' '+dayLabels[o.slot]:'')+' · '+o.venue,false,!!m.calledOpening);if(m.reply){bubble(state.name,m.offerLabel||'지난 제안',true);if(m.offerReply)bubble(p,m.offerReply);if(m.reply===4&&m.offerLabel==='일정을 다시 확인한다'&&!m.retried&&!messages.some(x=>x!==m&&x.npcOffer&&!x.reply)){const retry=document.createElement('button');retry.className='secondary';retry.textContent='다른 날짜로 다시 약속 잡기';retry.onclick=()=>{if(m.retried)return;m.retried=true;retryNpcOffer(p,m,messages,true);save();phoneBadge();renderPhone();renderSim();syncSchedule()};messageGroup.append(retry)}continue}
+ if(me)phonePlayerSpoke=true;b.append(document.createTextNode(chatSpacing(addressed)));messageGroup.append(b)}speechControls(p,thread);friendControls(p,thread);sharedLifeControls(p,thread);tripControls(p,thread);tripControls(p,thread,true);dateControls(p,thread);groupOutingControls(p,thread,agreedOutingPartners(p));coupleIssueControls(p,thread);aftermathControls(p,thread);relationshipControls(p,thread);multiDiscussionControls(p,thread);exControls(p,thread);exKeepsakeControls(p,thread);approvedSmsControl(p,thread,d);const messages=d.threads[p]||[];if(!messages.length){thread.append(document.createTextNode('아직 받은 메시지가 없어요.'));return}const messageList=document.createElement('div');messageList.className='phone-messages';thread.append(messageList);const limit=phoneHistoryLimits[p]||3;const cutoff=Math.max(0,messages.length-limit);const hidden=messages.slice(0,cutoff).filter(m=>m.reply);if(hidden.length){const more=document.createElement('button');more.className='secondary';more.style.cssText='width:100%;margin:8px 0';more.textContent='이전 메시지 더 보기 ('+hidden.length+'개 남음)';more.onclick=()=>{phoneHistoryLimits[p]=limit+3;renderPhone();const next=$('phoneThread').querySelector('[data-history-index="'+cutoff+'"]');if(next)next.scrollIntoView({block:'center'})};messageList.append(more)}for(const [index,m] of messages.entries()){if(index<cutoff&&m.reply)continue;currentMessage=m;phonePlayerSpoke=false;messageGroup=document.createElement('div');messageGroup.className='phone-message-group';messageGroup.dataset.historyIndex=index;messageList.append(messageGroup);const date=calendarDate(m.day).label;if(date!==lastDate){appendPhoneDate(messageGroup,date);lastDate=date;}if(m.smsId&&approvedSms[p]?.[m.smsId]){renderApprovedSms(p,m,messageGroup,bubble);continue}if(m.pressureReplyTo){bubble(state.name,m.playerLine,true,true);bubble(p,m.npcLine,false,true);continue}if(m.pressureBurst){renderPressureText(p,m,messageGroup,bubble);continue}if(m.jihanBond){const a=m.script;bubble(calendarDate(m.day).label+' · '+p,a[0]);if(a[1])bubble(p,a[1]);for(const f of m.followups||[])bubble(calendarDate(f.day).label+' · '+p,f.line);if(m.reply){bubble(state.name,m.jihanLabel,true);bubble(p,m.jihanReply);continue}for(const [label,k,reply,kind] of [[a[2],1,a[3],'warm'],[a[4],2,a[5],'boundary'],['지금은 조금 바빠요.',3,'…알겠어요.','avoid']]){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=k;m.jihanLabel=label;m.jihanReply=reply;jihanChange(kind,v.day);if(kind==='boundary'&&!vIsDating(p))jihanBond().mutedUntil=999;save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.npcLifeNotice){npcLifePhone(p,m,messageGroup,bubble);continue}if(m.outingQuestion){const q=m.outingQuestion.other;if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,m.npcLine);if(m.reply){bubble(state.name,m.outingLabel,true);bubble(p,m.outingReply);continue}const opts=[['친구로 만난 거예요.','…그래요. 그 말 믿을게요.','deny'],['조금 마음이 쓰이는 사람이에요.','…솔직하게 말해 줘서 고마워요. 생각할 시간이 필요하네요.','admit'],['그 사람과 교제하고 있어요.','…지금 그게 무슨 말이에요?','reveal'],['지금은 이야기하고 싶지 않아요.','…알겠어요. 나중에 다시 이야기해요.','avoid']].filter(x=>x[2]!=='reveal'||vIsDating(q)&&secretUnknown(p,q));for(const [label,reply,kind] of opts){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.reply=1;m.outingLabel=label;m.outingReply=reply;if(kind==='reveal'){revealOne(p,q);m.outingReply=romanceProfiles[p][7]}else if(kind==='deny')feel(p,{jealousy:-2});else {feel(p,{jealousy:2,hurt:1});noteCoupleIssue(p,v.day,'jealous',q)}save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}continue}if(m.coupleRepair){renderRepairMessage(v,p,m,messageGroup,bubble);continue}if(m.exAfterText){renderExAfterPhone(p,m,messageGroup,bubble);continue}if(m.breakupNotice){bubble(calendarDate(m.day).label+' · '+p,m.npcLine);if(!m.reply){const b=document.createElement('button');b.className='secondary';b.textContent='메시지 확인';b.onclick=()=>{m.reply=1;save();phoneBadge();renderPhone()};messageGroup.append(b)}continue}if(m.groupInvite){bubble(state.name,m.playerLine,true,true);bubble(p,m.npcLine,false,true);continue}if(m.booking){if(m.playerLine)bubble(state.name,m.playerLine,true);bubble(p,friendBookingText(p,m));continue}if(m.npcOffer){const o=m.npcOffer,a=npcAutonomyVoices[p];bubble(p,(m.calledOpening??m.npcLine)+'\n'+calendarDate(o.day).label+(Number.isInteger(o.slot)?' '+dayLabels[o.slot]:'')+' · '+o.venue,false,!!m.calledOpening);if(m.reply){bubble(state.name,m.offerLabel||'지난 제안',true);if(m.offerReply)bubble(p,m.offerReply);if(m.reply===4&&m.offerLabel==='일정을 다시 확인한다'&&!m.retried&&!messages.some(x=>x!==m&&x.npcOffer&&!x.reply)){const retry=document.createElement('button');retry.className='secondary';retry.textContent='다른 날짜로 다시 약속 잡기';retry.onclick=()=>{if(m.retried)return;m.retried=true;retryNpcOffer(p,m,messages,true);save();phoneBadge();renderPhone();renderSim();syncSchedule()};messageGroup.append(retry)}continue}
  const slots=o.day>v.day?dateBookingSlots(p,o.day):[];
  let offerTime=null;
  if(slots.length){
@@ -6721,6 +6739,65 @@ if(a?.[0]==='지난번 함께 보낸 시간이 생각났어요.'){
  a=[opener,'',date?'저도 그날 생각나요.':'잘 지내요. 연락 줘서 반가워요.',date?.venue==='고양이 산책'?'오늘도 그 골목 지날 때 한 번 보려고요.':'다음에 또 얘기해요.',a[4],p==='정태오'?'감사합니다.':'고마워요. 좋은 하루 보내요.'];
 }if(!a)continue;bubble(calendarDate(m.day).label+' · '+p,m.calledOpening??a[0],false,!!m.calledOpening);if(a[1])bubble(p,a[1]);if(m.reply){bubble(state.name,m.reply===3?'지금은 조금 바빠요.':a[m.reply===1?2:4],true);bubble(p,m.reply===3?phoneBusyReply(p):a[m.reply===1?3:5]);continue}for(const [label,k] of [[a[2],1],[a[4],2],['지금은 조금 바빠요.',3]]){const b=document.createElement('button');b.className='secondary';b.textContent=phoneChoiceText(p,m,label);b.onclick=()=>{if(m.reply)return;m.script=[...a];m.replyDay=v.day;m.reply=k;if(m.contextKey?.startsWith('absence:')&&!vIsDating(p)){const sensitive=['서이준','백지한','임하나','공재희'].includes(p)&&relationshipRecall(p,v.day).kind!==1;if(k===1&&sensitive){feel(p,{hurt:3,longing:4});const lines={'서이준':'……그래 보여요. 근데 그렇게 바빠요?','백지한':'저 없이도 꽤 잘 지내시나 봐요.','임하나':'다행이에요. 저는 조금 보고 싶었는데.','공재희':'잘 지내나 보네. 난 보고 싶었는데.'};m.script=[...a];m.script[3]=lines[p]}else if(k===2)feel(p,{security:5,hurt:-3,longing:-4});else if(k===3)feel(p,{longing:1});}if(m.contextKey?.startsWith('jealous:')){if(k===1)feel(p,{jealousy:-2,security:2});else if(k===2)feel(p,{jealousy:-1,hurt:1});else feel(p,{longing:1});}if(m.birthday&&m.gift&&k!==3){v.birthdayGifts=v.birthdayGifts||{};v.birthdayGifts[p]=m.gift;}if(k!==3){v.affection[p]=Math.min(999,(v.affection[p]||0)+1);if(m.friendMessage){socialRecord(p).friendship++}else if(k===2){socialRecord(p).interest++}if(m.contextKey?.startsWith('absence:')&&k!==3) socialRecord(p).reunionPending={day:v.day,warm:k===2}}writeJournal(p+' · 메시지 답장');save();phoneBadge();renderPhone();renderSim()};messageGroup.append(b)}}}
 const practiceScenes = {
+ '반려동물 관찰 워크숍': {
+  person:'오세린', place:'center', location:'연화동 문화센터 · 반려동물 관찰 워크숍', title:'평소랑 달랐던 순간', after:1, publicEvent:true,
+  opening:'문화센터 강의실에서 보호자들과 짧은 영상을 봤다. 화면 속 고양이가 밥그릇 앞까지 왔다가 돌아섰다. 세린은 아무 말 없이 그 장면을 한 번 더 틀었다.',
+  invitation:'으음, 이번엔 고양이가 밥그릇 앞에 왔을 때 뭘 했는지만 적어 볼까요? 제가 그 집 고양이를 오늘 처음 봤다고 생각하고요.',
+  choice:'밥그릇 앞에 두 번 왔다가 냄새만 맡고 돌아섰다고 적는다',
+  reply:'아, 두 번 왔군요. 저는 한 번인 줄 알았어요. 보호자분이 그렇게 말해 주시면 제가 궁금한 걸 다음에 물어볼 수 있겠어요.',
+  skill:'생활력'
+ },
+ '공연 리허설': {
+  person:'유지안', place:'dance', title:'음악이 돌아올 때까지', after:1, publicEvent:true,
+  opening:'공개 리허설 도중 음악이 뚝 끊겼다. 지안이는 음향석을 한번 보고는 뒤쪽에 앉은 관객들에게 손을 들었다.',
+  invitation:'뒤에 계신 분들도요! 제가 셋 세면 손뼉 한 번만 쳐 주세요. 하나, 둘, 셋!',
+  choice:'앞줄에서 박수를 맞춰 주고 지안이의 손짓을 기다린다',
+  reply:'아까 앞에서 바로 받아 준 거 봤어요. 덕분에 뒤에서도 따라오더라고요. 다음엔 내가 신호 줄 테니까 같이 시작해 볼래요?',
+  skill:'표현력'
+ },
+ '학습 멘토링 워크숍': {
+  person:'임하나', place:'center', location:'연화동 문화센터 · 학습 멘토링 워크숍',
+  title:'여기까진 알겠어요', after:1, publicEvent:true,
+  opening:'짝을 지어 풀이를 설명하는 시간이었다. 내가 같은 식을 두 번째 읽자 하나가 연필 끝으로 바로 윗줄을 가리켰다.',
+  invitation:'…있잖아요, 여기까진 저도 알겠어요. 근데 다음 줄에서 숫자가 갑자기 바뀌잖아요. 과외할 때도 애들이 꼭 여기서 조용해지더라고요.',
+  choice:'식 사이에 빠뜨린 풀이를 한 줄 써 넣는다',
+  reply:'아, 이제 알겠어요. 이 줄 쓰고 나니까 저한테도 설명해 볼 수 있을 것 같죠? 이번엔 제가 해 볼게요.',
+  skill:'표현력'
+ },
+ '주거 계약 특강': {
+  person:'백지한', place:'center', location:'연화동 문화센터 · 주거 계약 특강',
+  title:'사진 밖에 있는 것', after:1, publicEvent:true,
+  opening:'지한이 가상의 매물 카드 두 장을 돌렸다. 같은 월세가 적혀 있었지만, 한쪽 카드에는 관리비 칸이 비어 있었다.',
+  invitation:'둘 중에 어디 먼저 보러 가실래요? 사진으로 찍으면 오른쪽이 좀 더 근사하긴 하죠.',
+  choice:'오른쪽 카드에서 관리비 칸이 비어 있다고 짚는다',
+  reply:'그 칸 비어 있는 거 보셨네요. 제가 매물 보여 드릴 때도 그거부터 물어보세요. 아, 이제 제가 더 긴장해야겠는데요?',
+  skill:'생활력'
+ },
+ '디자인 워크숍': {
+  person:'차유리', place:'center', location:'연화동 문화센터 · 디자인 워크숍',
+  title:'문 앞에서 읽히는 글자', after:1, publicEvent:true,
+  opening:'동네 장터 포스터 시안을 벽에 붙였다. 유리는 내 옆을 지나 강의실 문 앞까지 물러섰다.',
+  invitation:'여기 와서 봐요. 그림은 잘 보이죠? 그런데 장터가 며칠인지 보여요?',
+  choice:'날짜를 제목 아래로 옮기고 그림과의 간격을 벌린다',
+  reply:'이제 문 앞에서도 날짜부터 보이네요. 그림도 덜 답답해졌고요. 이 상태로 한 장 뽑아 봐요.',
+  skill:'창의성'
+ },
+ '아마추어 게임 대회': {
+  person:'한시우', place:'pc', title:'그때 왜 멈췄어요?', after:1, publicEvent:true,
+  opening:'대회 마지막 경기에서 상대를 쫓다 멈춰 섰다. 뒤늦게 합류한 아군과 함께 상대의 역습을 막아 냈다. 경기가 끝나고 헤드셋을 벗는데, 해설석에 있던 한시우가 리플레이를 띄워 놓고 손을 흔들었다.',
+  invitation:'아까 여기서 왜 멈췄어요? 중계할 땐 상대 놓친 줄 알았거든요. 다시 보니까 먼저 뒤를 확인했네.',
+  choice:'팀원이 따라올 때까지 기다린 장면을 다시 본다',
+  reply:'아, 팀원이 오는 소리 듣고 멈췄구나. 그래서 상대가 돌아왔을 때 둘이 같이 막았네요. 잠깐만, 이건 해설할 때 내가 놓친 건데요? 한 번만 더 돌려 봐요.',
+  skill:'게임숙련도'
+ },
+ '지역 안전 교육': {
+  person:'정태오', place:'police', title:'아이 눈높이에서', after:1, publicEvent:true,
+  opening:'주민 안전 교육이 끝날 무렵, 맨 앞줄 아이가 손을 들었다가 내렸다. 태오는 설명을 멈추고 아이 앞에 쪼그려 앉았다.',
+  invitation:'질문 있으십니까? …천천히 말씀하셔도 됩니다. 뒤에 기다리는 사람 없습니다.',
+  choice:'뒤쪽 의자를 치우고 아이가 말을 꺼낼 때까지 기다린다',
+  reply:'감사합니다. 앞에 어른이 빽빽하게 앉아 있으면 저라도 말하기 어렵겠습니다.',
+  skill:'사교성'
+ },
  '카페 실습': {
   person:'강도윤', place:'cafe', title:'마감 후 한 잔', after:4,
   opening:'도윤이 문패를 뒤집고 카운터에 잔 두 개를 올려놓았다.',
@@ -6730,7 +6807,7 @@ const practiceScenes = {
   skill:'생활력'
  },
  '영상 편집 연습': {
-  person:'공재희', place:'home', title:'첫 십 초', after:4,
+  person:'공재희', place:'home', location:'연화빌라 · 영상 통화', title:'첫 십 초', after:4,
   opening:'재희가 보낸 편집본을 재생했다. 영상은 시작했는데 정작 재희 목소리는 한참 뒤에 나왔다.',
   invitation:'앞에 십 초만 같이 봐줘요. 저 지금 세 번 잘랐는데 세 번 다 똑같아 보임 ㅡㅡ',
   choice:'재희가 웃음을 터뜨리는 장면을 도입부에 놓는다',
@@ -6745,8 +6822,12 @@ function practiceSceneFor(activity,result){
  const v=initSim();
  if(activity==='카페 실습'&&v.slot!==3)return null;
  const seen=developmentRecord().practiceSeen;
- if(seen?.[activity]||!v.met[scene.person]||!socialRecord(scene.person).contact||
+ if(seen?.[activity]||(!scene.publicEvent&&(!v.met[scene.person]||!socialRecord(scene.person).contact))||
     npcLifeBusy(scene.person,v.day,v.slot)||professionCount(activity)<scene.after)return null;
+ if(scene.publicEvent){
+  v.met[scene.person]=true;
+  socialRecord(scene.person).lastSeen=v.day;
+ }
  return {person:scene.person,place:scene.place,day:v.day,slot:v.slot,
   description:scene.opening,practiceScene:{activity}};
 }
@@ -6755,7 +6836,7 @@ function renderPracticeScene(ev){
  const v=initSim(), record=developmentRecord(), event=ev.practiceScene;
  const scene=practiceScenes[event.activity];
  $('progress').textContent=scene.title;
- if(event.activity==='영상 편집 연습')$('where').textContent='연화빌라 · 영상 통화';
+ if(scene.location)$('where').textContent=scene.location;
  add('이야기',scene.opening);
  add(scene.person,scene.invitation);
  if(event.answer){
@@ -8998,6 +9079,11 @@ const groupInviteReplies={
 function groupProposalLine(p,other,day,slot,venue,second){
  const today=initSim().day,casual=speechRegisterIndex(p,'player',today),when=calendarDate(day).label+' '+dayLabels[slot]+'에 ';
  const together=other.slice(1)+(casual?'':' 씨');
+ const host=groupHomeHost(venue);
+ if(host){
+  const place=host===p?(casual?'네 집':'집'):together+' 집';
+  return when+(host===p?together+'도 불러서 셋이 ':'셋이 ')+place+(casual?'에서 만날까?':'에서 만날까요?');
+ }
  const line=when+(second?together+'하고 만나기로 했는데, 셋이 ':together+'도 불러서 셋이 ')+groupInviteActivities[venue][casual];
  return addressTurn(p,today)%4===1?spokenCall(p,'player',today,line):line;
 }
@@ -9066,7 +9152,7 @@ function multiDiscussionControls(p,root){
   save();renderChoiceEvent();
  };
 }
-function renderMultiDiscussion(ev){const v=initSim(),p=ev.person,o=ev.multiDiscussion,q=o.other,a=multiVoice(p);$('progress').textContent='각자의 관계, 각자의 마음';if(o.answer){add(p,o.opening);add(state.name,o.answer.label,true);add(p,o.answer.reply);choiceButton('일정 계속하기',finishEvent);return}if(!bothConsented(p,q)){choiceButton('일정 계속하기',finishEvent);return}const d=multiState(p,q),z=d.individual[p];o.opening=o.opening||(z.need?a[5]:a[4]);add(p,o.opening);const opts=[['둘만의 시간도 함께 정하고 서로의 마음을 말해요.',0],['지금은 조금 쉬면서 생각할 시간을 가져요.',1],['이 관계가 편하지 않다면 다시 선택해도 돼요.',2]];for(const [label,i] of opts)choiceButton(label,()=>{if(o.answer)return;let reply=i===0?a[6]:i===1?a[3]:romanceProfiles[p][4];if(i===0){z.jealous=clampMulti(z.jealous-4);z.missed=0;z.need=z.jealous>=5;z.lastDiscussion=v.day;feel(p,{security:2});}else if(i===2){if(z.need&&z.jealous>=8){endDating(p,'다자연애 합의 철회');reply=romanceProfiles[p][6]}else{reply=a[6];z.jealous=clampMulti(z.jealous-1);z.need=z.jealous>=5}}o.answer={label,reply};d.history.push({day:v.day,kind:'discussion',person:p,choice:i});remember(p,'multi:discussion:'+v.day,label+' / '+reply);save();renderChoiceEvent();renderSim()})}
+function renderMultiDiscussion(ev){const v=initSim(),p=ev.person,o=ev.multiDiscussion,q=o.other,a=multiVoice(p);$('progress').textContent='각자의 관계, 각자의 마음';if(o.answer){add(p,o.opening);add(state.name,o.answer.label,true);add(p,o.answer.reply);choiceButton('일정 계속하기',finishEvent);return}if(!bothConsented(p,q)){choiceButton('일정 계속하기',finishEvent);return}const d=multiState(p,q),z=d.individual[p];o.opening=o.opening||(z.homeNightConcern?'지난번 셋이 자고 갔던 날 있잖아요. '+z.homeNightConcern.other+' 쪽으로 돌아누운 걸 보고 나도 모르게 끼어들었어요. 그때는 농담처럼 말했는데, 나중에 생각해 보니 좀 서운했어요.':z.need?a[5]:a[4]);add(p,o.opening);const opts=[['둘만의 시간도 함께 정하고 서로의 마음을 말해요.',0],['지금은 조금 쉬면서 생각할 시간을 가져요.',1],['이 관계가 편하지 않다면 다시 선택해도 돼요.',2]];for(const [label,i] of opts)choiceButton(label,()=>{if(o.answer)return;let reply=i===0?a[6]:i===1?a[3]:romanceProfiles[p][4];if(i===0){z.jealous=clampMulti(z.jealous-4);z.missed=0;z.need=z.jealous>=5;z.lastDiscussion=v.day;delete z.homeNightConcern;feel(p,{security:2});}else if(i===2){if(z.need&&z.jealous>=8){endDating(p,'다자연애 합의 철회');reply=romanceProfiles[p][6]}else{reply=a[6];z.jealous=clampMulti(z.jealous-1);z.need=z.jealous>=5}}o.answer={label,reply};d.history.push({day:v.day,kind:'discussion',person:p,choice:i});remember(p,'multi:discussion:'+v.day,label+' / '+reply);save();renderChoiceEvent();renderSim()})}
 
 const groupTripSparkScenes={
  '단체·연화천 산책':{
@@ -9196,10 +9282,18 @@ const groupOutingScenes={
   ending:['서로 같은 줄을 보느라 두 사람의 이마가 닿을 뻔했다. 그사이 다른 한 사람은 맞은편 서가에서 책 한 권을 빼들었다.','셋이 손에 든 띠지를 차례로 읽었다. 고른 문장 세 개가 꼭 한 이야기처럼 이어져 책방 안에서 웃음을 참아야 했다.','잠시 흩어졌다 계산대 앞에서 만났다. 누구는 책을 들고, 누구는 마음에 든 책 제목만 휴대전화에 적어 왔다.']
  }
 };
-for(const host of ['강도윤','한시우','차유리','오세린','유지안']){
- const venue=host+' 집 홈데이트';
- groupInviteActivities[venue]=['같이 '+host+' 씨 집에서 놀래요?','같이 '+host+' 집에서 놀래?'];
- groupOutingScenes[venue]={...groupOutingScenes['우리 집 홈데이트'],arrival:host+'의 집에 도착했다. 집주인이 현관에서 두 사람을 맞이하고 거실로 안내했다.'};
+const groupHomeArrivals={
+ 강도윤:'도윤이가 현관문을 열어 주기도 전에 모카가 발소리를 내며 달려왔다. 도윤이는 한 손으로 목줄을 잡고 다른 손으로 두 사람 몫의 슬리퍼를 꺼냈다.',
+ 한시우:'시우가 현관에 쌓인 택배 상자를 발끝으로 밀었다. 거실 바닥에는 충전해 둔 게임 패드 세 개가 놓여 있었다.',
+ 차유리:'유리가 소파에서 색상 견본을 한 움큼 들어 올렸다. 그 아래 숨어 있던 쿠션 두 개를 털어 우리 쪽으로 던졌다.',
+ 오세린:'세린이 문을 열자 주전자에서 물이 끓는 소리가 났다. 식탁에 놓인 컵 세 개는 손잡이 모양이 하나씩 달랐다.',
+ 유지안:'지안이가 문을 활짝 열었다. 방금까지 틀어 두던 음악 소리가 들렸다. 지안이는 슬리퍼를 두 켤레 꺼내 놓고서야 음량을 줄였다.'
+};
+function groupHomeHost(venue){
+ return Object.keys(groupHomeArrivals).find(host=>venue===host+' 집 홈데이트')||null;
+}
+for(const [host,arrival] of Object.entries(groupHomeArrivals)){
+ groupOutingScenes[host+' 집 홈데이트']={...groupOutingScenes['우리 집 홈데이트'],arrival};
 }
 const groupOutingVenues=Object.keys(groupOutingScenes);
 function groupVenueAllowed(venue,group){return groupOutingVenues.includes(venue)&&(!venue.endsWith(' 집 홈데이트')||venue==='우리 집 홈데이트'||group.some(w=>venue===w+' 집 홈데이트'))}
@@ -9252,9 +9346,64 @@ function groupOutingVoice(p,day,pair){
 function groupOutingScene(ev){
  return ev.groupPartners.includes(ev.invitedVia)?groupOutingScenes[ev.venue]:null;
 }
+const groupNightReactions={
+ 강도윤:['……치사하게 나오네요. 나도 아직 안 잤는데.','도윤이 내 볼에 엄지를 대고 자기 쪽으로 살짝 돌렸다. 웃음이 남은 얼굴로 가까이 와서, 내가 움직일 때까지 기다렸다.'],
+ 한시우:['와, 치사하다. 나도 다 봤어.','시우가 웃음을 삼키며 이불 틈으로 내 손을 잡았다. 손을 제 쪽으로 살짝 당기고는, 돌아본 내 얼굴 바로 앞에서 멈췄다.'],
+ 차유리:['오, 치사하네. 이쪽도 봐 봐.','유리가 검지로 내 턱을 살짝 돌렸다. 눈이 마주치자 입꼬리가 올라갔다. 귀 뒤로 머리카락을 넘겨 주면서도 얼굴은 가까이 두었다.'],
+ 오세린:['으음, 조금 치사하네요. 이쪽도 봐 줄래요?','세린이 이불 위로 손을 뻗어 내 뺨을 감쌌다. 돌아보니 웃고 있었다. 엄지로 뺨을 한 번 쓸고 가만히 기다렸다.'],
+ 유지안:['치사해. 나도 여기 있잖아.','지안이가 내 손을 찾아 자기 쪽으로 끌어왔다. 눈이 마주치자 내 이마에 제 이마를 가볍게 맞댔다.']
+};
+function renderGroupHomeNight(ev,o,d,live){
+ const day=ev.day??initSim().day;
+ const [first,second]=ev.groupPartners;
+ if(!o.night){o.night={first:Math.random()<.5?first:second,noticed:Math.random()<.4};save()}
+ const night=o.night;
+ const near=night.first,other=near===first?second:first;
+ const commit=(key,value,after)=>{
+  if(!live()||night[key]!==undefined||!bothConsented(first,second))return;
+  night[key]=value;
+  if(after)after();
+  save();renderChoiceEvent();
+ };
+ add('이야기','두 사람 사이에 누웠다. 이불 밑으로 손끝이 닿아 고개를 돌리니 '+near+'이었다. 눈이 마주치자 그 손이 가만히 멈췄다.');
+ if(night.answer===undefined){
+  choiceButton('손을 맞잡고 얼굴을 가까이한다',()=>commit('answer','kiss',()=>{
+   if(!night.noticed)return;
+   const z=d.individual[other];
+   z.jealous=clampMulti(z.jealous+multiSensitivity(other));
+   if(z.jealous>=5){
+    z.need=true;
+    z.homeNightConcern={day,other:near};
+   }
+  }));
+  choiceButton('손만 잡고 눈을 감는다',()=>commit('answer','hold'));
+  choiceButton('손을 빼고 편히 눕는다',()=>commit('answer','rest'));
+  return;
+ }
+ if(night.answer==='hold')add('이야기','손바닥을 뒤집어 손을 잡았다. 이불 아래 맞닿은 온기가 차츰 익숙해졌다.');
+ if(night.answer==='rest')add('이야기','손을 빼자 상대도 손을 거두었다. 이불을 턱까지 끌어올리고 눈을 감았다.');
+ if(night.answer==='kiss'){
+  add('이야기','내가 가까이 가자 '+near+'도 몸을 기울였다. 입술이 떨어지는 순간 반대편 이불이 바스락거렸다.');
+  if(night.noticed){
+   const [tease,gesture]=groupNightReactions[other]||['치사하네요. 저도 아직 안 잤어요.','반대편에서 손이 내 뺨에 닿았다.'];
+   add(other,tease);
+   add('이야기',gesture);
+   if(night.response===undefined){
+    choiceButton('그쪽으로 돌아누워 입을 맞춘다',()=>commit('response','kiss'));
+    choiceButton('손을 가볍게 잡고 오늘은 여기까지 하자고 한다',()=>commit('response','stop'));
+    return;
+   }
+   add('이야기',night.response==='kiss'?'몸을 돌려 입을 맞췄다. 조금 전까지 잡고 있던 손이 등 뒤에서 내 손가락을 한 번 꼭 쥐었다.':'손을 가볍게 잡고 고개를 저었다. 상대는 내 손을 한 번 쥐었다가 놓았다. 셋은 이불을 고쳐 덮었다.');
+  }
+ }
+ choiceButton('다음 날 아침',()=>{
+  if(!live()||o.morning)return;
+  o.morning=true;save();renderChoiceEvent();
+ });
+}
 function renderGroupDate(ev){
  const v=initSim(),partners=ev.groupPartners,[p,q]=partners;
- const scene=groupOutingScene(ev),day=ev.day??v.day;
+ const scene=groupOutingScene(ev),day=ev.day??v.day,host=groupHomeHost(ev.venue);
  $('progress').textContent=scene?'함께하는 데이트 · '+ev.venue:'함께하는 데이트';
  if(scene)$('where').textContent=ev.venue;
  const live=()=>v.activeEvent===ev&&v.day===day;
@@ -9305,17 +9454,33 @@ function renderGroupDate(ev){
     add('이야기',o.answer);
     for(const w of partners)if(o.replies?.[w])add(w,formatSpeech(w,o.replies[w],'npc',undefined,day));
     if(o.stayed&&!o.morning){
-     choiceButton('다음 날 아침',()=>{if(!live()||o.morning)return;o.morning=true;save();renderChoiceEvent()});return;
+     renderGroupHomeNight(ev,o,d,live);return;
     }
     if(o.morning){
-     add('이야기','아침 햇살이 커튼 사이로 들어왔다. 부엌에서 접시 부딪치는 소리가 났다.');
+     $('clock').textContent='다음 날 아침 · '+calendarDate(day+1).label;
+     const homeMorning={
+      강도윤:'모카가 이불 끝에 코를 들이밀었다. 도윤이가 이름을 부르기도 전에 셋 다 눈을 떴다.',
+      한시우:'커튼 틈으로 빛이 들어와 바닥에 놓인 게임 패드 세 개를 비췄다. 시우가 엎드린 채 알람을 찾느라 손을 더듬었다.',
+      차유리:'유리가 커튼을 반만 열었다. 식탁에 아침 빛이 길게 들어오자 컵 세 개를 햇빛이 닿는 쪽으로 옮겼다.',
+      오세린:'주전자가 끓기 전에 세린이 창문을 조금 열었다. 손잡이 모양이 다른 컵 세 개가 어젯밤과 같은 자리에 놓여 있었다.',
+      유지안:'지안이가 음악을 틀려다 두 사람을 보고 음량부터 줄였다. 아주 작은 소리로 첫 소절이 흘러나왔다.'
+     };
+     add('이야기',homeMorning[host]||'아침 햇살이 커튼 사이로 들어왔다. 부엌에서 접시 부딪치는 소리가 났다.');
+     const night=o.night;
+     if(night?.answer==='kiss'&&night.response==='kiss'){
+      const other=partners.find(w=>w!==night.first);
+      add('이야기',other+'와 눈이 마주쳤다. 어젯밤 이불이 바스락거리던 순간이 떠올랐는지, 둘 다 거의 동시에 컵을 들어 웃음을 숨겼다.');
+     }else if(night?.answer==='hold'){
+      add('이야기',night.first+'의 손이 식탁 아래에서 잠깐 내 손등에 닿았다.');
+     }
      const morning={'한시우':'토스트 조금 탔는데요! 탄 쪽은 제가 먹을게요.','차유리':'커피 내려 놨어요. 식기 전에 와요.','강도윤':'아침은 간단하게 준비했어요. 같이 먹어요.','오세린':'잘 잤어요? 오늘은 천천히 시작해요.','유지안':'아침 먹고 다 같이 사진 찍을까요?'};
      for(const w of partners)add(w,formatSpeech(w,morning[w]||'잘 잤어요? 아침 같이 먹어요.','npc',undefined,day));
      add('이야기','셋이 식탁에 둘러앉아 오늘의 일정을 이야기했다.');
     }
     choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
    }
-   add('이야기','영화가 끝나고도 아무도 먼저 일어나지 않았다. 창밖은 어느새 어두워져 있었다.');
+   const evening=(ev.slot??v.slot)===3;
+   add('이야기',evening?'어느새 창밖이 어두워졌다. 셋은 거실에 앉아 있다가 하나둘 시간을 확인했다.':'슬슬 약속을 마칠 시간이 됐다. 셋은 거실에 잠시 더 앉아 있었다.');
    const choose=(kind)=>{
     if(!live()||o.answer||!partners.every(vIsDating)||!bothConsented(p,q))return;
     o.replies={};
@@ -9327,11 +9492,11 @@ function renderGroupDate(ev){
      o.stayed=true;
      o.answer='두 사람에게 오늘 더 머물고 싶은지 물었다. 각자 편한 잠자리를 정하고 담요를 나눠 가졌다. 늦은 밤까지 이야기를 나누다가 불을 껐다.';
      for(const w of partners){o.replies[w]=w==='한시우'?'좋아요! 내일 아침은 제가 챙길게요.':w==='차유리'?'좋아요. 대신 내일 일정은 각자 확인해요.':'오늘은 조금 더 같이 있고 싶어요.';feel(w,{security:1});}
-    }else{o.answer=kind==='end'?'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.':'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}
+    }else{o.answer=kind==='end'?(host?'현관에서 집주인에게 인사하고 다른 연인과 나란히 밖으로 나왔다.':'현관에서 두 사람을 배웅했다. 다음에 또 만나기로 했다.'):'오늘은 각자 편하게 쉬기로 했다. 서로의 마음을 재촉하지 않았다.';}
     save();renderChoiceEvent();renderSim();
    };
    choiceButton('두 사람에게 함께 안아도 좋을지 묻는다',()=>choose('hug'));
-   choiceButton('오늘 셋이 함께 묵을지 물어본다',()=>choose('stay'));
+   if(evening)choiceButton('오늘 셋이 함께 묵을지 물어본다',()=>choose('stay'));
    choiceButton('오늘은 여기서 헤어진다',()=>choose('end'));return;
   }
   choiceButton('일정 계속하기',()=>{if(live())finishEvent()});return;
@@ -13627,6 +13792,7 @@ const festivalEndingReplies={"서이준":["…내년에도 같이 걸으면 좋�
 function renderFestival(ev){const v=initSim(),steps=ev.steps,p=ev.person;$('where').textContent='연화제';$('progress').textContent='연화제 · '+Math.min(steps.length+1,5)+'/5';if(!ev.chosen){add('이야기','오늘 저녁을 누구와 보낼까?');for(const who of people.filter(x=>v.met[x]&&relationshipTier(x)>=1))choiceButton(who+'에게 함께 구경하자고 제안한다',()=>{ev.person=who;ev.chosen=true;ev.festivalContext=seasonContext(who,ev.day||v.day);save();renderChoiceEvent()});choiceButton('혼자 축제를 즐긴다',()=>{ev.chosen=true;save();renderChoiceEvent()});return}if(p&&!ev.festivalContext){ev.festivalContext=seasonContext(p,ev.day||v.day);save()}const c=ev.festivalContext,a=p?autumnFestivalVoices[p]:null,canTouch=p&&festivalCanTouch(p,c);if(p)add(p,c.conflicted?touchProfiles[p].hurt[1]:festivalLines[p][0]);const scenes=['플리마켓에는 손으로 만든 소품과 작은 간식이 가득하다.','야시장에 고소한 음식 냄새가 퍼진다.','광장 무대에서 댄스 공연이 시작된다. 유지안이 무대에 올라 관객의 환호를 받는다.','강변에 사람들이 모인다. 밤하늘에 첫 불꽃이 터졌다.','마지막 불꽃이 사라지고 축제의 조명이 하나씩 꺼진다.'];const opts=[['서로 어울리는 소품을 골라 본다','천천히 구경한다'],['간식을 나눠 먹는다','야시장 풍경을 즐긴다'],['공연에 박수를 보낸다','무대를 조용히 감상한다'],[canTouch?'좋아요. 조금 더 가까이 있어요.':'불꽃이 잘 보이는 자리를 찾아본다','나란히 불꽃을 바라본다'],['내년에도 함께 오고 싶어요.','오늘 정말 즐거웠어요.']];if(!p){opts[0]=['마음에 드는 소품을 골라 본다','천천히 구경한다'];opts[1]=['간식을 맛본다','야시장 풍경을 즐긴다'];opts[3]=['불꽃이 잘 보이는 자리를 찾아본다','조용히 불꽃을 바라본다'];opts[4]=['내년에도 다시 오고 싶다','오늘 정말 즐거웠다']}for(let i=0;i<=Math.min(steps.length,4);i++){add('이야기',scenes[i]);if(a&&i<4){add('이야기',a[i][0]);add(p,i===3?(canTouch?a[i][2]:c.conflicted?touchProfiles[p].hurt[1]:a[i][3]):a[i][1])}if(steps[i]){const rec=typeof steps[i]==='string'?{label:steps[i]}:steps[i];add(state.name,rec.label,true);if(p){if(rec.narration)add('이야기',rec.narration);if(rec.reply)add(p,rec.reply);else if(i===4)add(p,festivalEndingReplies[p][rec.label===opts[i][0]?0:1]);else if(i<3)add(p,a[i][rec.label===opts[i][0]?2:3]);else add(p,a[3][3])}}}if(ev.answered){choiceButton('축제 마치기',finishEvent);return}const n=steps.length;if(n>=5){ev.answered=true;save();renderChoiceEvent();return}opts[n].forEach((label,j)=>choiceButton(label,()=>{if(steps.length!==n)return;const rec={label};if(p){if(n<3)rec.reply=a[n][2+j];else if(n===3){const close=!!canTouch&&j===0,idx=summerNightTouch[p];rec.reply=close?playerTouchScenes[p][3+idx*2]:a[3][3];if(close){rec.narration=playerTouchScenes[p][2+idx*2];flirtRecord(p).interest++;socialRecord(p).interest++;flirtRecord(p).touches.push({day:v.day,type:touchTypes[idx],scene:'festival'})}feel(p,{security:close?1:2})}else rec.reply=c.conflicted?personalSocialVoice[p][9]:j===0?a[3][4]:festivalEndingReplies[p][1];v.affection[p]=Math.min(999,(v.affection[p]||0)+(c.conflicted?0:2))}steps.push(rec);if(steps.length===5){ev.answered=true;v.festivalDone=true;v.festivalPartner=p||null;if(p){socialRecord(p).lastTogether=v.day;const m=memoryFor(p);(m.preferences.seasonHistory||(m.preferences.seasonHistory=[])).push({id:'festival',day:v.day,choices:steps.map(x=>typeof x==='string'?x:x.label),reply:rec.reply});remember(p,'season:festival',rec.reply)}writeJournal('연화제 · '+(p?p+'와 축제 관람':'혼자 축제 관람'))}save();renderChoiceEvent();renderSim()}))}
 function fixedActivity(day,slot){if(day===1)return null;const w=(day-1)%7;if(w>=5)return null;if(state.job==='회사원'&&slot<3&&!leaveBook()[day])return '출근';if(state.job==='대학생'&&((w===0||w===2)&&slot<2||(w===1||w===3)&&slot===1||w===4&&slot===0))return '대학 수업';if(state.job==='프리랜서'&&[0,2,4].includes(w)&&slot===0)return '외주 작업';return null}
 function personalActivity(value){
+ if(value==='댄스 워크숍')return '반려동물 관찰 워크숍';
  return typeof value==='string'&&value&&!['약속','출근','대학 수업','외주 작업'].includes(value)?value:null;
 }
 function personalPlan(v,day){
@@ -15285,8 +15451,8 @@ const scheduleGroups={
  '생활·휴식':['장보기','요리','방 정리','휴식'],
  '알바':['아르바이트','편의점 알바','부동산 사무 보조','동물병원 보조','댄스 학원 데스크'],
  '봉사·돌봄':['유기견 보호소 봉사','반려견 돌봄 실습'],
- '학습·자기계발':['공부','글쓰기','개발',programmingClass,'디자인','카페 실습',...Object.keys(professionActivities).filter(a=>!['반려견 돌봄 실습','댄스 연습'].includes(a))],
- '운동·취미':['수영','러닝','산책','댄스 연습','취미 생활','PC방에서 게임하기'],
+ '학습·자기계발':['공부','글쓰기','개발',programmingClass,'디자인','카페 실습',...Object.keys(professionActivities).filter(a=>!['반려견 돌봄 실습','댄스 연습','아마추어 게임 대회'].includes(a))],
+ '운동·취미':['수영','러닝','산책','댄스 연습','취미 생활','PC방에서 게임하기','아마추어 게임 대회'],
  '외출·교류':['자유외출','교류']
 };
 
@@ -15316,7 +15482,7 @@ const scheduleSlots=dayLabels.map((label,slot)=>{
    scheduleOption(activity,'',label||'활동 선택');
    activity.options[0].disabled=true;
   }
-  for(const a of choices)scheduleOption(activity,a,a==='아르바이트'?'카페 알바':a);
+  for(const a of choices)scheduleOption(activity,a,a==='아르바이트'?'카페 알바':a==='지역 안전 교육'?'주민 안전교육 특강':a);
   activity.value=choices.includes(selected)?selected:'';
  }
  category.addEventListener('change',()=>showActivities(category.value,''));

@@ -691,8 +691,8 @@ const scheduleGroups={
  '생활·휴식':['장보기','요리','방 정리','휴식'],
  '알바':['아르바이트','편의점 알바','부동산 사무 보조','동물병원 보조','댄스 학원 데스크'],
  '봉사·돌봄':['유기견 보호소 봉사','반려견 돌봄 실습'],
- '학습·자기계발':['공부','글쓰기','개발',programmingClass,'디자인','카페 실습',...Object.keys(professionActivities).filter(a=>!['반려견 돌봄 실습','댄스 연습'].includes(a))],
- '운동·취미':['수영','러닝','산책','댄스 연습','취미 생활','PC방에서 게임하기'],
+ '학습·자기계발':['공부','글쓰기','개발',programmingClass,'디자인','카페 실습',...Object.keys(professionActivities).filter(a=>!['반려견 돌봄 실습','댄스 연습','아마추어 게임 대회'].includes(a))],
+ '운동·취미':['수영','러닝','산책','댄스 연습','취미 생활','PC방에서 게임하기','아마추어 게임 대회'],
  '외출·교류':['자유외출','교류']
 };
 
@@ -722,7 +722,7 @@ const scheduleSlots=dayLabels.map((label,slot)=>{
    scheduleOption(activity,'',label||'활동 선택');
    activity.options[0].disabled=true;
   }
-  for(const a of choices)scheduleOption(activity,a,a==='아르바이트'?'카페 알바':a);
+  for(const a of choices)scheduleOption(activity,a,a==='아르바이트'?'카페 알바':a==='지역 안전 교육'?'주민 안전교육 특강':a);
   activity.value=choices.includes(selected)?selected:'';
  }
  category.addEventListener('change',()=>showActivities(category.value,''));

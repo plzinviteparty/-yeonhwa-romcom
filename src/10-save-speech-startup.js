@@ -687,7 +687,58 @@ function reply(t){
 function start(){const name=$('name').value.trim();const age=Number($('age').value);if(!name){$('setupError').textContent='이름을 입력해 주세요.';return}if(!Number.isInteger(age)||age<20||age>40){$('setupError').textContent='나이는 20세부터 40세까지 입력해 주세요.';return}const birthday=$('birthday').value.trim();if(!validBirthday(birthday)){$('setupError').textContent='생일을 MM-DD 형식으로 입력해 주세요.';return}state={name,age,gender:'여',birthday,job:$('job').value,personality:null,scene:0,history:[],boundaries:{},sim:null};$('setup').classList.add('hide');$('game').classList.remove('hide');beginIntro()}
 const jobGuides={'회사원':'평일 오전~오후 출근 · 매월 말일 월급 240만원 · 저녁과 주말 자유','프리랜서':'월·수·금 오전 외주 작업 · 건당 65,000원 · 나머지 자유','취업 준비생':'고정 일정 없음 · 아르바이트 등으로 수입 확보','대학생':'평일 요일별 수업 · 공강과 주말 자유 · 아르바이트 가능','기타':'고정 일정 및 정기 수입 없음 · 자유 편성'};function drawJobGuide(){$('jobGuide').textContent=jobGuides[$('job').value]}$('job').addEventListener('change',drawJobGuide);drawJobGuide();$('start').addEventListener('click',start);$('send').addEventListener('click',()=>{reply($('message').value);$('message').value='';$('message').focus()});$('message').addEventListener('keydown',e=>{if(e.key==='Enter')$('send').click()});$('next').addEventListener('click',()=>{const v=initSim();if(v.day!==1||v.running||v.activeEvent||v.introChoices?.[state.scene]===undefined){$('next').classList.add('hide');return}if(state.scene<scenes.length-1){state.scene++;scene()}else{v.day=2;v.energy=100;v.activeEvent=null;$('next').classList.add('hide');$('next').disabled=true;renderSim();syncSchedule();switchTab('life');save();openHelp()}});$('reset').addEventListener('click',()=>{if(confirm('처음부터 다시 시작할까요? 수집한 앨범 기록과 수동 세이브 슬롯은 유지됩니다.')){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}});
 for(const i of items){const o=document.createElement('option');o.value=i.name;o.textContent=i.name+' · '+i.cost.toLocaleString()+'원';$('giftItem').append(o)}
-const acts=['장보기','요리','방 정리','취미 생활','유기견 보호소 봉사',...Object.keys(professionActivities),'아르바이트','편의점 알바','부동산 사무 보조','동물병원 보조','댄스 학원 데스크','공부','글쓰기','개발','디자인','카페 실습','교류','휴식','수영','러닝','산책','자유외출','PC방에서 게임하기'];const schedule=$('schedule');for(let slot=0;slot<4;slot++){const sel=document.createElement('select');sel.setAttribute('aria-label',['오전','낮','오후','저녁'][slot]);for(const act of [...acts,'출근','대학 수업','외주 작업']){const o=document.createElement('option');o.disabled=['출근','대학 수업','외주 작업'].includes(act);o.value=act;o.textContent=['오전','낮','오후','저녁'][slot]+' · '+(act==='아르바이트'?'카페 알바':act);sel.append(o)}sel.addEventListener('change',()=>{const v=initSim(),day=Number($('planDay').value)||v.day;if(sel.disabled||!personalActivity(sel.value))return;const plan=personalPlan(v,day);plan[slot]=sel.value;v.weekPlans[day]=plan;if(day===v.day)v.schedule=plan.slice();save()});schedule.append(sel)}
+const scheduleGroups={
+ '생활·휴식':['장보기','요리','방 정리','휴식'],
+ '알바':['아르바이트','편의점 알바','부동산 사무 보조','동물병원 보조','댄스 학원 데스크'],
+ '봉사·돌봄':['유기견 보호소 봉사','반려견 돌봄 실습'],
+ '학습·자기계발':['공부','글쓰기','개발',programmingClass,'디자인','카페 실습',...Object.keys(professionActivities).filter(a=>!['반려견 돌봄 실습','댄스 연습'].includes(a))],
+ '운동·취미':['수영','러닝','산책','댄스 연습','취미 생활','PC방에서 게임하기'],
+ '외출·교류':['자유외출','교류']
+};
+
+function scheduleOption(select,value,label=value){
+ const option=document.createElement('option');
+ option.value=value;
+ option.textContent=label;
+ select.append(option);
+}
+
+const scheduleSlots=dayLabels.map((label,slot)=>{
+ const row=document.createElement('div');
+ row.className='schedule-slot';
+ const heading=document.createElement('strong');
+ heading.textContent=label;
+ const category=document.createElement('select');
+ const activity=document.createElement('select');
+ category.setAttribute('aria-label',label+' 일정 분류');
+ activity.setAttribute('aria-label',label+' 활동');
+ scheduleOption(category,'','고정 일정');
+ category.options[0].disabled=true;
+ for(const group of Object.keys(scheduleGroups))scheduleOption(category,group);
+ function showActivities(group,selected,label=selected){
+  activity.replaceChildren();
+  const choices=scheduleGroups[group]||[];
+  if(!choices.includes(selected)){
+   scheduleOption(activity,'',label||'활동 선택');
+   activity.options[0].disabled=true;
+  }
+  for(const a of choices)scheduleOption(activity,a,a==='아르바이트'?'카페 알바':a);
+  activity.value=choices.includes(selected)?selected:'';
+ }
+ category.addEventListener('change',()=>showActivities(category.value,''));
+ activity.addEventListener('change',()=>{
+  const v=initSim(),day=Number($('planDay').value)||v.day;
+  if(activity.disabled||!scheduleGroups[category.value]?.includes(activity.value))return;
+  const plan=personalPlan(v,day);
+  plan[slot]=activity.value;
+  v.weekPlans[day]=plan;
+  if(day===v.day)v.schedule=plan.slice();
+  save();
+ });
+ row.append(heading,category,activity);
+ $('schedule').append(row);
+ return {category,activity,showActivities};
+});
 $('planDay').addEventListener('change',syncSchedule);
 $('copyWeek').addEventListener('click',()=>{const v=initSim(),plan=personalPlan(v,Number($('planDay').value)||v.day);for(let d=v.day;d<=Math.min(365,v.day+6);d++)v.weekPlans[d]=plan.slice();save();syncSchedule()});
 $('runWeek').addEventListener('click',()=>{const v=initSim();if(v.running||v.activeEvent||v.day===1||v.finished)return;v.weekEnd=Math.min(365,v.day+6);for(let d=v.day;d<=v.weekEnd;d++)v.weekPlans[d]=personalPlan(v,d);save();playDay()});
@@ -712,19 +763,24 @@ function renderUpcomingBookings(v){
  else list.textContent='잡힌 약속이 없어요.';
 }
 function syncSchedule(){const v=initSim();movePendingHomeVisits(v);renderUpcomingBookings(v);const locked=v.day===1||!!v.running||!!v.activeEvent||!!v.finished;const picker=$('planDay'),old=Number(picker.value);picker.innerHTML='';for(let d=v.day;d<=Math.min(365,v.day+6);d++){const o=document.createElement('option');o.value=d;o.textContent=calendarDate(d).label+' · '+['월','화','수','목','금','토','일'][(d-1)%7];picker.append(o)}picker.value=old>=v.day&&old<=Math.min(365,v.day+6)?old:v.day;picker.disabled=locked;let fb=$('festivalOpen');if(!fb){fb=document.createElement('button');fb.id='festivalOpen';$('runDay').before(fb)}fb.classList.toggle('hide',!festivalAvailable());fb.style.margin='12px 0';fb.style.width='100%';fb.textContent='🎆 연화제 특별 참가 · 야시장과 불꽃놀이';fb.disabled=locked;fb.onclick=startFestival;let cb=$('christmasOpen');if(!cb){cb=document.createElement('button');cb.id='christmasOpen';$('runDay').before(cb)}cb.style.cssText='width:100%;margin:8px 0';cb.classList.toggle('hide',v.day<292||v.day>299||christmasState().eveDone);cb.disabled=locked;cb.textContent='🎄 이브 약속 · '+(christmasState().planned?(christmasState().partner||'혼자'):'동행 선택');cb.onclick=christmasPlan;let lb=$('leaveToggle');if(!lb){lb=document.createElement('button');lb.id='leaveToggle';picker.after(lb)}const ld=Number(picker.value)||v.day;lb.classList.toggle('hide',state.job!=='회사원');lb.textContent=(leaveBook()[ld]?'연차 취소':'연차 사용')+' · 잔여 '+(15-Object.keys(leaveBook()).length)+'일';lb.disabled=locked||(ld-1)%7>=5||!!dateBook()[ld]||(!leaveBook()[ld]&&Object.keys(leaveBook()).length>=15);lb.onclick=()=>{if(leaveBook()[ld])delete leaveBook()[ld];else leaveBook()[ld]=true;save();syncSchedule()};$('copyWeek').disabled=locked;$('runWeek').disabled=locked;$('stopWeek').classList.toggle('hide',!v.weekEnd);const day=Number(picker.value)||v.day,booking=dateBook()[day],activities=planFor(day);
- [...schedule.children].forEach((sel,i)=>{
+ let assessmentNotice=$('assessmentNotice');
+ if(!assessmentNotice){
+  assessmentNotice=document.createElement('p');
+  assessmentNotice.id='assessmentNotice';
+  assessmentNotice.className='muted-note';
+  $('schedule').before(assessmentNotice);
+ }
+ const target=professionRecord().target;
+ const bookedAssessment=careerAssessments[target]&&assessmentRecord(target).bookedDay===day;
+ assessmentNotice.classList.toggle('hide',!bookedAssessment);
+ assessmentNotice.textContent=bookedAssessment?'이날 일정 시작 전에 '+careerAssessments[target].title+'에 응시한다.':'';
+ scheduleSlots.forEach(({category,activity,showActivities},i)=>{
   const booked=bookingOccupies(booking,i);
-  let option=Array.from(sel.options).find(o=>o.value==='약속');
-  if(booked&&!option){
-   option=document.createElement('option');
-   option.value='약속';option.disabled=true;sel.append(option);
-  }
-  if(option){
-   option.hidden=!booked;
-   if(booked)option.textContent=[dayLabels[i],(booking.group||[booking.p]).join(', '),booking.venue||'외출 약속'].join(' · ');
-  }
-  sel.value=activities[i];
-  sel.disabled=locked||booked||!!fixedActivity(day,i);
+  const selected=activities[i];
+  const group=Object.keys(scheduleGroups).find(key=>scheduleGroups[key].includes(selected))||'';
+  category.value=group;
+  category.disabled=activity.disabled=locked||booked||!!fixedActivity(day,i);
+  showActivities(group,selected,booked?[(booking.group||[booking.p]).join(', '),booking.venue||'외출 약속'].join(' · '):selected);
  });$('runDay').disabled=locked;$('runDay').textContent=v.day===1?'첫날 이야기를 완료하면 일정이 열립니다':v.activeEvent?'이야기 탭에서 이벤트를 마쳐 주세요':v.running?'일정 진행 중':v.finished?'한 해의 일정 완료':'오늘 일정 실행 · 다음 날로'}
 $('runDay').addEventListener('click',playDay);
 $('gift').addEventListener('click',()=>{const v=initSim(),p=selectedGiftTarget,i=items.find(x=>x.name===$('giftItem').value),f=$('giftFeedback');function feedback(t){f.textContent=t;f.classList.remove('hide');}if(!p||!i)return;if(v.affection[p]<20){feedback('지인 단계부터 선물을 줄 수 있습니다.');return}if(v.finished){feedback('한 해의 일정이 끝났습니다.');return}if(v.money<i.cost){feedback('소지금이 부족합니다.');return}const k=v.day+'-'+p;if(v.gifts[k]){feedback('같은 사람에게는 하루 한 번만 선물할 수 있어요.');return}v.money-=i.cost;v.gifts[k]=true;const [love,like,dislike]=giftPrefs[p];let delta=love.includes(i.name)?6:like.includes(i.name)?3:dislike.includes(i.name)?-2:0;v.giftHistory=v.giftHistory||{};const history=v.giftHistory[p]||(v.giftHistory[p]={});if(history[i.name]&&v.day-history[i.name].day<7&&delta>0)delta=1;const before=v.affection[p];v.affection[p]=Math.max(0,Math.min(999,before+delta));history[i.name]={day:v.day,reaction:love.includes(i.name)?'매우 좋아함':like.includes(i.name)?'좋아함':dislike.includes(i.name)?'부담스러워함':'보통'};const lines={"서이준":["…이건 필요한 거였는데. 감사합니다.","잘 쓰겠습니다. 기억해 두셨나 봐요.","아직 지난번 것도 있는데요. …감사합니다.","…저한테는 좀 과한 것 같네요.","아, 챙겨 주셨네요."],"강도윤":["와, 제 취향을 어떻게 아셨어요?","덕분에 기분 좋은 하루가 되겠네요.","하하, 지난번 선물도 잘 쓰고 있어요.","마음만으로도 충분한데요. 조금 부담되네요.","신경 써 주셔서 고마워요."],"한시우":["오! 이거 진짜 좋은데요?","오, 땡큐! 잘 쓸게요.","어? 이거 저번에도 받았는데!","앗, 이건 저보다 다른 사람이 잘 쓸 듯?","오, 선물이다! 감사요."],"정태오":["잘 쓰겠습니다. 신경 써 주셔서 감사합니다.","유용하게 쓰겠습니다.","지난번에 받은 것도 잘 보관하고 있습니다.","제게는 다소 부담스러운 물건입니다.","챙겨 주셨군요. 감사합니다."],"백지한":["센스 좋으시네요. 마음에 들어요.","제 생각하면서 고르셨어요? 좋네요.","지난번에도 주셨잖아요. 저한테 너무 잘해 주시는 거 아닌가요?","음, 이건 제 취향과 조금 거리가 있네요.","뜻밖의 선물이네요. 고마워요."],"임하나":["저한테요? 정말 감사해요…!","아껴서 쓸게요. 고마워요.","또 받아도 되는 걸까요……?","아… 저한테는 조금 부담스러워요.","제 몫도 챙겨 주셨네요."],"차유리":["우와, 이거 완전 제 취향이에요!","오, 괜찮다. 잘 쓸게요.","이거 두 개 됐네요. 하나는 작업실에 둘까.","음, 이건 제가 쓸 일이 별로 없을 것 같아요.","오, 선물이네요. 고마워요."],"오세린":["세심하게 골라 주셨네요. 고마워요.","덕분에 소소한 즐거움이 생겼네요.","지난번 것도 아직 잘 쓰고 있답니다.","제게는 조금 과분한 선물이네요.","마음 써 주셨군요."],"유지안":["와! 바로 써 보고 싶어요!","오예! 고마워요!","헐, 또요? 저번 것도 잘 쓰고 있는데!","앗, 저랑은 좀 안 어울리는 것 같아요.","우와, 깜짝 선물!"],"공재희":["헐 대박! 이거 완전 내 취향인데요? 개좋아 ㅋㅋ","모야모야, 나 주려고 샀어요? 고마워요!","엥 이거 또요? 하나 더 생겼네 ㅋㅋ","음… 이건 나 진짜 안 쓸 것 같은데.","오, 나 주는 거예요? 땡큐!"]};const line=lines[p][delta>=6?0:delta===3?1:delta===1?2:delta<0?3:4];const gain=v.affection[p]-before;feedback(p+' · “'+line+'”\n'+i.name+' · '+i.cost.toLocaleString()+'원 지출 · 호감도 '+(gain>0?'+':'')+gain);writeJournal(p+' · '+i.name+' 선물');renderSim();$('giftPanel').classList.add('hide');selectedGiftTarget=null;save()});

@@ -461,7 +461,7 @@ if(direct.length){
 return [...replies,[working?'수고하셨다고 인사한다':'가볍게 인사한다',working?'“오늘도 고생 많으셨어요.”':null,1],...topics,negative,[working?'인사만 하고 퇴근한다':'말을 걸지 않고 지나간다','',0]]}
 function choiceButton(label,fn,prepared=false){const b=document.createElement('button');b.type='button';b.className='secondary';const ev=state?.sim?.activeEvent,p=singleSpeechTarget(ev);const spoken=p&&!prepared&&!ev.speechOffer?formatSpeech(p,label,'player'):label;b.textContent=prepared?label:chatSpacing(p&&addressAvailableInEvent(ev)?withAddress(spoken,agreedAddress(p,'player',ev.day??state.sim.day),p,'player'):spoken);b.addEventListener('click',fn);$('suggest').append(b)}
 function isBeforeScheduleEvent(ev){
- return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
+ return !!(ev&&(ev.anniversary||ev.nicknameScene||ev.newConfession||ev.npcBreakup||ev.friendCrush?.kind==='confess'||ev.assessmentMissed||ev.professionStory||ev.professionEvent||ev.developmentEvent||['eve','day'].includes(ev.christmasEvent)));
 }
 function finishEvent(){const v=initSim(),ev=v.activeEvent;if(!ev)return;
  // Remember ordinary face-to-face contact even when the subject of the argument never came up.
